@@ -1,0 +1,93 @@
+city,rank,language,count,percent
+portland,1,JavaScript/TypeScript,4,66.7
+portland,2,Python,2,33.3
+portland,3,Haskell,1,16.7
+portland,4,C#,0,0.0
+portland,5,C++,0,0.0
+portland,6,Dart,0,0.0
+portland,7,Elixir,0,0.0
+portland,8,Go,0,0.0
+portland,9,Groovy,0,0.0
+portland,10,Java,0,0.0
+portland,11,Kotlin,0,0.0
+portland,12,Lua,0,0.0
+portland,13,MATLAB,0,0.0
+portland,14,Objective-C,0,0.0
+portland,15,PHP,0,0.0
+portland,16,Perl,0,0.0
+portland,17,R,0,0.0
+portland,18,Ruby,0,0.0
+portland,19,Rust,0,0.0
+portland,20,SQL,0,0.0
+portland,21,Scala,0,0.0
+portland,22,Shell/Bash,0,0.0
+portland,23,Swift,0,0.0
+san jose,1,Python,5,31.2
+san jose,2,C++,4,25.0
+san jose,3,Java,3,18.8
+san jose,4,JavaScript/TypeScript,2,12.5
+san jose,5,Shell/Bash,2,12.5
+san jose,6,C#,1,6.2
+san jose,7,PHP,1,6.2
+san jose,8,Rust,1,6.2
+san jose,9,Scala,1,6.2
+san jose,10,Dart,0,0.0
+san jose,11,Elixir,0,0.0
+san jose,12,Go,0,0.0
+san jose,13,Groovy,0,0.0
+san jose,14,Haskell,0,0.0
+san jose,15,Kotlin,0,0.0
+san jose,16,Lua,0,0.0
+san jose,17,MATLAB,0,0.0
+san jose,18,Objective-C,0,0.0
+san jose,19,Perl,0,0.0
+san jose,20,R,0,0.0
+san jose,21,Ruby,0,0.0
+san jose,22,SQL,0,0.0
+san jose,23,Swift,0,0.0
+san diego,1,Python,13,56.5
+san diego,2,C++,9,39.1
+san diego,3,JavaScript/TypeScript,7,30.4
+san diego,4,Java,5,21.7
+san diego,5,C#,2,8.7
+san diego,6,SQL,2,8.7
+san diego,7,Shell/Bash,2,8.7
+san diego,8,Kotlin,1,4.3
+san diego,9,Rust,1,4.3
+san diego,10,Dart,0,0.0
+san diego,11,Elixir,0,0.0
+san diego,12,Go,0,0.0
+san diego,13,Groovy,0,0.0
+san diego,14,Haskell,0,0.0
+san diego,15,Lua,0,0.0
+san diego,16,MATLAB,0,0.0
+san diego,17,Objective-C,0,0.0
+san diego,18,PHP,0,0.0
+san diego,19,Perl,0,0.0
+san diego,20,R,0,0.0
+san diego,21,Ruby,0,0.0
+san diego,22,Scala,0,0.0
+san diego,23,Swift,0,0.0
+phoenix,1,Python,3,42.9
+phoenix,2,SQL,3,42.9
+phoenix,3,C#,2,28.6
+phoenix,4,Elixir,2,28.6
+phoenix,5,Java,2,28.6
+phoenix,6,JavaScript/TypeScript,2,28.6
+phoenix,7,C++,1,14.3
+phoenix,8,Ruby,1,14.3
+phoenix,9,Shell/Bash,1,14.3
+phoenix,10,Dart,0,0.0
+phoenix,11,Go,0,0.0
+phoenix,12,Groovy,0,0.0
+phoenix,13,Haskell,0,0.0
+phoenix,14,Kotlin,0,0.0
+phoenix,15,Lua,0,0.0
+phoenix,16,MATLAB,0,0.0
+phoenix,17,Objective-C,0,0.0
+phoenix,18,PHP,0,0.0
+phoenix,19,Perl,0,0.0
+phoenix,20,R,0,0.0
+phoenix,21,Rust,0,0.0
+phoenix,22,Scala,0,0.0
+phoenix,23,Swift,0,0.0

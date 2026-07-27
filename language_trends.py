@@ -30,15 +30,16 @@ Output (per run, in --output-dir):
   language_trends_{timestamp}_by_city.csv   -- long format: city, rank, language, count, percent
   language_trends_{timestamp}_matrix.csv    -- pivoted: one row per language, one column per city
 
-Each run is also appended to a local SQLite database (job_trends.db by
-default, see trends_db.py) so results can be compared over time -- run this
-script on a cron schedule to build up a real trend history instead of a
-one-off snapshot. Alongside the aggregate counts, the full matched postings
-(company, title, url, description, and which languages each one hit) are
-also stored in the database's `postings` table, so a future UI can let
-someone click a city -- or a specific language within a city -- and drill
-into the actual job ads behind the numbers. Pass --no-postings to skip that
-and only keep the smaller aggregate-count history.
+Each run also updates a local SQLite database (job_trends.db by default, see
+trends_db.py) in place -- keeping ONE combined, always-current dataset rather
+than a growing history of separate runs. Re-running a city replaces that
+city's rows, so you can refresh cities independently and still query a single
+unified dataset. Alongside the aggregate counts, the full matched postings
+(company, title, url, description, and which languages each one hit) are also
+stored in the database's `postings` table, so a future UI can let someone
+click a city -- or a specific language within a city -- and drill into the
+actual job ads behind the numbers. Pass --no-postings to skip that and only
+keep the smaller aggregate-count data.
 """
 
 from __future__ import annotations
@@ -46,7 +47,6 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -66,103 +66,22 @@ from ats_job_search import (
     matches_since_date,
     parse_keyword_list,
 )
+from language_detect import (
+    LANGUAGE_KEYWORDS,
+    count_languages,
+    languages_in_posting,
+    print_city_report,
+    rank_languages,
+)
 from trends_db import (
     DEFAULT_DB_PATH,
     ensure_schema,
     get_connection,
-    record_city_language_counts,
-    record_postings,
-    record_run,
+    update_city,
 )
 
 DEFAULT_CITIES = "toronto,dallas,san francisco"
 DEFAULT_TOP = 10
-
-# Broad candidate list of languages to detect and rank -- not a filter.
-# Growing this list costs nothing (it never excludes postings), so it's
-# deliberately generous to avoid missing a language that turns out to be
-# in a city's top 5/10.
-#
-# A few single-token names (Go, R, C) are common English words too, so
-# instead of matching them bare (which would drown in false positives like
-# "we go the extra mile" or "Series C"), we match on safer, more specific
-# phrases. That trades some recall for much better precision -- consistent
-# with "good enough for market signal, not 100% recall".
-LANGUAGE_KEYWORDS: dict[str, list[str]] = {
-    "JavaScript/TypeScript": ["javascript", "typescript"],
-    "Python": ["python"],
-    "Java": ["java"],
-    "C#": ["c#"],
-    "C++": ["c++"],
-    "Go": ["golang", "go programming", "go developer", "go engineer"],
-    "Rust": ["rust"],
-    "Ruby": ["ruby"],
-    "PHP": ["php"],
-    "Swift": ["swift"],
-    "Kotlin": ["kotlin"],
-    "Scala": ["scala"],
-    "R": ["rstudio", "r programming", "r language", "tidyverse"],
-    "Perl": ["perl"],
-    "Objective-C": ["objective-c", "objective c"],
-    "Dart": ["dart"],
-    "Elixir": ["elixir"],
-    "Haskell": ["haskell"],
-    "Lua": ["lua"],
-    "Shell/Bash": ["bash", "shell scripting", "shell script"],
-    "MATLAB": ["matlab"],
-    "Groovy": ["groovy"],
-    "SQL": ["sql"],
-}
-
-# Phrases containing regex-special or too-short-for-\b characters get a
-# plain substring check instead of a word-boundary regex.
-SUBSTRING_ONLY_PHRASES = {"c#", "c++"}
-
-
-def phrase_in_text(phrase: str, lowercase_haystack: str) -> bool:
-    if phrase in SUBSTRING_ONLY_PHRASES:
-        return phrase in lowercase_haystack
-    return re.search(rf"\b{re.escape(phrase)}\b", lowercase_haystack) is not None
-
-
-def languages_in_posting(posting: dict) -> list[str]:
-    """Return the list of candidate languages detected in one posting."""
-    haystack = f"{posting['title']} {posting['description']}".lower()
-    return [
-        lang
-        for lang, phrases in LANGUAGE_KEYWORDS.items()
-        if any(phrase_in_text(phrase, haystack) for phrase in phrases)
-    ]
-
-
-def count_languages(postings: list[dict]) -> dict[str, int]:
-    counts = {lang: 0 for lang in LANGUAGE_KEYWORDS}
-    for posting in postings:
-        for lang in languages_in_posting(posting):
-            counts[lang] += 1
-    return counts
-
-
-def rank_languages(counts: dict[str, int], total_matched: int) -> list[dict]:
-    ordered = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
-    ranked = []
-    for i, (lang, count) in enumerate(ordered):
-        percent = round(100 * count / total_matched, 1) if total_matched else 0.0
-        ranked.append({"rank": i + 1, "language": lang, "count": count, "percent": percent})
-    return ranked
-
-
-def print_city_report(city: str, total_matched: int, ranked: list[dict], top: int) -> None:
-    print(f"\n=== {city.title()} ({total_matched} matched posting(s)) ===")
-    if total_matched == 0:
-        print("  (no postings matched this city)")
-        return
-    shown = [row for row in ranked if row["count"] > 0][:top]
-    if not shown:
-        print("  (no candidate languages detected in matched postings)")
-        return
-    for row in shown:
-        print(f"  {row['rank']:>2}. {row['language']:<12} {row['count']:>4}  ({row['percent']}%)")
 
 
 def save_results(
@@ -354,19 +273,10 @@ def main() -> int:
             )
 
     results_by_city: dict[str, dict] = {}
-    run_id = None
     conn = None
     if not args.no_db:
         conn = get_connection(args.db_path)
         ensure_schema(conn)
-        run_id = record_run(
-            conn,
-            run_at_utc=datetime.now(timezone.utc).isoformat(),
-            since_date=since_date_label,
-            companies_crawled=len(companies),
-            raw_postings_fetched=len(all_postings),
-            failed_companies=len(errors),
-        )
 
     for city in cities:
         filtered = [
@@ -384,17 +294,29 @@ def main() -> int:
             "languages_by_name": counts,
         }
         print_city_report(city, len(filtered), ranked, args.top)
-        if run_id is not None:
-            record_city_language_counts(conn, run_id=run_id, city=city, total_matched=len(filtered), ranked=ranked)
+        if conn is not None:
+            postings_with_langs = None
             if not args.no_postings:
                 postings_with_langs = [
                     {**posting, "matched_languages": languages_in_posting(posting)} for posting in filtered
                 ]
-                record_postings(conn, run_id=run_id, city=city, postings=postings_with_langs)
+            update_city(
+                conn,
+                city=city,
+                source="ats",
+                since_date=since_date_label,
+                total_matched=len(filtered),
+                ranked=ranked,
+                postings=postings_with_langs,
+                store_postings=not args.no_postings,
+            )
 
     if conn is not None:
         conn.close()
-        print(f"\nRecorded snapshot run #{run_id} to SQLite database: {args.db_path}")
+        print(
+            f"\nUpdated {len(cities)} cit{'y' if len(cities) == 1 else 'ies'} "
+            f"(source='ats') in the combined SQLite dataset: {args.db_path}"
+        )
 
     json_path, by_city_csv_path, matrix_csv_path = save_results(
         results_by_city, args.output_dir, since_date_label=since_date_label

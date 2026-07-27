@@ -1,0 +1,93 @@
+city,rank,language,count,percent
+raleigh,1,C++,3,50.0
+raleigh,2,Python,3,50.0
+raleigh,3,SQL,3,50.0
+raleigh,4,Elixir,1,16.7
+raleigh,5,Go,1,16.7
+raleigh,6,Java,1,16.7
+raleigh,7,Rust,1,16.7
+raleigh,8,C#,0,0.0
+raleigh,9,Dart,0,0.0
+raleigh,10,Groovy,0,0.0
+raleigh,11,Haskell,0,0.0
+raleigh,12,JavaScript/TypeScript,0,0.0
+raleigh,13,Kotlin,0,0.0
+raleigh,14,Lua,0,0.0
+raleigh,15,MATLAB,0,0.0
+raleigh,16,Objective-C,0,0.0
+raleigh,17,PHP,0,0.0
+raleigh,18,Perl,0,0.0
+raleigh,19,R,0,0.0
+raleigh,20,Ruby,0,0.0
+raleigh,21,Scala,0,0.0
+raleigh,22,Shell/Bash,0,0.0
+raleigh,23,Swift,0,0.0
+miami,1,JavaScript/TypeScript,7,70.0
+miami,2,Python,4,40.0
+miami,3,Shell/Bash,2,20.0
+miami,4,C#,1,10.0
+miami,5,Go,1,10.0
+miami,6,Java,1,10.0
+miami,7,SQL,1,10.0
+miami,8,C++,0,0.0
+miami,9,Dart,0,0.0
+miami,10,Elixir,0,0.0
+miami,11,Groovy,0,0.0
+miami,12,Haskell,0,0.0
+miami,13,Kotlin,0,0.0
+miami,14,Lua,0,0.0
+miami,15,MATLAB,0,0.0
+miami,16,Objective-C,0,0.0
+miami,17,PHP,0,0.0
+miami,18,Perl,0,0.0
+miami,19,R,0,0.0
+miami,20,Ruby,0,0.0
+miami,21,Rust,0,0.0
+miami,22,Scala,0,0.0
+miami,23,Swift,0,0.0
+minneapolis,1,JavaScript/TypeScript,2,66.7
+minneapolis,2,Python,2,66.7
+minneapolis,3,Rust,2,66.7
+minneapolis,4,C++,1,33.3
+minneapolis,5,PHP,1,33.3
+minneapolis,6,Ruby,1,33.3
+minneapolis,7,C#,0,0.0
+minneapolis,8,Dart,0,0.0
+minneapolis,9,Elixir,0,0.0
+minneapolis,10,Go,0,0.0
+minneapolis,11,Groovy,0,0.0
+minneapolis,12,Haskell,0,0.0
+minneapolis,13,Java,0,0.0
+minneapolis,14,Kotlin,0,0.0
+minneapolis,15,Lua,0,0.0
+minneapolis,16,MATLAB,0,0.0
+minneapolis,17,Objective-C,0,0.0
+minneapolis,18,Perl,0,0.0
+minneapolis,19,R,0,0.0
+minneapolis,20,SQL,0,0.0
+minneapolis,21,Scala,0,0.0
+minneapolis,22,Shell/Bash,0,0.0
+minneapolis,23,Swift,0,0.0
+washington dc,1,Python,12,52.2
+washington dc,2,JavaScript/TypeScript,9,39.1
+washington dc,3,Java,5,21.7
+washington dc,4,C++,3,13.0
+washington dc,5,SQL,3,13.0
+washington dc,6,Shell/Bash,2,8.7
+washington dc,7,C#,1,4.3
+washington dc,8,Go,1,4.3
+washington dc,9,Ruby,1,4.3
+washington dc,10,Rust,1,4.3
+washington dc,11,Scala,1,4.3
+washington dc,12,Dart,0,0.0
+washington dc,13,Elixir,0,0.0
+washington dc,14,Groovy,0,0.0
+washington dc,15,Haskell,0,0.0
+washington dc,16,Kotlin,0,0.0
+washington dc,17,Lua,0,0.0
+washington dc,18,MATLAB,0,0.0
+washington dc,19,Objective-C,0,0.0
+washington dc,20,PHP,0,0.0
+washington dc,21,Perl,0,0.0
+washington dc,22,R,0,0.0
+washington dc,23,Swift,0,0.0

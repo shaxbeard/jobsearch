@@ -53,6 +53,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from html import unescape
 from pathlib import Path
+from urllib.parse import urlparse
 
 import requests
 import urllib3
@@ -354,11 +355,124 @@ def collect_all_postings(
     return postings, errors
 
 
+def parse_job_url(url: str) -> tuple[str, str, str] | None:
+    """Map a public job-posting URL to (platform, slug, job_key).
+
+    Recognizes the default hosted board URLs for the three API-crawlable
+    platforms and returns a stable key that's identical whether the URL came
+    from a Google search result or from a normalized posting fetched via the
+    ATS API, so the two can be matched up:
+
+      https://boards.greenhouse.io/{slug}/jobs/{id}      -> ("greenhouse", slug, id)
+      https://job-boards.greenhouse.io/{slug}/jobs/{id}  -> ("greenhouse", slug, id)
+      https://jobs.lever.co/{slug}/{uuid}[/apply]        -> ("lever", slug, uuid)
+      https://jobs.ashbyhq.com/{slug}/{uuid}             -> ("ashby", slug, uuid)
+
+    Query strings and a trailing "/apply" segment are ignored. Returns None
+    for anything that isn't one of these board URL shapes.
+    """
+    parsed = urlparse(url)
+    host = parsed.netloc.lower()
+    parts = [p for p in parsed.path.split("/") if p]
+    if parts and parts[-1].lower() == "apply":
+        parts = parts[:-1]
+    if not parts:
+        return None
+    if "greenhouse.io" in host:
+        if len(parts) >= 3 and parts[1].lower() == "jobs":
+            return "greenhouse", parts[0].lower(), parts[2]
+        return None
+    if host == "jobs.lever.co":
+        if len(parts) >= 2:
+            return "lever", parts[0].lower(), parts[1]
+        return None
+    if host == "jobs.ashbyhq.com":
+        if len(parts) >= 2:
+            return "ashby", parts[0].lower(), parts[1]
+        return None
+    return None
+
+
+def fetch_postings_for_urls(
+    urls: list[str],
+    *,
+    verify: bool,
+    max_workers: int = DEFAULT_MAX_WORKERS,
+) -> tuple[list[dict], list[str], list[str]]:
+    """Fetch full normalized postings for a set of job-posting URLs.
+
+    Given URLs (e.g. from a Google search restricted to the three supported
+    platforms), this groups them by (platform, slug), fetches each company's
+    board once via the same public API used everywhere else, and returns only
+    the specific postings whose URLs were asked for -- with full descriptions,
+    so language detection has real text to work with instead of a Google
+    snippet.
+
+    Returns (matched_postings, unresolved_urls, errors):
+      - matched_postings: normalized posting dicts (deduped) that were found.
+      - unresolved_urls:  requested URLs that couldn't be parsed as a supported
+                          board URL, or whose posting wasn't found on the board
+                          (e.g. filled/closed since Google indexed it).
+      - errors:           "platform/slug: message" for boards that failed to fetch.
+    """
+    requested: dict[tuple[str, str, str], str] = {}
+    groups: dict[tuple[str, str], set[str]] = {}
+    unresolved: list[str] = []
+    for url in urls:
+        parsed = parse_job_url(url)
+        if not parsed:
+            unresolved.append(url)
+            continue
+        platform, slug, job_key = parsed
+        requested[(platform, slug, job_key)] = url
+        groups.setdefault((platform, slug), set()).add(job_key)
+
+    matched: list[dict] = []
+    errors: list[str] = []
+    found_keys: set[tuple[str, str, str]] = set()
+
+    def fetch_board(group: tuple[str, str]) -> list[dict]:
+        platform, slug = group
+        return collect_company_postings({"name": slug, "platform": platform, "slug": slug}, verify=verify)
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_group = {executor.submit(fetch_board, group): group for group in groups}
+        for future in as_completed(future_to_group):
+            platform, slug = future_to_group[future]
+            try:
+                postings = future.result()
+            except Exception as exc:  # one bad board shouldn't kill the whole run
+                errors.append(f"{platform}/{slug}: {exc}")
+                continue
+            wanted = groups[(platform, slug)]
+            for posting in postings:
+                key = parse_job_url(posting.get("url", ""))
+                if key and key[2] in wanted and key not in found_keys:
+                    matched.append(posting)
+                    found_keys.add(key)
+
+    for key, url in requested.items():
+        if key not in found_keys:
+            unresolved.append(url)
+
+    return matched, unresolved, errors
+
+
+def _normalize_place(text: str) -> str:
+    """Lowercase and normalize punctuation so multi-word place names match
+    regardless of separators, e.g. 'Washington, DC' and 'Washington, D.C.'
+    both become 'washington dc'.
+    """
+    lowered = text.lower().replace(".", "")  # D.C. -> dc, keeps abbreviations intact
+    lowered = re.sub(r"[,/|]", " ", lowered)  # separators become spaces
+    return re.sub(r"\s+", " ", lowered).strip()
+
+
 def matches_city(posting: dict, city: str) -> bool:
-    city_lower = city.strip().lower()
+    city_lower = _normalize_place(city)
     if not city_lower:
         return True
-    haystack = f"{posting['location']} {posting['description']}".lower()
+    haystack = _normalize_place(f"{posting['location']} {posting['description']}")
     return city_lower in haystack
 
 

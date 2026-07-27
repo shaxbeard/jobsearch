@@ -40,23 +40,23 @@ DEFAULT_ATS_SITES = [
     "lever.co",
     "greenhouse.io",
     "jobs.ashbyhq.com",
-    "myworkdayjobs.com",
-    "smartrecruiters.com",
-    "icims.com",
-    "workable.com",
-    "bamboohr.com",
-    "breezy.hr",
-    "recruitee.com",
-    "personio.com",
-    "teamtailor.com",
-    "jobvite.com",
-    "taleo.net",
-    "successfactors.com",
-    "eightfold.ai",
+    # "myworkdayjobs.com",
+    # "smartrecruiters.com",
+    # "icims.com",
+    # "workable.com",
+    # "bamboohr.com",
+    # "breezy.hr",
+    # "recruitee.com",
+    # "personio.com",
+    # "teamtailor.com",
+    # "jobvite.com",
+    # "taleo.net",
+    # "successfactors.com",
+    # "eightfold.ai",
 ]
 DEFAULT_CITY = "toronto"
 ROLE_FILTER_TEMPLATE = '(engineer | developer) ("{city}") -staff -lead -principal after:2026-01-01'
-DEFAULT_SITE_BATCH_SIZE = 5
+DEFAULT_SITE_BATCH_SIZE = 5 
 SERPER_URL = "https://google.serper.dev/search"
 FREE_TIER_MAX_RESULTS = 10
 PAID_TIER_MAX_RESULTS = 100
@@ -67,7 +67,7 @@ PAID_TIER_MAX_RESULTS = 100
 # two together), Python, Java, C#, and C++. Each maps to the quoted phrase(s)
 # OR'd together to match it in a Google query.
 LANGUAGE_KEYWORDS: dict[str, str] = {
-    "javascript": '"javascript" | "typescript"',
+    "javascript": '"javascript" | "typescript" | "react" | "node.js"',
     "python": '"python"',
     "java": '"java"',
     "csharp": '"c#"',

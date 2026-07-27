@@ -1,0 +1,1240 @@
+{
+  "generated_at_utc": "2026-07-27T13:59:56.228153+00:00",
+  "source": "google-discovery + ats-api descriptions",
+  "since_date": "2026-01-01",
+  "cities": {
+    "austin": {
+      "total_matched": 22,
+      "new_this_run": 22,
+      "languages": [
+        {
+          "rank": 1,
+          "language": "JavaScript/TypeScript",
+          "count": 14,
+          "percent": 63.6
+        },
+        {
+          "rank": 2,
+          "language": "Python",
+          "count": 12,
+          "percent": 54.5
+        },
+        {
+          "rank": 3,
+          "language": "Java",
+          "count": 9,
+          "percent": 40.9
+        },
+        {
+          "rank": 4,
+          "language": "C++",
+          "count": 5,
+          "percent": 22.7
+        },
+        {
+          "rank": 5,
+          "language": "Ruby",
+          "count": 4,
+          "percent": 18.2
+        },
+        {
+          "rank": 6,
+          "language": "PHP",
+          "count": 3,
+          "percent": 13.6
+        },
+        {
+          "rank": 7,
+          "language": "SQL",
+          "count": 3,
+          "percent": 13.6
+        },
+        {
+          "rank": 8,
+          "language": "Kotlin",
+          "count": 2,
+          "percent": 9.1
+        },
+        {
+          "rank": 9,
+          "language": "Rust",
+          "count": 2,
+          "percent": 9.1
+        },
+        {
+          "rank": 10,
+          "language": "C#",
+          "count": 1,
+          "percent": 4.5
+        },
+        {
+          "rank": 11,
+          "language": "Scala",
+          "count": 1,
+          "percent": 4.5
+        },
+        {
+          "rank": 12,
+          "language": "Shell/Bash",
+          "count": 1,
+          "percent": 4.5
+        },
+        {
+          "rank": 13,
+          "language": "Swift",
+          "count": 1,
+          "percent": 4.5
+        },
+        {
+          "rank": 14,
+          "language": "Dart",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 15,
+          "language": "Elixir",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 16,
+          "language": "Go",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 17,
+          "language": "Groovy",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 18,
+          "language": "Haskell",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 19,
+          "language": "Lua",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 20,
+          "language": "MATLAB",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 21,
+          "language": "Objective-C",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 22,
+          "language": "Perl",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 23,
+          "language": "R",
+          "count": 0,
+          "percent": 0.0
+        }
+      ],
+      "postings": [
+        {
+          "company": "method",
+          "platform": "ashby",
+          "title": "Senior Software Engineer",
+          "location": "New York, NY | Washington D.C. | Austin, TX",
+          "url": "https://jobs.ashbyhq.com/method/22f6e56e-e983-4eaf-b00a-4598ba99e590",
+          "posted_at": "2026-06-29T14:34:01.928+00:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "Java"
+          ]
+        },
+        {
+          "company": "fourhands",
+          "platform": "greenhouse",
+          "title": "Software Engineer - New Grad",
+          "location": "Austin, TX",
+          "url": "https://job-boards.greenhouse.io/fourhands/jobs/4297618009",
+          "posted_at": "2026-06-25T10:59:41-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "Java",
+            "C#",
+            "SQL"
+          ]
+        },
+        {
+          "company": "allencontrolsystems",
+          "platform": "greenhouse",
+          "title": "Platform Engineer",
+          "location": "Austin, TX",
+          "url": "https://job-boards.greenhouse.io/allencontrolsystems/jobs/5140775008",
+          "posted_at": "2026-03-05T17:27:59-05:00",
+          "matched_languages": [
+            "Python",
+            "C++",
+            "Shell/Bash"
+          ]
+        },
+        {
+          "company": "acrisureinnovation",
+          "platform": "greenhouse",
+          "title": "Software Engineer, Data (L1)",
+          "location": "Austin, TX",
+          "url": "https://job-boards.greenhouse.io/acrisureinnovation/jobs/8613037002",
+          "posted_at": "2026-06-30T00:36:53-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "Java",
+            "Kotlin",
+            "Scala",
+            "SQL"
+          ]
+        },
+        {
+          "company": "wimanagementllc",
+          "platform": "greenhouse",
+          "title": "Full Stack Software Engineer (Mid-Level)",
+          "location": "Austin, TX",
+          "url": "https://job-boards.greenhouse.io/wimanagementllc/jobs/4266579009",
+          "posted_at": "2026-06-08T14:59:52-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "Java",
+            "Ruby"
+          ]
+        },
+        {
+          "company": "bumbleinc",
+          "platform": "lever",
+          "title": "Senior Software Engineer (Recommendations)",
+          "location": "US TX Austin",
+          "url": "https://jobs.lever.co/bumbleinc/c30a3c06-2501-49f0-8935-d64d973ad586",
+          "posted_at": "2026-01-09T19:23:34.621000+00:00",
+          "matched_languages": []
+        },
+        {
+          "company": "virtu",
+          "platform": "greenhouse",
+          "title": "2027 Internship - Software Engineer",
+          "location": "Austin, TX; New York",
+          "url": "https://job-boards.greenhouse.io/virtu/jobs/8624410002",
+          "posted_at": "2026-07-21T11:34:18-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "Java",
+            "C++"
+          ]
+        },
+        {
+          "company": "partly.com",
+          "platform": "ashby",
+          "title": "Intern/ Graduate Software Engineer, NZ",
+          "location": "Christchurch",
+          "url": "https://jobs.ashbyhq.com/partly.com/899fcf9b-07ec-4289-993f-57a2aba0f26d",
+          "posted_at": "2026-03-10T03:22:54.816+00:00",
+          "matched_languages": []
+        },
+        {
+          "company": "6sense",
+          "platform": "greenhouse",
+          "title": "Software Engineer III",
+          "location": "Austin, Texas, United States",
+          "url": "https://boards.greenhouse.io/6sense/jobs/8037358?gh_jid=8037358",
+          "posted_at": "2026-06-30T10:52:22-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "Java"
+          ]
+        },
+        {
+          "company": "vestwell",
+          "platform": "greenhouse",
+          "title": "Software Engineer",
+          "location": "New York, NY | Austin, TX",
+          "url": "https://job-boards.greenhouse.io/vestwell/jobs/7751400003",
+          "posted_at": "2026-07-23T00:53:33-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "SQL"
+          ]
+        },
+        {
+          "company": "pingidentity",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer",
+          "location": "USA - Austin, TX",
+          "url": "https://job-boards.greenhouse.io/pingidentity/jobs/8635259002",
+          "posted_at": "2026-07-21T11:31:19-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Java"
+          ]
+        },
+        {
+          "company": "pingidentity",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer — PingOne Platform Administration & Security",
+          "location": "USA - Austin, TX",
+          "url": "https://job-boards.greenhouse.io/pingidentity/jobs/8643455002",
+          "posted_at": "2026-07-21T15:38:01-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Java"
+          ]
+        },
+        {
+          "company": "quantiq",
+          "platform": "greenhouse",
+          "title": "Software Developer Internship (Summer 2027)",
+          "location": "Austin, TX",
+          "url": "https://job-boards.greenhouse.io/quantiq/jobs/4287936009",
+          "posted_at": "2026-06-17T12:34:01-04:00",
+          "matched_languages": [
+            "Python",
+            "C++"
+          ]
+        },
+        {
+          "company": "rdccareers",
+          "platform": "greenhouse",
+          "title": "Software Engineer, Sr - News & Insights",
+          "location": "Austin, Texas, United States",
+          "url": "https://boards.greenhouse.io/rdccareers/jobs/7781272003?gh_jid=7781272003",
+          "posted_at": "2026-06-29T17:45:03-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "Java",
+            "Ruby",
+            "PHP"
+          ]
+        },
+        {
+          "company": "hackerone",
+          "platform": "ashby",
+          "title": "Senior Software Engineer, AI Platform",
+          "location": "Seattle | Washington DC | Boston | Austin",
+          "url": "https://jobs.ashbyhq.com/hackerone/1709e471-eb43-47a6-937d-a4717076f223",
+          "posted_at": "2026-03-16T20:23:35.086+00:00",
+          "matched_languages": [
+            "Ruby"
+          ]
+        },
+        {
+          "company": "apptronik",
+          "platform": "greenhouse",
+          "title": "Software Engineer - Human Motion Data",
+          "location": "Austin, TX",
+          "url": "https://boards.greenhouse.io/apptronik/jobs/5994540004?gh_jid=5994540004",
+          "posted_at": "2026-05-12T12:54:34-04:00",
+          "matched_languages": [
+            "Python",
+            "C++"
+          ]
+        },
+        {
+          "company": "atomcomputing",
+          "platform": "lever",
+          "title": "Senior Software Engineer",
+          "location": "Boulder, CO",
+          "url": "https://jobs.lever.co/atomcomputing/f4f1fce0-86c3-4131-9d02-0d93c12dd1da",
+          "posted_at": "2026-06-21T00:21:19.310000+00:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "Rust"
+          ]
+        },
+        {
+          "company": "ditto",
+          "platform": "ashby",
+          "title": "Senior Software Engineer, Portal",
+          "location": "Atlanta | Remote (Atlanta, Austin, San Francisco, Seattle)",
+          "url": "https://jobs.ashbyhq.com/ditto/6e52ef6a-5064-4245-953f-caa6e0818b15",
+          "posted_at": "2026-06-22T19:25:16.144+00:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Rust",
+            "Swift",
+            "Kotlin"
+          ]
+        },
+        {
+          "company": "postman",
+          "platform": "greenhouse",
+          "title": "Senior Frontend Engineer, Observability",
+          "location": "San Francisco, California, United States",
+          "url": "https://job-boards.greenhouse.io/postman/jobs/7790859003",
+          "posted_at": "2026-06-30T19:16:47-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript"
+          ]
+        },
+        {
+          "company": "terrafirma-inc",
+          "platform": "ashby",
+          "title": "Robotics Software Engineer - Motion Planning, State Estimation, & Control",
+          "location": "Robot Ranch (Austin, TX)",
+          "url": "https://jobs.ashbyhq.com/terrafirma-inc/444f7872-c9c1-4c00-94e8-fb75919c47a9",
+          "posted_at": "2026-07-14T15:00:14.766+00:00",
+          "matched_languages": [
+            "Python",
+            "C++"
+          ]
+        },
+        {
+          "company": "givebutter",
+          "platform": "ashby",
+          "title": "Senior Software Engineer, Trust & Safety",
+          "location": "Remote | New York, NY | Indianapolis, IN | Salt Lake City, UT | Nashville, TN | San Francisco, CA | Seattle, WA | Minneapolis, MN | Los Angeles, CA | Austin, TX | Denver, CO",
+          "url": "https://jobs.ashbyhq.com/givebutter/beaea58c-91dc-4f2b-9c66-6496e5c275a3",
+          "posted_at": "2026-07-22T17:28:48.346+00:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Ruby",
+            "PHP"
+          ]
+        },
+        {
+          "company": "loopreturns",
+          "platform": "lever",
+          "title": "Software Engineer",
+          "location": "Columbus, OH",
+          "url": "https://jobs.lever.co/loopreturns/4fc9603b-95c6-4d05-8d5a-4247fa108418",
+          "posted_at": "2026-06-24T14:52:36.620000+00:00",
+          "matched_languages": [
+            "PHP"
+          ]
+        }
+      ]
+    },
+    "denver": {
+      "total_matched": 23,
+      "new_this_run": 23,
+      "languages": [
+        {
+          "rank": 1,
+          "language": "JavaScript/TypeScript",
+          "count": 11,
+          "percent": 47.8
+        },
+        {
+          "rank": 2,
+          "language": "Java",
+          "count": 10,
+          "percent": 43.5
+        },
+        {
+          "rank": 3,
+          "language": "Python",
+          "count": 7,
+          "percent": 30.4
+        },
+        {
+          "rank": 4,
+          "language": "C++",
+          "count": 4,
+          "percent": 17.4
+        },
+        {
+          "rank": 5,
+          "language": "Ruby",
+          "count": 4,
+          "percent": 17.4
+        },
+        {
+          "rank": 6,
+          "language": "Kotlin",
+          "count": 2,
+          "percent": 8.7
+        },
+        {
+          "rank": 7,
+          "language": "SQL",
+          "count": 2,
+          "percent": 8.7
+        },
+        {
+          "rank": 8,
+          "language": "C#",
+          "count": 1,
+          "percent": 4.3
+        },
+        {
+          "rank": 9,
+          "language": "Go",
+          "count": 1,
+          "percent": 4.3
+        },
+        {
+          "rank": 10,
+          "language": "PHP",
+          "count": 1,
+          "percent": 4.3
+        },
+        {
+          "rank": 11,
+          "language": "Rust",
+          "count": 1,
+          "percent": 4.3
+        },
+        {
+          "rank": 12,
+          "language": "Shell/Bash",
+          "count": 1,
+          "percent": 4.3
+        },
+        {
+          "rank": 13,
+          "language": "Dart",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 14,
+          "language": "Elixir",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 15,
+          "language": "Groovy",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 16,
+          "language": "Haskell",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 17,
+          "language": "Lua",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 18,
+          "language": "MATLAB",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 19,
+          "language": "Objective-C",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 20,
+          "language": "Perl",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 21,
+          "language": "R",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 22,
+          "language": "Scala",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 23,
+          "language": "Swift",
+          "count": 0,
+          "percent": 0.0
+        }
+      ],
+      "postings": [
+        {
+          "company": "lively43",
+          "platform": "greenhouse",
+          "title": "Sr. Software Engineer - Backend",
+          "location": "Denver, CO",
+          "url": "https://job-boards.greenhouse.io/lively43/jobs/5838065004",
+          "posted_at": "2026-03-26T11:49:31-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript"
+          ]
+        },
+        {
+          "company": "dhigroupinc",
+          "platform": "greenhouse",
+          "title": "Software Engineer - Dice",
+          "location": "Denver, CO; Des Moines, IA; Field",
+          "url": "https://job-boards.greenhouse.io/dhigroupinc/jobs/7806344003",
+          "posted_at": "2026-07-16T09:56:55-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript"
+          ]
+        },
+        {
+          "company": "trueanomalyinc",
+          "platform": "greenhouse",
+          "title": "Senior Flight Software Engineer",
+          "location": "Denver, CO or Long Beach, CA ",
+          "url": "https://job-boards.greenhouse.io/trueanomalyinc/jobs/5082183007",
+          "posted_at": "2026-03-20T11:57:07-04:00",
+          "matched_languages": [
+            "Python",
+            "C++"
+          ]
+        },
+        {
+          "company": "trueanomalyinc",
+          "platform": "greenhouse",
+          "title": "Senior Platform Engineer, AI",
+          "location": "Denver, CO or Long Beach, CA",
+          "url": "https://job-boards.greenhouse.io/trueanomalyinc/jobs/5166543007",
+          "posted_at": "2026-06-16T20:58:22-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "Java"
+          ]
+        },
+        {
+          "company": "trueanomalyinc",
+          "platform": "greenhouse",
+          "title": "Senior Platform Engineer, Infrastructure",
+          "location": "Denver, CO or Long Beach, CA",
+          "url": "https://job-boards.greenhouse.io/trueanomalyinc/jobs/5182446007",
+          "posted_at": "2026-07-08T12:46:53-04:00",
+          "matched_languages": []
+        },
+        {
+          "company": "simplesense",
+          "platform": "greenhouse",
+          "title": "Senior Platform Engineer, Security",
+          "location": "Denver, CO",
+          "url": "https://job-boards.greenhouse.io/simplesense/jobs/4300645009",
+          "posted_at": "2026-07-08T12:25:59-04:00",
+          "matched_languages": []
+        },
+        {
+          "company": "truebill",
+          "platform": "greenhouse",
+          "title": "Senior Data Platform Engineer",
+          "location": "San Francisco, CA, Washington, D.C., New York City, NY, Detroit, MI, Phoenix, AZ, Miami, FL, Denver, CO.",
+          "url": "https://job-boards.greenhouse.io/truebill/jobs/7700898003",
+          "posted_at": "2026-04-24T16:58:58-04:00",
+          "matched_languages": [
+            "Python",
+            "Shell/Bash",
+            "SQL"
+          ]
+        },
+        {
+          "company": "srsacquiom",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer - VDR",
+          "location": "Remote - United States",
+          "url": "https://job-boards.greenhouse.io/srsacquiom/jobs/5194743007",
+          "posted_at": "2026-07-24T19:33:43-04:00",
+          "matched_languages": [
+            "Ruby"
+          ]
+        },
+        {
+          "company": "pingidentity",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer",
+          "location": "USA - Austin, TX",
+          "url": "https://job-boards.greenhouse.io/pingidentity/jobs/8635259002",
+          "posted_at": "2026-07-21T11:31:19-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Java"
+          ]
+        },
+        {
+          "company": "pingidentity",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer",
+          "location": "UK - Remote",
+          "url": "https://job-boards.greenhouse.io/pingidentity/jobs/8637515002",
+          "posted_at": "2026-07-20T03:27:46-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Java"
+          ]
+        },
+        {
+          "company": "pingidentity",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer - Identity for AI Platform Engineering",
+          "location": "USA - Austin, TX",
+          "url": "https://job-boards.greenhouse.io/pingidentity/jobs/8635249002",
+          "posted_at": "2026-07-21T15:40:59-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Java"
+          ]
+        },
+        {
+          "company": "pingidentity",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer — PingOne Platform Administration & Security",
+          "location": "USA - Denver, CO",
+          "url": "https://job-boards.greenhouse.io/pingidentity/jobs/8635227002",
+          "posted_at": "2026-07-17T16:43:23-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Java"
+          ]
+        },
+        {
+          "company": "leolabsinc",
+          "platform": "greenhouse",
+          "title": "Senior Radar Software Engineer",
+          "location": "Denver, CO",
+          "url": "https://job-boards.greenhouse.io/leolabsinc/jobs/4327722009",
+          "posted_at": "2026-07-24T11:29:17-04:00",
+          "matched_languages": [
+            "Python",
+            "C++"
+          ]
+        },
+        {
+          "company": "fanaticsfbg",
+          "platform": "greenhouse",
+          "title": "Senior Platform Engineer - Core Platform- UK & Ireland",
+          "location": "Leeds, England, United Kingdom; London, England, United Kingdom",
+          "url": "https://job-boards.greenhouse.io/fanaticsfbg/jobs/4274218009",
+          "posted_at": "2026-06-04T21:25:33-04:00",
+          "matched_languages": [
+            "Python",
+            "Java",
+            "Kotlin"
+          ]
+        },
+        {
+          "company": "fanaticsfbg",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer - Distributed Systems, Fanatics Markets",
+          "location": "New York, NY, United States",
+          "url": "https://job-boards.greenhouse.io/fanaticsfbg/jobs/4254293009",
+          "posted_at": "2026-05-26T16:03:53-04:00",
+          "matched_languages": [
+            "Java",
+            "Kotlin"
+          ]
+        },
+        {
+          "company": "fanaticsfbg",
+          "platform": "greenhouse",
+          "title": "Software Engineer III, Full Stack - Sportsbook (FBG)",
+          "location": "New York, NY, United States",
+          "url": "https://job-boards.greenhouse.io/fanaticsfbg/jobs/4331219009",
+          "posted_at": "2026-07-24T16:32:35-04:00",
+          "matched_languages": [
+            "Java"
+          ]
+        },
+        {
+          "company": "pushpay",
+          "platform": "greenhouse",
+          "title": "Software Development Engineer 3, Resi",
+          "location": "Allen, TX",
+          "url": "https://job-boards.greenhouse.io/pushpay/jobs/7834020",
+          "posted_at": "2026-04-20T17:08:46-04:00",
+          "matched_languages": [
+            "Java",
+            "C++",
+            "Rust"
+          ]
+        },
+        {
+          "company": "givebutter",
+          "platform": "ashby",
+          "title": "Senior Software Engineer, Trust & Safety",
+          "location": "Remote | New York, NY | Indianapolis, IN | Salt Lake City, UT | Nashville, TN | San Francisco, CA | Seattle, WA | Minneapolis, MN | Los Angeles, CA | Austin, TX | Denver, CO",
+          "url": "https://jobs.ashbyhq.com/givebutter/beaea58c-91dc-4f2b-9c66-6496e5c275a3",
+          "posted_at": "2026-07-22T17:28:48.346+00:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Ruby",
+            "PHP"
+          ]
+        },
+        {
+          "company": "checkr",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer",
+          "location": "San Francisco, California, United States",
+          "url": "https://job-boards.greenhouse.io/checkr/jobs/7654395",
+          "posted_at": "2026-02-27T17:39:34-05:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Ruby"
+          ]
+        },
+        {
+          "company": "checkr",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer (Python), Mortgage",
+          "location": "San Francisco, California, United States",
+          "url": "https://job-boards.greenhouse.io/checkr/jobs/8081771",
+          "posted_at": "2026-07-23T12:15:56-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python"
+          ]
+        },
+        {
+          "company": "robinhood",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer, Kubernetes Compute",
+          "location": "Bellevue, WA",
+          "url": "https://boards.greenhouse.io/robinhood/jobs/8036588?t=gh_src=&gh_jid=8036588",
+          "posted_at": "2026-07-21T11:36:55-04:00",
+          "matched_languages": []
+        },
+        {
+          "company": "philo",
+          "platform": "greenhouse",
+          "title": "Sr. Backend Software Engineer (Video Engineering)",
+          "location": "San Francisco, CA, Brooklyn, NY, Cambridge, MA or remote within the U.S.",
+          "url": "https://job-boards.greenhouse.io/philo/jobs/7919461",
+          "posted_at": "2026-05-13T01:10:26-04:00",
+          "matched_languages": [
+            "Python",
+            "Java",
+            "C++",
+            "Go",
+            "Ruby"
+          ]
+        },
+        {
+          "company": "envision-horizons",
+          "platform": "ashby",
+          "title": "Full Stack Developer",
+          "location": "United States - Remote",
+          "url": "https://jobs.ashbyhq.com/envision-horizons/ec0c6149-02d0-48ce-8612-61fea67918af",
+          "posted_at": "2026-04-22T03:21:55.135+00:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "C#",
+            "SQL"
+          ]
+        }
+      ]
+    },
+    "chicago": {
+      "total_matched": 21,
+      "new_this_run": 21,
+      "languages": [
+        {
+          "rank": 1,
+          "language": "Python",
+          "count": 10,
+          "percent": 47.6
+        },
+        {
+          "rank": 2,
+          "language": "JavaScript/TypeScript",
+          "count": 7,
+          "percent": 33.3
+        },
+        {
+          "rank": 3,
+          "language": "C++",
+          "count": 6,
+          "percent": 28.6
+        },
+        {
+          "rank": 4,
+          "language": "Java",
+          "count": 5,
+          "percent": 23.8
+        },
+        {
+          "rank": 5,
+          "language": "SQL",
+          "count": 4,
+          "percent": 19.0
+        },
+        {
+          "rank": 6,
+          "language": "Ruby",
+          "count": 3,
+          "percent": 14.3
+        },
+        {
+          "rank": 7,
+          "language": "C#",
+          "count": 1,
+          "percent": 4.8
+        },
+        {
+          "rank": 8,
+          "language": "Go",
+          "count": 1,
+          "percent": 4.8
+        },
+        {
+          "rank": 9,
+          "language": "PHP",
+          "count": 1,
+          "percent": 4.8
+        },
+        {
+          "rank": 10,
+          "language": "Rust",
+          "count": 1,
+          "percent": 4.8
+        },
+        {
+          "rank": 11,
+          "language": "Dart",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 12,
+          "language": "Elixir",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 13,
+          "language": "Groovy",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 14,
+          "language": "Haskell",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 15,
+          "language": "Kotlin",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 16,
+          "language": "Lua",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 17,
+          "language": "MATLAB",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 18,
+          "language": "Objective-C",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 19,
+          "language": "Perl",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 20,
+          "language": "R",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 21,
+          "language": "Scala",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 22,
+          "language": "Shell/Bash",
+          "count": 0,
+          "percent": 0.0
+        },
+        {
+          "rank": 23,
+          "language": "Swift",
+          "count": 0,
+          "percent": 0.0
+        }
+      ],
+      "postings": [
+        {
+          "company": "aquaticcapitalmanagement",
+          "platform": "greenhouse",
+          "title": "Software Engineer, Early Career",
+          "location": "Chicago; New York",
+          "url": "https://job-boards.greenhouse.io/aquaticcapitalmanagement/jobs/8489226002",
+          "posted_at": "2026-04-01T14:58:58-04:00",
+          "matched_languages": [
+            "Python",
+            "C++"
+          ]
+        },
+        {
+          "company": "aquaticcapitalmanagement",
+          "platform": "greenhouse",
+          "title": "Software Engineer, Intern (Summer 2027)",
+          "location": "Chicago",
+          "url": "https://job-boards.greenhouse.io/aquaticcapitalmanagement/jobs/8489233002",
+          "posted_at": "2026-04-01T14:59:04-04:00",
+          "matched_languages": [
+            "Python",
+            "C++"
+          ]
+        },
+        {
+          "company": "ninjatrader",
+          "platform": "greenhouse",
+          "title": "Sr. Software Engineer I, Evaluation Services",
+          "location": "Chicago or Remote*",
+          "url": "https://job-boards.greenhouse.io/ninjatrader/jobs/4697345006",
+          "posted_at": "2026-07-16T09:52:35-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python"
+          ]
+        },
+        {
+          "company": "enova",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer - Platform (Hybrid)",
+          "location": "Chicago, IL",
+          "url": "https://job-boards.greenhouse.io/enova/jobs/7967331",
+          "posted_at": "2026-05-29T13:32:42-04:00",
+          "matched_languages": [
+            "Ruby"
+          ]
+        },
+        {
+          "company": "civisanalytics",
+          "platform": "greenhouse",
+          "title": "Software Engineer (Contract)",
+          "location": "Chicago, IL; Washington, DC; Remote",
+          "url": "https://job-boards.greenhouse.io/civisanalytics/jobs/8021887",
+          "posted_at": "2026-06-22T15:05:09-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "Go",
+            "Ruby",
+            "SQL"
+          ]
+        },
+        {
+          "company": "ctccampusboard",
+          "platform": "greenhouse",
+          "title": "Software Engineering Internship - Summer 2027",
+          "location": "Chicago, Illinois, United States",
+          "url": "https://job-boards.greenhouse.io/ctccampusboard/jobs/4708230005",
+          "posted_at": "2026-07-20T11:59:16-04:00",
+          "matched_languages": [
+            "Python",
+            "Java",
+            "C++"
+          ]
+        },
+        {
+          "company": "dvtrading",
+          "platform": "greenhouse",
+          "title": "Software Developer (New York)",
+          "location": "New York",
+          "url": "https://job-boards.greenhouse.io/dvtrading/jobs/4687462005",
+          "posted_at": "2026-04-27T16:27:27-04:00",
+          "matched_languages": [
+            "C++"
+          ]
+        },
+        {
+          "company": "drweng",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer, Unified Platform - Trade Management, Trade and Order Processing, Platform Services",
+          "location": "Chicago",
+          "url": "https://job-boards.greenhouse.io/drweng/jobs/7939741",
+          "posted_at": "2026-05-22T16:01:39-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "Java",
+            "SQL"
+          ]
+        },
+        {
+          "company": "headlandstechnologiesllc",
+          "platform": "greenhouse",
+          "title": "C++ Software Developer",
+          "location": "Amsterdam; Chicago; London; New York",
+          "url": "https://job-boards.greenhouse.io/headlandstechnologiesllc/jobs/4227758009",
+          "posted_at": "2026-05-11T12:53:58-04:00",
+          "matched_languages": [
+            "C++"
+          ]
+        },
+        {
+          "company": "kunai",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer",
+          "location": "Chicago, Illinois, United States",
+          "url": "https://job-boards.greenhouse.io/kunai/jobs/5182483007",
+          "posted_at": "2026-07-08T12:58:39-04:00",
+          "matched_languages": [
+            "Java"
+          ]
+        },
+        {
+          "company": "reply",
+          "platform": "lever",
+          "title": "IAM Software Engineer",
+          "location": "Chicago, Illinois",
+          "url": "https://jobs.lever.co/reply/51f12081-42ba-4838-bd07-aa582a728a75",
+          "posted_at": "2026-04-29T16:06:15.052000+00:00",
+          "matched_languages": []
+        },
+        {
+          "company": "indexindustries",
+          "platform": "greenhouse",
+          "title": "Full Stack Engineer (FinTech)",
+          "location": "Chicago, IL",
+          "url": "https://job-boards.greenhouse.io/indexindustries/jobs/4691380006",
+          "posted_at": "2026-07-09T13:48:51-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Rust"
+          ]
+        },
+        {
+          "company": "evolutioniq",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer (Insurance Tech)",
+          "location": "New York, Chicago,  or Remote",
+          "url": "https://job-boards.greenhouse.io/evolutioniq/jobs/6122678004",
+          "posted_at": "2026-07-22T13:46:55-04:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python",
+            "C#"
+          ]
+        },
+        {
+          "company": "chime",
+          "platform": "greenhouse",
+          "title": "Software Engineer, Infrastructure",
+          "location": "Chicago, IL, USA; New York, NY, USA; San Francisco, CA, USA",
+          "url": "https://boards.greenhouse.io/chime/jobs/8616359002?gh_jid=8616359002",
+          "posted_at": "2026-07-10T12:55:19-04:00",
+          "matched_languages": [
+            "Ruby",
+            "SQL"
+          ]
+        },
+        {
+          "company": "keepersecurity",
+          "platform": "greenhouse",
+          "title": "Senior Frontend Software Engineer, Admin Console (React)",
+          "location": "Remote, US",
+          "url": "https://job-boards.greenhouse.io/keepersecurity/jobs/4090680009",
+          "posted_at": "2026-01-02T19:53:36-05:00",
+          "matched_languages": [
+            "JavaScript/TypeScript"
+          ]
+        },
+        {
+          "company": "keepersecurity",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer, PAM (Windows Platform)",
+          "location": "Remote, US",
+          "url": "https://job-boards.greenhouse.io/keepersecurity/jobs/4113034009",
+          "posted_at": "2026-01-27T19:02:47-05:00",
+          "matched_languages": [
+            "Python",
+            "C++"
+          ]
+        },
+        {
+          "company": "flex",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer, Backend FinPlatform",
+          "location": "Remote",
+          "url": "https://job-boards.greenhouse.io/flex/jobs/4716085005",
+          "posted_at": "2026-07-16T19:18:07-04:00",
+          "matched_languages": [
+            "Java"
+          ]
+        },
+        {
+          "company": "picoquantitativetrading",
+          "platform": "greenhouse",
+          "title": "Senior Full Stack Engineer",
+          "location": "Hyderabad; Pune",
+          "url": "https://job-boards.greenhouse.io/picoquantitativetrading/jobs/4618007006",
+          "posted_at": "2026-04-10T12:29:31-04:00",
+          "matched_languages": [
+            "Python",
+            "Java",
+            "SQL"
+          ]
+        },
+        {
+          "company": "robinhood",
+          "platform": "greenhouse",
+          "title": "Senior Software Engineer, Kubernetes Compute",
+          "location": "Bellevue, WA",
+          "url": "https://boards.greenhouse.io/robinhood/jobs/8036588?t=gh_src=&gh_jid=8036588",
+          "posted_at": "2026-07-21T11:36:55-04:00",
+          "matched_languages": []
+        },
+        {
+          "company": "taekus",
+          "platform": "ashby",
+          "title": "Senior Fullstack Software Engineer",
+          "location": "United States",
+          "url": "https://jobs.ashbyhq.com/taekus/796e780f-809d-4058-a517-bbd9f79732ce",
+          "posted_at": "2026-01-09T17:39:44.989+00:00",
+          "matched_languages": [
+            "JavaScript/TypeScript",
+            "Python"
+          ]
+        },
+        {
+          "company": "loopreturns",
+          "platform": "lever",
+          "title": "Software Engineer",
+          "location": "Columbus, OH",
+          "url": "https://jobs.lever.co/loopreturns/4fc9603b-95c6-4d05-8d5a-4247fa108418",
+          "posted_at": "2026-06-24T14:52:36.620000+00:00",
+          "matched_languages": [
+            "PHP"
+          ]
+        }
+      ]
+    }
+  }
+}

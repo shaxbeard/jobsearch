@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Language Trends</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Job Language Trends</h1>
+    <p class="subtitle">Programming-language demand across tracked North American tech cities</p>
+  </header>
+
+  <main class="layout">
+    <section class="map-panel">
+      <h2>Cities</h2>
+      <p class="hint">Click a pin to see that city's languages and job postings.</p>
+      <div id="map"></div>
+    </section>
+
+    <aside class="stats-panel" id="stats-panel">
+      <h2>Overall stats</h2>
+      <div id="stats-summary" class="stats-summary">Loading…</div>
+
+      <h3>Top languages (all cities)</h3>
+      <ol id="overall-languages" class="rank-list"></ol>
+
+      <h3>Top job titles</h3>
+      <ol id="overall-titles" class="rank-list"></ol>
+    </aside>
+  </main>
+
+  <!-- City detail modal -->
+  <div id="city-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal">
+      <button class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+      <h2 id="modal-title">City</h2>
+      <p id="modal-meta" class="modal-meta"></p>
+
+      <h3>Top languages</h3>
+      <ol id="modal-languages" class="rank-list"></ol>
+
+      <h3>Job postings <span id="modal-postings-count" class="muted"></span></h3>
+      <ul id="modal-postings" class="postings-list"></ul>
+    </div>
+  </div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

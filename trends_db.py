@@ -1,87 +1,95 @@
 #!/usr/bin/env python3
 """
-SQLite persistence for language_trends.py snapshot runs.
+SQLite persistence for the per-city programming-language demand dataset.
 
-Each time language_trends.py runs, it captures a snapshot of "programming
-language demand per city" -- a live crawl of Greenhouse/Lever/Ashby's public
-job-board APIs at that moment (see language_trends.py's docstring for how
-fresh/volatile this data is: postings open and close continuously). This
-module stores each snapshot in a local SQLite file (stdlib `sqlite3`, no
-extra dependency, no server to run) so trends can be compared over time --
-e.g. by putting language_trends.py on a daily/weekly cron job.
+Both language_trends.py (direct ATS crawl) and google_language_trends.py
+(Google-discovery + full-JD fetch) write here. Rather than keeping a growing
+history of separate "runs", this stores ONE combined, always-current dataset:
+each time a city is processed, that city's rows are REPLACED in place, so the
+database always reflects the latest data for every city that's been captured.
+Re-running a subset of cities updates just those cities and leaves the rest
+untouched -- so you can refresh cities independently and still query one
+unified dataset.
+
+Data is scoped by (city, source) so the two methodologies don't clobber each
+other: re-running Google for "seattle" replaces only the source='google' rows
+for Seattle; any source='ats' rows for Seattle are left alone.
+
+Stored in a local SQLite file (stdlib `sqlite3`, no extra dependency, no
+server to run).
 
 Schema:
-  runs                  -- one row per script run (when, filters, totals)
-  city_language_counts  -- one row per (run, city, language): rank/count/percent
-  postings              -- one row per (run, city, job posting), full description text
+  cities                -- one row per (city, source): total matched, since-date, last-updated
+  city_language_counts  -- one row per (city, source, language): rank/count/percent
+  postings              -- one row per (city, source, job posting), full description text
                            included, so a UI can let someone click a city (or a
                            language within a city) and drill into the underlying
-                           job ads. This table grows every run since the same
-                           still-open posting gets re-stored each time it's
-                           re-crawled -- that's expected, it's what lets you see
-                           what a snapshot looked like at any point in time.
+                           job ads.
 
-Usage (as a library, imported by language_trends.py):
-    from trends_db import get_connection, ensure_schema, record_run, record_city_language_counts, record_postings
+Usage (as a library):
+    from trends_db import get_connection, ensure_schema, update_city
 
     conn = get_connection(db_path)
     ensure_schema(conn)
-    run_id = record_run(conn, run_at_utc=..., since_date=..., companies_crawled=..., raw_postings_fetched=...)
-    record_city_language_counts(conn, run_id=run_id, city="dallas", total_matched=93, ranked=[...])
-    record_postings(conn, run_id=run_id, city="dallas", postings=[...])
+    update_city(
+        conn,
+        city="dallas",
+        source="google",
+        since_date="2026-01-01",
+        total_matched=93,
+        ranked=[...],           # list of {language, rank, count, percent}
+        postings=[...],         # list of full posting dicts (see update_city docstring)
+    )
     conn.close()
 
-Querying the trend history directly, e.g. Java demand in Dallas over time:
+Querying language demand for a city (latest, combined dataset):
     sqlite3 job_trends.db "
-      SELECT r.run_at_utc, c.count, c.percent
-      FROM city_language_counts c JOIN runs r ON r.id = c.run_id
-      WHERE c.city = 'dallas' AND c.language = 'Java'
-      ORDER BY r.run_at_utc;"
+      SELECT language, count, percent FROM city_language_counts
+      WHERE city = 'dallas' AND source = 'google'
+      ORDER BY rank;"
 
-Drilling into the actual job ads behind a language, from the latest run:
+Drilling into the actual job ads behind a language:
     sqlite3 job_trends.db "
       SELECT company, title, url FROM postings
-      WHERE city = 'dallas' AND matched_languages LIKE '%\"Java\"%'
-        AND run_id = (SELECT MAX(id) FROM runs)
-      ESCAPE '\\';"
+      WHERE city = 'dallas' AND source = 'google'
+        AND matched_languages LIKE '%Java%';"
 """
 
 from __future__ import annotations
 
 import json
 import sqlite3
+from datetime import datetime, timezone
 from pathlib import Path
 
 DEFAULT_DB_PATH = Path(__file__).resolve().parent / "job_trends.db"
 
 SCHEMA = """
-CREATE TABLE IF NOT EXISTS runs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    run_at_utc TEXT NOT NULL,
+CREATE TABLE IF NOT EXISTS cities (
+    city TEXT NOT NULL,
+    source TEXT NOT NULL,
+    total_matched INTEGER NOT NULL,
     since_date TEXT,
-    companies_crawled INTEGER NOT NULL,
-    raw_postings_fetched INTEGER NOT NULL,
-    failed_companies INTEGER NOT NULL DEFAULT 0
+    updated_at_utc TEXT NOT NULL,
+    PRIMARY KEY (city, source)
 );
 
 CREATE TABLE IF NOT EXISTS city_language_counts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    run_id INTEGER NOT NULL REFERENCES runs(id),
     city TEXT NOT NULL,
-    total_matched INTEGER NOT NULL,
+    source TEXT NOT NULL,
     language TEXT NOT NULL,
     rank INTEGER NOT NULL,
     count INTEGER NOT NULL,
-    percent REAL NOT NULL
+    percent REAL NOT NULL,
+    PRIMARY KEY (city, source, language)
 );
 
-CREATE INDEX IF NOT EXISTS idx_clc_run ON city_language_counts(run_id);
 CREATE INDEX IF NOT EXISTS idx_clc_city_language ON city_language_counts(city, language);
 
 CREATE TABLE IF NOT EXISTS postings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    run_id INTEGER NOT NULL REFERENCES runs(id),
     city TEXT NOT NULL,
+    source TEXT NOT NULL,
     company TEXT NOT NULL,
     platform TEXT NOT NULL,
     title TEXT NOT NULL,
@@ -89,10 +97,11 @@ CREATE TABLE IF NOT EXISTS postings (
     url TEXT,
     posted_at TEXT,
     description TEXT NOT NULL,
-    matched_languages TEXT NOT NULL DEFAULT '[]'
+    matched_languages TEXT NOT NULL DEFAULT '[]',
+    updated_at_utc TEXT NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_postings_run_city ON postings(run_id, city);
+CREATE INDEX IF NOT EXISTS idx_postings_city ON postings(city, source);
 CREATE INDEX IF NOT EXISTS idx_postings_url ON postings(url);
 """
 
@@ -107,69 +116,155 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
-def record_run(
+def update_city(
     conn: sqlite3.Connection,
     *,
-    run_at_utc: str,
-    since_date: str,
-    companies_crawled: int,
-    raw_postings_fetched: int,
-    failed_companies: int = 0,
-) -> int:
-    cursor = conn.execute(
-        """
-        INSERT INTO runs (run_at_utc, since_date, companies_crawled, raw_postings_fetched, failed_companies)
-        VALUES (?, ?, ?, ?, ?)
-        """,
-        (run_at_utc, since_date, companies_crawled, raw_postings_fetched, failed_companies),
-    )
-    conn.commit()
-    return cursor.lastrowid
-
-
-def record_city_language_counts(
-    conn: sqlite3.Connection,
-    *,
-    run_id: int,
     city: str,
+    source: str,
+    since_date: str,
     total_matched: int,
     ranked: list[dict],
+    postings: list[dict] | None = None,
+    store_postings: bool = True,
 ) -> None:
+    """Replace this (city, source)'s data with the latest results, in place.
+
+    This deletes the city's existing language counts (and postings, when
+    store_postings is True) for the given source and re-inserts the new ones,
+    so the combined dataset stays current without accumulating duplicate
+    history. Other cities -- and the same city under a different source -- are
+    untouched.
+
+    `source` is 'ats' (language_trends.py) or 'google' (google_language_trends.py).
+    `ranked` is a list of {language, rank, count, percent} dicts.
+    Each posting dict must have: company, platform, title, location, url,
+    posted_at, description, matched_languages (list[str]).
+
+    When store_postings is False (e.g. --no-postings), the language counts are
+    still refreshed but the city's existing postings are left as-is.
+    """
+    now = datetime.now(timezone.utc).isoformat()
+
+    conn.execute(
+        """
+        INSERT INTO cities (city, source, total_matched, since_date, updated_at_utc)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(city, source) DO UPDATE SET
+            total_matched = excluded.total_matched,
+            since_date = excluded.since_date,
+            updated_at_utc = excluded.updated_at_utc
+        """,
+        (city, source, total_matched, since_date, now),
+    )
+
+    conn.execute("DELETE FROM city_language_counts WHERE city = ? AND source = ?", (city, source))
     conn.executemany(
         """
-        INSERT INTO city_language_counts (run_id, city, total_matched, language, rank, count, percent)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO city_language_counts (city, source, language, rank, count, percent)
+        VALUES (?, ?, ?, ?, ?, ?)
         """,
         [
-            (run_id, city, total_matched, row["language"], row["rank"], row["count"], row["percent"])
+            (city, source, row["language"], row["rank"], row["count"], row["percent"])
             for row in ranked
         ],
     )
+
+    if store_postings:
+        conn.execute("DELETE FROM postings WHERE city = ? AND source = ?", (city, source))
+        if postings:
+            conn.executemany(
+                """
+                INSERT INTO postings
+                    (city, source, company, platform, title, location, url, posted_at, description, matched_languages, updated_at_utc)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    (
+                        city,
+                        source,
+                        posting["company"],
+                        posting["platform"],
+                        posting["title"],
+                        posting["location"],
+                        posting["url"],
+                        posting["posted_at"],
+                        posting["description"],
+                        json.dumps(posting["matched_languages"]),
+                        now,
+                    )
+                    for posting in postings
+                ],
+            )
+
     conn.commit()
 
 
-def record_postings(
+def get_last_fetched(conn: sqlite3.Connection, *, city: str, source: str) -> str | None:
+    """Return the ISO timestamp this (city, source) was last updated, or None
+    if it has never been fetched. Used to fetch only postings newer than the
+    last run (incremental updates)."""
+    row = conn.execute(
+        "SELECT updated_at_utc FROM cities WHERE city = ? AND source = ?",
+        (city, source),
+    ).fetchone()
+    return row[0] if row else None
+
+
+def get_postings(conn: sqlite3.Connection, *, city: str, source: str) -> list[dict]:
+    """Return all stored postings for a (city, source), with matched_languages
+    decoded back into a list. Used to dedupe against already-stored postings
+    and to re-rank a city's accumulated data."""
+    columns = [
+        "company",
+        "platform",
+        "title",
+        "location",
+        "url",
+        "posted_at",
+        "description",
+        "matched_languages",
+    ]
+    rows = conn.execute(
+        f"SELECT {', '.join(columns)} FROM postings WHERE city = ? AND source = ?",
+        (city, source),
+    ).fetchall()
+    postings = []
+    for row in rows:
+        posting = dict(zip(columns, row))
+        posting["matched_languages"] = json.loads(posting["matched_languages"])
+        postings.append(posting)
+    return postings
+
+
+def add_postings(
     conn: sqlite3.Connection,
     *,
-    run_id: int,
     city: str,
+    source: str,
     postings: list[dict],
 ) -> None:
-    """Store the full postings (including description text) matched for a
-    city in this run, tagged with which candidate languages each one hit.
-    Each posting dict must have: company, platform, title, location, url,
-    posted_at, description, matched_languages (list[str]).
+    """Append new postings for a (city, source) WITHOUT deleting existing ones.
+
+    This is the incremental counterpart to update_city: callers fetch only
+    postings newer than the last run and add them here, so data already stored
+    is never re-fetched or overwritten. The caller is responsible for deduping
+    (not passing postings that are already stored). Each posting dict must have:
+    company, platform, title, location, url, posted_at, description,
+    matched_languages (list[str]).
     """
+    if not postings:
+        return
+    now = datetime.now(timezone.utc).isoformat()
     conn.executemany(
         """
         INSERT INTO postings
-            (run_id, city, company, platform, title, location, url, posted_at, description, matched_languages)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (city, source, company, platform, title, location, url, posted_at, description, matched_languages, updated_at_utc)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             (
-                run_id,
                 city,
+                source,
                 posting["company"],
                 posting["platform"],
                 posting["title"],
@@ -178,8 +273,52 @@ def record_postings(
                 posting["posted_at"],
                 posting["description"],
                 json.dumps(posting["matched_languages"]),
+                now,
             )
             for posting in postings
         ],
     )
     conn.commit()
+
+
+def set_city_counts(
+    conn: sqlite3.Connection,
+    *,
+    city: str,
+    source: str,
+    since_date: str,
+    total_matched: int,
+    ranked: list[dict],
+) -> None:
+    """Replace a (city, source)'s aggregate language counts and refresh its
+    metadata (total_matched, since_date, and the last-fetched timestamp).
+
+    Language counts are always fully replaced because they're aggregates over
+    the city's full accumulated posting set -- recompute them from get_postings
+    after add_postings, then store them here.
+    """
+    now = datetime.now(timezone.utc).isoformat()
+    conn.execute(
+        """
+        INSERT INTO cities (city, source, total_matched, since_date, updated_at_utc)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(city, source) DO UPDATE SET
+            total_matched = excluded.total_matched,
+            since_date = excluded.since_date,
+            updated_at_utc = excluded.updated_at_utc
+        """,
+        (city, source, total_matched, since_date, now),
+    )
+    conn.execute("DELETE FROM city_language_counts WHERE city = ? AND source = ?", (city, source))
+    conn.executemany(
+        """
+        INSERT INTO city_language_counts (city, source, language, rank, count, percent)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        [
+            (city, source, row["language"], row["rank"], row["count"], row["percent"])
+            for row in ranked
+        ],
+    )
+    conn.commit()
+

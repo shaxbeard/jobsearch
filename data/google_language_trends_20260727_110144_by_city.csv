@@ -1,0 +1,231 @@
+city,rank,language,count,percent
+atlanta,1,JavaScript/TypeScript,10,50.0
+atlanta,2,C++,5,25.0
+atlanta,3,Python,5,25.0
+atlanta,4,Rust,4,20.0
+atlanta,5,Java,3,15.0
+atlanta,6,C#,2,10.0
+atlanta,7,Kotlin,2,10.0
+atlanta,8,Swift,2,10.0
+atlanta,9,Go,1,5.0
+atlanta,10,MATLAB,1,5.0
+atlanta,11,Ruby,1,5.0
+atlanta,12,SQL,1,5.0
+atlanta,13,Scala,1,5.0
+atlanta,14,Dart,0,0.0
+atlanta,15,Elixir,0,0.0
+atlanta,16,Groovy,0,0.0
+atlanta,17,Haskell,0,0.0
+atlanta,18,Lua,0,0.0
+atlanta,19,Objective-C,0,0.0
+atlanta,20,PHP,0,0.0
+atlanta,21,Perl,0,0.0
+atlanta,22,R,0,0.0
+atlanta,23,Shell/Bash,0,0.0
+boston,1,Python,14,41.2
+boston,2,JavaScript/TypeScript,7,20.6
+boston,3,SQL,7,20.6
+boston,4,C++,5,14.7
+boston,5,Java,4,11.8
+boston,6,C#,2,5.9
+boston,7,Rust,2,5.9
+boston,8,Go,1,2.9
+boston,9,Ruby,1,2.9
+boston,10,Shell/Bash,1,2.9
+boston,11,Dart,0,0.0
+boston,12,Elixir,0,0.0
+boston,13,Groovy,0,0.0
+boston,14,Haskell,0,0.0
+boston,15,Kotlin,0,0.0
+boston,16,Lua,0,0.0
+boston,17,MATLAB,0,0.0
+boston,18,Objective-C,0,0.0
+boston,19,PHP,0,0.0
+boston,20,Perl,0,0.0
+boston,21,R,0,0.0
+boston,22,Scala,0,0.0
+boston,23,Swift,0,0.0
+dallas,1,Java,2,25.0
+dallas,2,JavaScript/TypeScript,2,25.0
+dallas,3,Python,2,25.0
+dallas,4,Ruby,1,12.5
+dallas,5,SQL,1,12.5
+dallas,6,C#,0,0.0
+dallas,7,C++,0,0.0
+dallas,8,Dart,0,0.0
+dallas,9,Elixir,0,0.0
+dallas,10,Go,0,0.0
+dallas,11,Groovy,0,0.0
+dallas,12,Haskell,0,0.0
+dallas,13,Kotlin,0,0.0
+dallas,14,Lua,0,0.0
+dallas,15,MATLAB,0,0.0
+dallas,16,Objective-C,0,0.0
+dallas,17,PHP,0,0.0
+dallas,18,Perl,0,0.0
+dallas,19,R,0,0.0
+dallas,20,Rust,0,0.0
+dallas,21,Scala,0,0.0
+dallas,22,Shell/Bash,0,0.0
+dallas,23,Swift,0,0.0
+houston,1,Python,5,83.3
+houston,2,C++,3,50.0
+houston,3,Java,2,33.3
+houston,4,JavaScript/TypeScript,2,33.3
+houston,5,MATLAB,1,16.7
+houston,6,Rust,1,16.7
+houston,7,SQL,1,16.7
+houston,8,C#,0,0.0
+houston,9,Dart,0,0.0
+houston,10,Elixir,0,0.0
+houston,11,Go,0,0.0
+houston,12,Groovy,0,0.0
+houston,13,Haskell,0,0.0
+houston,14,Kotlin,0,0.0
+houston,15,Lua,0,0.0
+houston,16,Objective-C,0,0.0
+houston,17,PHP,0,0.0
+houston,18,Perl,0,0.0
+houston,19,R,0,0.0
+houston,20,Ruby,0,0.0
+houston,21,Scala,0,0.0
+houston,22,Shell/Bash,0,0.0
+houston,23,Swift,0,0.0
+los angeles,1,Python,20,51.3
+los angeles,2,JavaScript/TypeScript,14,35.9
+los angeles,3,SQL,7,17.9
+los angeles,4,Java,6,15.4
+los angeles,5,Rust,4,10.3
+los angeles,6,C++,3,7.7
+los angeles,7,PHP,3,7.7
+los angeles,8,Ruby,3,7.7
+los angeles,9,Go,2,5.1
+los angeles,10,Kotlin,2,5.1
+los angeles,11,Scala,1,2.6
+los angeles,12,C#,0,0.0
+los angeles,13,Dart,0,0.0
+los angeles,14,Elixir,0,0.0
+los angeles,15,Groovy,0,0.0
+los angeles,16,Haskell,0,0.0
+los angeles,17,Lua,0,0.0
+los angeles,18,MATLAB,0,0.0
+los angeles,19,Objective-C,0,0.0
+los angeles,20,Perl,0,0.0
+los angeles,21,R,0,0.0
+los angeles,22,Shell/Bash,0,0.0
+los angeles,23,Swift,0,0.0
+new york,1,JavaScript/TypeScript,24,42.9
+new york,2,Python,22,39.3
+new york,3,Java,13,23.2
+new york,4,SQL,11,19.6
+new york,5,C++,4,7.1
+new york,6,Go,4,7.1
+new york,7,Rust,3,5.4
+new york,8,C#,2,3.6
+new york,9,Kotlin,2,3.6
+new york,10,Ruby,2,3.6
+new york,11,Swift,2,3.6
+new york,12,Dart,1,1.8
+new york,13,Haskell,1,1.8
+new york,14,Scala,1,1.8
+new york,15,Shell/Bash,1,1.8
+new york,16,Elixir,0,0.0
+new york,17,Groovy,0,0.0
+new york,18,Lua,0,0.0
+new york,19,MATLAB,0,0.0
+new york,20,Objective-C,0,0.0
+new york,21,PHP,0,0.0
+new york,22,Perl,0,0.0
+new york,23,R,0,0.0
+san francisco,1,Python,37,52.9
+san francisco,2,JavaScript/TypeScript,30,42.9
+san francisco,3,Rust,9,12.9
+san francisco,4,C++,7,10.0
+san francisco,5,Ruby,6,8.6
+san francisco,6,SQL,6,8.6
+san francisco,7,Go,4,5.7
+san francisco,8,Java,3,4.3
+san francisco,9,Kotlin,2,2.9
+san francisco,10,Shell/Bash,2,2.9
+san francisco,11,Swift,2,2.9
+san francisco,12,C#,1,1.4
+san francisco,13,Elixir,1,1.4
+san francisco,14,Haskell,1,1.4
+san francisco,15,Scala,1,1.4
+san francisco,16,Dart,0,0.0
+san francisco,17,Groovy,0,0.0
+san francisco,18,Lua,0,0.0
+san francisco,19,MATLAB,0,0.0
+san francisco,20,Objective-C,0,0.0
+san francisco,21,PHP,0,0.0
+san francisco,22,Perl,0,0.0
+san francisco,23,R,0,0.0
+seattle,1,Python,22,51.2
+seattle,2,C++,11,25.6
+seattle,3,JavaScript/TypeScript,11,25.6
+seattle,4,Rust,7,16.3
+seattle,5,Java,5,11.6
+seattle,6,SQL,5,11.6
+seattle,7,Ruby,4,9.3
+seattle,8,C#,3,7.0
+seattle,9,Go,3,7.0
+seattle,10,Kotlin,2,4.7
+seattle,11,Swift,2,4.7
+seattle,12,Scala,1,2.3
+seattle,13,Shell/Bash,1,2.3
+seattle,14,Dart,0,0.0
+seattle,15,Elixir,0,0.0
+seattle,16,Groovy,0,0.0
+seattle,17,Haskell,0,0.0
+seattle,18,Lua,0,0.0
+seattle,19,MATLAB,0,0.0
+seattle,20,Objective-C,0,0.0
+seattle,21,PHP,0,0.0
+seattle,22,Perl,0,0.0
+seattle,23,R,0,0.0
+toronto,1,JavaScript/TypeScript,11,39.3
+toronto,2,Python,11,39.3
+toronto,3,SQL,5,17.9
+toronto,4,C#,4,14.3
+toronto,5,Java,4,14.3
+toronto,6,Ruby,2,7.1
+toronto,7,Shell/Bash,2,7.1
+toronto,8,C++,1,3.6
+toronto,9,Go,1,3.6
+toronto,10,Groovy,1,3.6
+toronto,11,PHP,1,3.6
+toronto,12,Rust,1,3.6
+toronto,13,Dart,0,0.0
+toronto,14,Elixir,0,0.0
+toronto,15,Haskell,0,0.0
+toronto,16,Kotlin,0,0.0
+toronto,17,Lua,0,0.0
+toronto,18,MATLAB,0,0.0
+toronto,19,Objective-C,0,0.0
+toronto,20,Perl,0,0.0
+toronto,21,R,0,0.0
+toronto,22,Scala,0,0.0
+toronto,23,Swift,0,0.0
+washington dc,1,Python,2,40.0
+washington dc,2,JavaScript/TypeScript,1,20.0
+washington dc,3,Ruby,1,20.0
+washington dc,4,Rust,1,20.0
+washington dc,5,C#,0,0.0
+washington dc,6,C++,0,0.0
+washington dc,7,Dart,0,0.0
+washington dc,8,Elixir,0,0.0
+washington dc,9,Go,0,0.0
+washington dc,10,Groovy,0,0.0
+washington dc,11,Haskell,0,0.0
+washington dc,12,Java,0,0.0
+washington dc,13,Kotlin,0,0.0
+washington dc,14,Lua,0,0.0
+washington dc,15,MATLAB,0,0.0
+washington dc,16,Objective-C,0,0.0
+washington dc,17,PHP,0,0.0
+washington dc,18,Perl,0,0.0
+washington dc,19,R,0,0.0
+washington dc,20,SQL,0,0.0
+washington dc,21,Scala,0,0.0
+washington dc,22,Shell/Bash,0,0.0
+washington dc,23,Swift,0,0.0

@@ -1,0 +1,24 @@
+language,portland,san jose,san diego,phoenix,total
+Python,2,5,13,3,23
+JavaScript/TypeScript,4,2,7,2,15
+C++,0,4,9,1,14
+Java,0,3,5,2,10
+C#,0,1,2,2,5
+Shell/Bash,0,2,2,1,5
+SQL,0,0,2,3,5
+Rust,0,1,1,0,2
+Elixir,0,0,0,2,2
+Ruby,0,0,0,1,1
+PHP,0,1,0,0,1
+Kotlin,0,0,1,0,1
+Scala,0,1,0,0,1
+Haskell,1,0,0,0,1
+Go,0,0,0,0,0
+Swift,0,0,0,0,0
+R,0,0,0,0,0
+Perl,0,0,0,0,0
+Objective-C,0,0,0,0,0
+Dart,0,0,0,0,0
+Lua,0,0,0,0,0
+MATLAB,0,0,0,0,0
+Groovy,0,0,0,0,0
