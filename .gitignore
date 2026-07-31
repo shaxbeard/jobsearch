@@ -1,1 +1,23 @@
+# Secrets
 .env
+
+# Local database (holds accumulated history; keep out of git, seed on the server)
+job_trends.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Generated data snapshots and exports
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+
+# OS / editor
+.DS_Store

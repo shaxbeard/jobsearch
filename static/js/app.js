@@ -8,9 +8,9 @@ const map = L.map("map", {
   scrollWheelZoom: true,
 });
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
   maxZoom: 12,
-  attribution: "&copy; OpenStreetMap contributors",
+  attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
 }).addTo(map);
 
 // ---- Helpers ---------------------------------------------------------------
@@ -78,18 +78,51 @@ async function loadStats() {
 }
 
 // ---- City pins -------------------------------------------------------------
+// Each city's name sits to the RIGHT of its pin, vertically level with the base
+// (tip) of the pin. Offsets are tuned for the default Leaflet marker (tip at the
+// pin's bottom; tooltipAnchor [16, -28]) so the label's vertical center lines up
+// with the pin's baseline. A few packed cities flip to the LEFT to avoid overlap.
+const LABEL_OFFSETS = {
+  right: [6, 28],
+  left: [-26, 28],
+};
+const DEFAULT_LABEL_DIR = "right";
+
+// Cities whose right-side label would collide with a neighbor are flipped left.
+const LABEL_DIR_OVERRIDES = {
+  "san francisco": "left",
+  "san diego": "left",
+};
+
+// Display-only adjustments for crowded areas. The stored city coordinates stay
+// geographically accurate; Phoenix is shifted south enough to clear Los Angeles
+// at the map's initial zoom.
+const DISPLAY_COORD_OVERRIDES = {
+  phoenix: [31.4, -112.074],
+};
+
 async function loadCities() {
   const res = await fetch("/api/cities");
   const cities = await res.json();
 
   for (const c of cities) {
     if (c.lat == null || c.lng == null) continue;
-    const marker = L.marker([c.lat, c.lng]).addTo(map);
+    const position = DISPLAY_COORD_OVERRIDES[c.city] || [c.lat, c.lng];
+    const marker = L.marker(position).addTo(map);
+    const dir = LABEL_DIR_OVERRIDES[c.city] || DEFAULT_LABEL_DIR;
     marker.bindTooltip(
       `${c.label} <span class="pin-count">${c.total_matched}</span>`,
-      { permanent: true, direction: "right", className: "city-pin-label", offset: [10, 0] }
+      {
+        permanent: true,
+        interactive: true,
+        direction: dir,
+        className: "city-pin-label",
+        offset: LABEL_OFFSETS[dir],
+      }
     );
-    marker.on("click", () => openCityModal(c.city));
+    const openCity = () => openCityModal(c.city);
+    marker.on("click", openCity);
+    marker.getTooltip().on("click", openCity);
   }
 }
 

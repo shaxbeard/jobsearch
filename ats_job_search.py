@@ -358,7 +358,7 @@ def collect_all_postings(
 def parse_job_url(url: str) -> tuple[str, str, str] | None:
     """Map a public job-posting URL to (platform, slug, job_key).
 
-    Recognizes the default hosted board URLs for the three API-crawlable
+    Recognizes the default hosted board URLs for the four API-crawlable
     platforms and returns a stable key that's identical whether the URL came
     from a Google search result or from a normalized posting fetched via the
     ATS API, so the two can be matched up:
@@ -367,6 +367,8 @@ def parse_job_url(url: str) -> tuple[str, str, str] | None:
       https://job-boards.greenhouse.io/{slug}/jobs/{id}  -> ("greenhouse", slug, id)
       https://jobs.lever.co/{slug}/{uuid}[/apply]        -> ("lever", slug, uuid)
       https://jobs.ashbyhq.com/{slug}/{uuid}             -> ("ashby", slug, uuid)
+    https://{tenant}.wd{n}.myworkdayjobs.com/en-US/{site}/job/.../{id}
+                                      -> ("workday", "{tenant}.wd{n}/{site}", id)
 
     Query strings and a trailing "/apply" segment are ignored. Returns None
     for anything that isn't one of these board URL shapes.
@@ -390,7 +392,45 @@ def parse_job_url(url: str) -> tuple[str, str, str] | None:
         if len(parts) >= 2:
             return "ashby", parts[0].lower(), parts[1]
         return None
+    workday_host = re.fullmatch(r"([a-z0-9-]+\.wd\d+)\.myworkdayjobs\.com", host)
+    if workday_host:
+        site_index = 1 if re.fullmatch(r"[a-z]{2}-[a-z]{2}", parts[0], re.IGNORECASE) else 0
+        if len(parts) <= site_index + 2 or parts[site_index + 1].lower() != "job":
+            return None
+        slug = f"{workday_host.group(1)}/{parts[site_index]}"
+        return "workday", slug, parts[-1]
     return None
+
+
+def fetch_workday_posting_url(url: str, *, verify: bool) -> dict | None:
+    """Fetch one Google-discovered Workday posting from its public CXS endpoint."""
+    parsed_key = parse_job_url(url)
+    if not parsed_key or parsed_key[0] != "workday":
+        return None
+    _, slug, _ = parsed_key
+    subdomain, tenant, site = parse_workday_slug(slug)
+    parts = [part for part in urlparse(url).path.split("/") if part]
+    job_index = next((index for index, part in enumerate(parts) if part.lower() == "job"), None)
+    if job_index is None:
+        return None
+    external_path = "/" + "/".join(parts[job_index:])
+    base = f"https://{subdomain}.myworkdayjobs.com/wday/cxs/{tenant}/{site}"
+    detail = fetch_json(f"{base}{external_path}", verify=verify)
+    if not detail:
+        return None
+    info = detail.get("jobPostingInfo", {})
+    if not info:
+        return None
+    return normalize_workday(
+        {
+            "title": info.get("title", ""),
+            "location": info.get("location", ""),
+            "url": url,
+            "posted_at": info.get("startDate", ""),
+            "description": strip_html(info.get("jobDescription")),
+        },
+        tenant,
+    )
 
 
 def fetch_postings_for_urls(
@@ -401,10 +441,10 @@ def fetch_postings_for_urls(
 ) -> tuple[list[dict], list[str], list[str]]:
     """Fetch full normalized postings for a set of job-posting URLs.
 
-    Given URLs (e.g. from a Google search restricted to the three supported
-    platforms), this groups them by (platform, slug), fetches each company's
-    board once via the same public API used everywhere else, and returns only
-    the specific postings whose URLs were asked for -- with full descriptions,
+    Given URLs from a Google search restricted to supported platforms, this
+    fetches requested Workday postings directly and groups other URLs by
+    (platform, slug) to fetch each company's board once. It returns only the
+    specific postings whose URLs were requested, with full descriptions,
     so language detection has real text to work with instead of a Google
     snippet.
 
@@ -417,6 +457,7 @@ def fetch_postings_for_urls(
     """
     requested: dict[tuple[str, str, str], str] = {}
     groups: dict[tuple[str, str], set[str]] = {}
+    workday_urls: list[str] = []
     unresolved: list[str] = []
     for url in urls:
         parsed = parse_job_url(url)
@@ -425,11 +466,33 @@ def fetch_postings_for_urls(
             continue
         platform, slug, job_key = parsed
         requested[(platform, slug, job_key)] = url
-        groups.setdefault((platform, slug), set()).add(job_key)
+        if platform == "workday":
+            workday_urls.append(url)
+        else:
+            groups.setdefault((platform, slug), set()).add(job_key)
 
     matched: list[dict] = []
     errors: list[str] = []
     found_keys: set[tuple[str, str, str]] = set()
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_url = {
+            executor.submit(fetch_workday_posting_url, url, verify=verify): url
+            for url in workday_urls
+        }
+        for future in as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                posting = future.result()
+            except Exception as exc:
+                errors.append(f"workday/{url}: {exc}")
+                continue
+            if not posting:
+                continue
+            key = parse_job_url(posting.get("url", "")) or parse_job_url(url)
+            if key and key not in found_keys:
+                matched.append(posting)
+                found_keys.add(key)
 
     def fetch_board(group: tuple[str, str]) -> list[dict]:
         platform, slug = group
@@ -474,6 +537,12 @@ def matches_city(posting: dict, city: str) -> bool:
         return True
     haystack = _normalize_place(f"{posting['location']} {posting['description']}")
     return city_lower in haystack
+
+
+def matches_city_location(posting: dict, city: str) -> bool:
+    """Match a city against the structured location field only."""
+    city_lower = _normalize_place(city)
+    return not city_lower or city_lower in _normalize_place(posting.get("location", ""))
 
 
 def matches_language(posting: dict, phrases: list[str]) -> bool:

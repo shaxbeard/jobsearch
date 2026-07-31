@@ -1,28 +1,38 @@
 :root {
-  --bg: #0f172a;
-  --panel: #1e293b;
-  --panel-2: #273449;
-  --text: #e2e8f0;
-  --muted: #94a3b8;
-  --accent: #38bdf8;
-  --accent-2: #22c55e;
-  --border: #334155;
+  --bg: #f5f7f7;
+  --panel: #ffffff;
+  --panel-2: #eef2f1;
+  --text: #17201f;
+  --muted: #687572;
+  --link: #25679a;
+  --chart: #55a69b;
+  --chart-edge: #23766d;
+  --chart-track: #e5eeec;
+  --count-accent: #a75a12;
+  --border: #d9dfdd;
+  --shadow: 0 8px 24px rgba(23, 23, 23, 0.06);
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
   background: var(--bg);
   color: var(--text);
 }
 
 .app-header {
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--panel);
   border-bottom: 1px solid var(--border);
 }
-.app-header h1 { margin: 0; font-size: 1.4rem; }
+.app-header h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.65rem;
+  font-weight: 500;
+}
 .subtitle { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.9rem; }
 
 .layout {
@@ -36,23 +46,35 @@ body {
   .layout { grid-template-columns: 1fr; }
 }
 
-.map-panel h2, .stats-panel h2 { margin-top: 0; }
+.map-panel h2, .stats-panel h2 {
+  margin-top: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+}
 .hint { color: var(--muted); font-size: 0.85rem; margin-top: -0.25rem; }
 
 #map {
   height: 560px;
   width: 100%;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid var(--border);
+  background: #eef0f2;
+  box-shadow: var(--shadow);
 }
 
 .stats-panel {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 1rem 1.25rem;
+  box-shadow: var(--shadow);
 }
-.stats-panel h3 { margin-bottom: 0.4rem; color: var(--accent); font-size: 0.95rem; }
+.stats-panel h3 {
+  margin-bottom: 0.4rem;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
 
 .stats-summary { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
 .stats-summary strong { color: var(--text); }
@@ -74,35 +96,50 @@ body {
 .rank-list .bar {
   flex: 1;
   height: 8px;
-  background: var(--panel-2);
+  background: var(--chart-track);
   border-radius: 4px;
   overflow: hidden;
 }
 .rank-list .bar span {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  background: var(--chart);
+  border-right: 2px solid var(--chart-edge);
 }
 .rank-list .count { color: var(--muted); min-width: 5.5rem; text-align: right; }
 
 /* City pin labels */
 .city-pin-label {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid var(--accent);
+  background: rgba(231, 240, 244, 0.97);
+  border: 1px solid #7898a5;
   color: var(--text);
   padding: 1px 6px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(40, 65, 75, 0.2);
 }
-.city-pin-label .pin-count { color: var(--accent); font-weight: 700; }
+.leaflet-tooltip-right.city-pin-label {
+  margin-left: -4px;
+  margin-top: -12px;
+}
+.leaflet-tooltip-left.city-pin-label {
+  margin-right: -4px;
+  margin-top: -12px;
+}
+.city-pin-label .pin-count { color: var(--count-accent); font-weight: 700; }
+/* Suppress Leaflet's default white tooltip pointer so it doesn't clash with the
+   dark label pill (labels sit on different sides of the pin per city). */
+.city-pin-label::before { display: none !important; }
 
 /* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2, 6, 23, 0.7);
+  background: rgba(23, 23, 23, 0.32);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,16 +151,21 @@ body {
 .modal {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   max-width: 640px;
   width: 100%;
   max-height: 85vh;
   overflow-y: auto;
   padding: 1.25rem 1.5rem;
   position: relative;
+  box-shadow: 0 24px 70px rgba(23, 23, 23, 0.18);
 }
-.modal h2 { margin-top: 0; }
-.modal h3 { color: var(--accent); font-size: 0.95rem; margin-bottom: 0.4rem; }
+.modal h2 {
+  margin-top: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+}
+.modal h3 { color: var(--text); font-size: 0.95rem; margin-bottom: 0.4rem; }
 .modal-meta { color: var(--muted); font-size: 0.85rem; margin-top: -0.25rem; }
 .modal-close {
   position: absolute;
@@ -150,14 +192,15 @@ body {
   padding: 0.6rem 0;
 }
 .postings-list .p-title { font-weight: 600; }
-.postings-list .p-title a { color: var(--accent); text-decoration: none; }
+.postings-list .p-title a { color: var(--link); text-decoration: none; }
 .postings-list .p-title a:hover { text-decoration: underline; }
 .postings-list .p-meta { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
 .postings-list .p-langs { margin-top: 4px; }
 .postings-list .tag {
   display: inline-block;
-  background: var(--panel-2);
-  color: var(--text);
+  background: #e7f2eb;
+  color: #286244;
+  border: 1px solid #cce2d3;
   border-radius: 4px;
   padding: 1px 6px;
   margin: 2px 4px 0 0;

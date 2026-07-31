@@ -7,15 +7,15 @@ language_trends.py, built so the two can be compared apples-to-apples.
 How it differs from language_trends.py:
   - language_trends.py crawls a fixed list of tracked companies
     (ats_companies.json) and ranks languages across their postings.
-  - This script instead runs ONE general Google search per city
+    - This script instead runs one general Google search per city
     ("engineer" | "developer" + the city, restricted to the supported ATS
     domains), which surfaces matching postings from *any* company Google has
     indexed -- including companies not in ats_companies.json.
 
 Why it still needs the ATS APIs: a Google result only carries a ~160-char
 snippet, which is far too thin to detect which languages a job wants. So for
-each result URL (all lever.co / greenhouse.io / jobs.ashbyhq.com links) we
-fetch the *full* job description from that platform's public API, then run the
+each result URL (Lever, Greenhouse, Ashby, or Workday) we fetch the *full* job
+description from that platform's public API, then run the
 exact same detection as language_trends.py (both import language_detect), so
 any difference in the rankings is due to which postings each pipeline finds
 (coverage), not how languages are detected (methodology).
@@ -76,6 +76,7 @@ from ats_job_search import (
     DEFAULT_TITLE_INCLUDE,
     fetch_postings_for_urls,
     matches_city,
+    matches_city_location,
     matches_role,
     matches_since_date,
     parse_job_url,
@@ -409,7 +410,14 @@ def main() -> int:
             for p in fetched
             if matches_role(p, include_keywords=title_include, exclude_keywords=title_exclude)
             and matches_since_date(p, since_date)
-            and (args.no_city_filter or matches_city(p, city))
+            and (
+                args.no_city_filter
+                or (
+                    matches_city_location(p, city)
+                    if p.get("platform") == "workday"
+                    else matches_city(p, city)
+                )
+            )
         ]
         new_with_langs = [
             {**p, "matched_languages": languages_in_posting(p)} for p in new_filtered

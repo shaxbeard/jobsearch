@@ -40,7 +40,7 @@ DEFAULT_ATS_SITES = [
     "lever.co",
     "greenhouse.io",
     "jobs.ashbyhq.com",
-    # "myworkdayjobs.com",
+    "myworkdayjobs.com",
     # "smartrecruiters.com",
     # "icims.com",
     # "workable.com",
@@ -56,7 +56,7 @@ DEFAULT_ATS_SITES = [
 ]
 DEFAULT_CITY = "toronto"
 ROLE_FILTER_TEMPLATE = '(engineer | developer) ("{city}") -staff -lead -principal after:2026-01-01'
-DEFAULT_SITE_BATCH_SIZE = 5 
+DEFAULT_SITE_BATCH_SIZE = 5
 SERPER_URL = "https://google.serper.dev/search"
 FREE_TIER_MAX_RESULTS = 10
 PAID_TIER_MAX_RESULTS = 100
