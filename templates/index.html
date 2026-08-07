@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Job Language Trends</title>
+  <title>HitListMagic Cafe</title>
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -14,8 +14,10 @@
 </head>
 <body>
   <header class="app-header">
-    <h1>Job Language Trends</h1>
-    <p class="subtitle">Programming-language demand across tracked North American tech cities</p>
+    <h1>HitListMagic Cafe</h1>
+    <button type="button" id="collection-method-open" class="header-link" aria-haspopup="dialog">
+      How we collect the data
+    </button>
   </header>
 
   <section class="date-range-toolbar" aria-label="Date range">
@@ -55,6 +57,12 @@
           <span id="overall-activity-start"></span>
           <span id="overall-activity-end"></span>
         </div>
+        <p class="activity-subheading">Average postings by weekday</p>
+        <div id="overall-weekday-average" class="activity-chart weekday-average-chart" role="img"></div>
+        <div class="weekday-axis" aria-hidden="true">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span>
+          <span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
       </details>
 
       <h3 id="overall-languages-title">Top languages (all cities)</h3>
@@ -80,6 +88,12 @@
           <span id="city-activity-start"></span>
           <span id="city-activity-end"></span>
         </div>
+        <p class="activity-subheading">Average postings by weekday</p>
+        <div id="city-weekday-average" class="activity-chart weekday-average-chart" role="img"></div>
+        <div class="weekday-axis" aria-hidden="true">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span>
+          <span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
       </details>
 
       <h3>Top languages</h3>
@@ -90,6 +104,31 @@
         <a id="download-postings" class="download-button" href="#" download>Download CSV</a>
       </div>
       <ul id="modal-postings" class="postings-list"></ul>
+    </div>
+  </div>
+
+  <div
+    id="collection-method-modal"
+    class="modal-overlay hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="collection-method-title"
+  >
+    <div class="modal info-modal">
+      <button class="modal-close" id="collection-method-close" aria-label="Close">&times;</button>
+      <h2 id="collection-method-title">How we collect the data</h2>
+      <p>
+        The job listing come from a two-stage process. First, we do a Google search for jobs on
+        applicant tracking systems (ATS) that employers use to advertise jobs. Second, we
+        retrieve the job details directly from those ATS companies to get a complete view of the posting.
+      </p>
+      <p>
+        Compare the results here with
+        <a href="https://hiring.cafe/" target="_blank" rel="noopener noreferrer">Hiring Cafe</a>,
+        which scrapes job postings directly from a list of known company websites. Hiring Cafe finds jobs
+        at established companies while HitListMagic Cafe finds jobs at smaller companies and startups
+        that use the ATS platforms.
+      </p>
     </div>
   </div>
 

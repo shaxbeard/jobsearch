@@ -113,6 +113,43 @@ function renderPostingActivity(chartId, startId, endId, activity) {
   document.getElementById(endId).textContent = formatCalendarDate(recent.at(-1).date);
 }
 
+function renderWeekdayAverages(chartId, activity) {
+  const chart = document.getElementById(chartId);
+  const weekdayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const totals = Array(7).fill(0);
+  const samples = Array(7).fill(0);
+  chart.innerHTML = "";
+
+  for (const day of activity || []) {
+    const parsed = new Date(`${day.date}T00:00:00Z`);
+    if (Number.isNaN(parsed.getTime())) continue;
+    const weekday = (parsed.getUTCDay() + 6) % 7;
+    totals[weekday] += day.count;
+    samples[weekday] += 1;
+  }
+
+  const averages = totals.map((total, index) =>
+    samples[index] ? total / samples[index] : 0
+  );
+  const maxAverage = Math.max(...averages, 1);
+  chart.style.gridTemplateColumns = "repeat(7, minmax(12px, 1fr))";
+  chart.setAttribute(
+    "aria-label",
+    `Average postings by weekday: ${averages
+      .map((average, index) => `${weekdayNames[index]} ${average.toFixed(1)}`)
+      .join(", ")}.`
+  );
+
+  averages.forEach((average, index) => {
+    const bar = el("span", "activity-bar weekday-average-bar");
+    const height = average ? Math.max((average / maxAverage) * 100, 8) : 2;
+    bar.style.height = `${height}%`;
+    bar.title = `${weekdayNames[index]}: ${average.toFixed(1)} average postings per day`;
+    bar.setAttribute("aria-label", bar.title);
+    chart.appendChild(bar);
+  });
+}
+
 // ---- Overall stats ---------------------------------------------------------
 async function loadStats() {
   const query = rangeQuery();
@@ -132,6 +169,7 @@ async function loadStats() {
     "overall-activity-end",
     data.posting_activity_daily
   );
+  renderWeekdayAverages("overall-weekday-average", data.posting_activity_daily);
 
   renderLanguageList(document.getElementById("overall-languages"), data.top_languages_overall || []);
 
@@ -236,6 +274,7 @@ async function openCityModal(cityKey) {
     "city-activity-end",
     data.posting_activity_daily
   );
+  renderWeekdayAverages("city-weekday-average", data.posting_activity_daily);
 
   renderLanguageList(document.getElementById("modal-languages"), data.languages || []);
 
@@ -289,8 +328,33 @@ document.getElementById("modal-close").addEventListener("click", closeModal);
 modal.addEventListener("click", (e) => {
   if (e.target === modal) closeModal();
 });
+
+const collectionMethodOpen = document.getElementById("collection-method-open");
+const collectionMethodModal = document.getElementById("collection-method-modal");
+const collectionMethodClose = document.getElementById("collection-method-close");
+
+function openCollectionMethod() {
+  collectionMethodModal.classList.remove("hidden");
+  collectionMethodClose.focus();
+}
+
+function closeCollectionMethod() {
+  collectionMethodModal.classList.add("hidden");
+  collectionMethodOpen.focus();
+}
+
+collectionMethodOpen.addEventListener("click", openCollectionMethod);
+collectionMethodClose.addEventListener("click", closeCollectionMethod);
+collectionMethodModal.addEventListener("click", (event) => {
+  if (event.target === collectionMethodModal) closeCollectionMethod();
+});
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeModal();
+  if (e.key !== "Escape") return;
+  if (!collectionMethodModal.classList.contains("hidden")) {
+    closeCollectionMethod();
+  } else if (!modal.classList.contains("hidden")) {
+    closeModal();
+  }
 });
 
 async function applyDateRange(key, start = "", end = "") {

@@ -1,6 +1,6 @@
-# Job Language Trends
+# Hit List Magic Tracker
 
-Job Language Trends tracks software-engineering postings across North American cities and estimates programming-language demand from the full text of each job description. It combines Google-based discovery, public applicant-tracking-system (ATS) endpoints, an incremental SQLite dataset, and a Flask frontend.
+Hit List Magic Tracker follows software-engineering hiring activity across North American cities. Programming-language demand, estimated from the full text of each job description, is one of the metrics it tracks. The app combines Google-based discovery, public applicant-tracking-system (ATS) endpoints, an incremental SQLite dataset, and a Flask frontend.
 
 The project is intended to answer questions such as:
 

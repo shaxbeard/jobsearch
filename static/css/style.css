@@ -23,9 +23,12 @@ body {
 }
 
 .app-header {
-  padding: 1.25rem 1.5rem;
+  align-items: flex-start;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 0.45rem;
+  padding: 1.25rem 1.5rem;
 }
 .app-header h1 {
   margin: 0;
@@ -33,7 +36,26 @@ body {
   font-size: 1.65rem;
   font-weight: 500;
 }
-.subtitle { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.9rem; }
+.header-link {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  margin-top: 0.05rem;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.header-link:hover { color: var(--text); }
+.header-link:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 3px;
+}
 
 .date-range-toolbar {
   align-items: center;
@@ -96,6 +118,9 @@ body {
   padding: 0.3rem 0.65rem;
 }
 @media (max-width: 650px) {
+  .app-header { gap: 0.35rem; padding-inline: 1rem; }
+  .app-header h1 { font-size: 1.4rem; }
+  .header-link { max-width: 6.75rem; }
   .date-range-toolbar { padding: 0.65rem 1rem; }
   .range-options { width: 100%; }
   .range-option { flex: 1; padding-inline: 0.2rem; }
@@ -163,6 +188,12 @@ body {
   font-size: 0.72rem;
   margin: 0.5rem 0 0.35rem;
 }
+.activity-subheading {
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin: 0.8rem 0 0.35rem;
+}
 .activity-chart {
   align-items: end;
   display: grid;
@@ -177,12 +208,30 @@ body {
   min-height: 2px;
 }
 .activity-bar:hover { background: var(--chart-edge); }
+.weekday-average-chart {
+  gap: 6px;
+  grid-template-columns: repeat(7, minmax(12px, 1fr));
+}
+.weekday-average-bar {
+  background: #8aa4b0;
+  border-color: #587985;
+}
+.weekday-average-bar:hover { background: #587985; }
 .activity-axis {
   color: var(--muted);
   display: flex;
   font-size: 0.68rem;
   justify-content: space-between;
   margin-top: 0.2rem;
+}
+.weekday-axis {
+  color: var(--muted);
+  display: grid;
+  font-size: 0.62rem;
+  gap: 6px;
+  grid-template-columns: repeat(7, minmax(12px, 1fr));
+  margin-top: 0.25rem;
+  text-align: center;
 }
 .activity-chart-empty {
   align-items: center;
@@ -279,6 +328,9 @@ body {
 }
 .modal h3 { color: var(--text); font-size: 0.95rem; margin-bottom: 0.4rem; }
 .modal-meta { color: var(--muted); font-size: 0.85rem; margin-top: -0.25rem; }
+.info-modal { max-width: 540px; }
+.info-modal p { color: var(--muted); line-height: 1.55; }
+.info-modal p:last-child { margin-bottom: 0; }
 .city-activity-panel { margin-top: 0.75rem; }
 .modal-close {
   position: absolute;
