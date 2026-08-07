@@ -103,16 +103,19 @@ from trends_db import (
     get_connection,
     get_last_fetched,
     get_postings,
+    posting_is_in_stats_window,
     set_city_counts,
+    stats_cutoff_date,
 )
 from trends_stats import write_stats
 
 # The tracked set of cities (updated together on each run). Edit this list to
 # add or drop a city from the ongoing dataset.
 DEFAULT_CITIES = (
-    "atlanta,austin,boston,chicago,dallas,denver,"
-    "los angeles,miami,minneapolis,new york,phoenix,portland,raleigh,"
-    "san diego,san francisco,san jose,seattle,toronto,washington dc"
+    "atlanta,austin,boston,charlotte,chicago,dallas,denver,houston,"
+    "los angeles,memphis,miami,minneapolis,new york,philadelphia,phoenix,"
+    "portland,raleigh,salt lake city,san diego,san francisco,san jose,"
+    "seattle,st louis,toronto,washington dc"
 )
 DEFAULT_TOP = 10
 # When resuming a city incrementally, look back a few days before its last-fetched
@@ -423,16 +426,18 @@ def main() -> int:
             {**p, "matched_languages": languages_in_posting(p)} for p in new_filtered
         ]
 
-        # Persist: append only the new postings, then re-rank over the city's
-        # full accumulated set (existing + new) so counts stay accurate.
+        # Persist every accepted posting for history/deduplication, but rank only
+        # the rolling six-month window. Older rows remain stored indefinitely.
         if conn is not None:
             if not args.no_postings:
                 add_postings(conn, city=city, source="google", postings=new_with_langs)
 
-        combined_matched_lists = [p["matched_languages"] for p in existing] + [
-            p["matched_languages"] for p in new_with_langs
+        cutoff = stats_cutoff_date()
+        recent_postings = [
+            p for p in (existing + new_with_langs) if posting_is_in_stats_window(p, cutoff)
         ]
-        total_matched = len(existing) + len(new_with_langs)
+        combined_matched_lists = [p["matched_languages"] for p in recent_postings]
+        total_matched = len(recent_postings)
         counts = count_from_matched_languages(combined_matched_lists)
         ranked = rank_languages(counts, total_matched)
 
@@ -456,7 +461,7 @@ def main() -> int:
                 "posted_at": p.get("posted_at", ""),
                 "matched_languages": p["matched_languages"],
             }
-            for p in (existing + new_with_langs)
+            for p in recent_postings
         ]
         results_by_city[city] = {
             "total_matched": total_matched,
@@ -465,7 +470,11 @@ def main() -> int:
             "languages_by_name": counts,
             "postings": combined_postings,
         }
-        print(f"[{city}] +{len(new_with_langs)} new, {total_matched} total stored.")
+        stored_total = len(existing) + len(new_with_langs)
+        print(
+            f"[{city}] +{len(new_with_langs)} new, {total_matched} in past 6 months "
+            f"({stored_total} total stored)."
+        )
         print_city_report(city, total_matched, ranked, args.top)
 
     if conn is not None:

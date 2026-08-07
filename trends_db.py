@@ -60,6 +60,7 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
+from calendar import monthrange
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -69,6 +70,7 @@ from pathlib import Path
 DEFAULT_DB_PATH = Path(
     os.environ.get("JOB_TRENDS_DB", Path(__file__).resolve().parent / "job_trends.db")
 )
+STATS_WINDOW_MONTHS = 6
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS cities (
@@ -240,6 +242,55 @@ def get_postings(conn: sqlite3.Connection, *, city: str, source: str) -> list[di
         posting["matched_languages"] = json.loads(posting["matched_languages"])
         postings.append(posting)
     return postings
+
+
+def stats_cutoff_date(now: datetime | None = None) -> str:
+    """Return the inclusive YYYY-MM-DD cutoff for the rolling stats window."""
+    current = (now or datetime.now(timezone.utc)).date()
+    month_index = current.year * 12 + current.month - 1 - STATS_WINDOW_MONTHS
+    year, zero_based_month = divmod(month_index, 12)
+    month = zero_based_month + 1
+    day = min(current.day, monthrange(year, month)[1])
+    return current.replace(year=year, month=month, day=day).isoformat()
+
+
+def posting_is_in_stats_window(posting: dict, cutoff: str | None = None) -> bool:
+    """Whether a posting's advertised date is inside the rolling stats window."""
+    posted_at = str(posting.get("posted_at") or "")
+    return len(posted_at) >= 10 and posted_at[:10] >= (cutoff or stats_cutoff_date())
+
+
+def get_postings_in_stats_window(
+    conn: sqlite3.Connection,
+    *,
+    city: str,
+    source: str,
+) -> list[dict]:
+    """Return recent postings without deleting older retained history."""
+    cutoff = stats_cutoff_date()
+    return [
+        posting
+        for posting in get_postings(conn, city=city, source=source)
+        if posting_is_in_stats_window(posting, cutoff)
+    ]
+
+
+def get_postings_in_date_range(
+    conn: sqlite3.Connection,
+    *,
+    city: str,
+    source: str,
+    start_date: str | None,
+    end_date: str,
+) -> list[dict]:
+    """Return retained postings inside an inclusive advertised-date range."""
+    return [
+        posting
+        for posting in get_postings(conn, city=city, source=source)
+        if len(str(posting.get("posted_at") or "")) >= 10
+        and (start_date is None or str(posting["posted_at"])[:10] >= start_date)
+        and str(posting["posted_at"])[:10] <= end_date
+    ]
 
 
 def add_postings(

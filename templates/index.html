@@ -18,18 +18,46 @@
     <p class="subtitle">Programming-language demand across tracked North American tech cities</p>
   </header>
 
+  <section class="date-range-toolbar" aria-label="Date range">
+    <span class="date-range-label">Date range</span>
+    <div class="range-options" role="group" aria-label="Date range presets">
+      <button type="button" class="range-option" data-range="1d">1D</button>
+      <button type="button" class="range-option" data-range="7d">7D</button>
+      <button type="button" class="range-option active" data-range="6m" aria-pressed="true">6M</button>
+      <button type="button" class="range-option" data-range="12m">12M</button>
+      <button type="button" class="range-option" data-range="ytd">YTD</button>
+      <button type="button" class="range-option" data-range="all">ALL</button>
+      <button type="button" class="range-option" data-range="custom">Custom</button>
+    </div>
+    <form id="custom-range" class="custom-range hidden">
+      <label>From <input id="custom-start" type="date" required /></label>
+      <label>To <input id="custom-end" type="date" required /></label>
+      <button type="submit" class="apply-range">Apply</button>
+    </form>
+  </section>
+
   <main class="layout">
     <section class="map-panel">
       <h2>Cities</h2>
-      <p class="hint">Click a pin to see that city's languages and job postings.</p>
+      <p class="hint">Click on a city to see details about its languages and job postings.</p>
       <div id="map"></div>
     </section>
 
     <aside class="stats-panel" id="stats-panel">
-      <h2>Overall stats</h2>
+      <h2 id="overall-stats-title">Overall</h2>
       <div id="stats-summary" class="stats-summary">Loading…</div>
 
-      <h3>Top languages (all cities)</h3>
+      <details class="activity-panel">
+        <summary>Posting activity by day</summary>
+        <p class="activity-note">ATS-advertised dates · up to 30 days</p>
+        <div id="overall-activity" class="activity-chart" role="img"></div>
+        <div class="activity-axis">
+          <span id="overall-activity-start"></span>
+          <span id="overall-activity-end"></span>
+        </div>
+      </details>
+
+      <h3 id="overall-languages-title">Top languages (all cities)</h3>
       <ol id="overall-languages" class="rank-list"></ol>
 
       <h3>Top job titles</h3>
@@ -44,10 +72,23 @@
       <h2 id="modal-title">City</h2>
       <p id="modal-meta" class="modal-meta"></p>
 
+      <details class="activity-panel city-activity-panel">
+        <summary>Posting activity by day</summary>
+        <p class="activity-note">ATS-advertised dates · up to 30 days</p>
+        <div id="city-activity" class="activity-chart" role="img"></div>
+        <div class="activity-axis">
+          <span id="city-activity-start"></span>
+          <span id="city-activity-end"></span>
+        </div>
+      </details>
+
       <h3>Top languages</h3>
       <ol id="modal-languages" class="rank-list"></ol>
 
-      <h3>Job postings <span id="modal-postings-count" class="muted"></span></h3>
+      <div class="postings-heading">
+        <h3><span id="modal-postings-title">Job postings</span> <span id="modal-postings-count" class="muted"></span></h3>
+        <a id="download-postings" class="download-button" href="#" download>Download CSV</a>
+      </div>
       <ul id="modal-postings" class="postings-list"></ul>
     </div>
   </div>

@@ -7,6 +7,24 @@ const map = L.map("map", {
   zoom: 4,
   scrollWheelZoom: true,
 });
+const cityMarkers = L.layerGroup().addTo(map);
+const cityMarkerByKey = new Map();
+
+const rangeState = {
+  key: "6m",
+  start: "",
+  end: "",
+};
+let activeCityKey = null;
+
+function rangeQuery() {
+  const params = new URLSearchParams({ range: rangeState.key });
+  if (rangeState.key === "custom") {
+    params.set("start", rangeState.start);
+    params.set("end", rangeState.end);
+  }
+  return params.toString();
+}
 
 L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
   maxZoom: 12,
@@ -54,16 +72,66 @@ function formatDate(iso) {
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString();
 }
 
+function formatCalendarDate(iso) {
+  if (!iso) return "";
+  const date = new Date(`${iso.slice(0, 10)}T00:00:00`);
+  return Number.isNaN(date.getTime())
+    ? iso
+    : date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function renderPostingActivity(chartId, startId, endId, activity) {
+  const chart = document.getElementById(chartId);
+  const recent = (activity || []).slice(-30);
+  chart.innerHTML = "";
+
+  if (!recent.length) {
+    chart.textContent = "No posting dates available.";
+    chart.classList.add("activity-chart-empty");
+    return;
+  }
+
+  chart.classList.remove("activity-chart-empty");
+  chart.style.gridTemplateColumns = `repeat(${recent.length}, minmax(2px, 1fr))`;
+  const maxCount = Math.max(...recent.map((day) => day.count), 1);
+  const total = recent.reduce((sum, day) => sum + day.count, 0);
+  chart.setAttribute(
+    "aria-label",
+    `${total} postings across ${recent.length} selected ${recent.length === 1 ? "day" : "days"}. Hover over a bar for its date and count.`
+  );
+
+  for (const day of recent) {
+    const bar = el("span", "activity-bar");
+    const height = day.count ? Math.max((day.count / maxCount) * 100, 8) : 2;
+    bar.style.height = `${height}%`;
+    bar.title = `${formatCalendarDate(day.date)}: ${day.count} posting${day.count === 1 ? "" : "s"}`;
+    bar.setAttribute("aria-label", bar.title);
+    chart.appendChild(bar);
+  }
+
+  document.getElementById(startId).textContent = formatCalendarDate(recent[0].date);
+  document.getElementById(endId).textContent = formatCalendarDate(recent.at(-1).date);
+}
+
 // ---- Overall stats ---------------------------------------------------------
 async function loadStats() {
-  const res = await fetch("/api/stats");
+  const query = rangeQuery();
+  const res = await fetch(`/api/stats?${query}`);
   const data = await res.json();
+  if (!res.ok || query !== rangeQuery()) return;
 
   const summary = document.getElementById("stats-summary");
   const bySource = (data.summary_by_source || [])
-    .map((s) => `<strong>${s.postings}</strong> postings across <strong>${s.cities}</strong> cities (${s.source})`)
+    .map((s) => `<strong>${s.postings}</strong> postings across <strong>${s.cities}</strong> ${s.cities === 1 ? "city" : "cities"} (${s.source})`)
     .join("<br>");
   summary.innerHTML = bySource || "No data yet.";
+
+  renderPostingActivity(
+    "overall-activity",
+    "overall-activity-start",
+    "overall-activity-end",
+    data.posting_activity_daily
+  );
 
   renderLanguageList(document.getElementById("overall-languages"), data.top_languages_overall || []);
 
@@ -90,8 +158,20 @@ const DEFAULT_LABEL_DIR = "right";
 
 // Cities whose right-side label would collide with a neighbor are flipped left.
 const LABEL_DIR_OVERRIDES = {
+  charlotte: "left",
+  memphis: "left",
+  "salt lake city": "left",
   "san francisco": "left",
   "san diego": "left",
+};
+
+const LABEL_OFFSET_OVERRIDES = {
+  atlanta: [6, 48],
+  boston: [6, -12],
+  houston: [6, 48],
+  memphis: [-26, 8],
+  "new york": [6, 8],
+  "washington dc": [6, 48],
 };
 
 // Display-only adjustments for crowded areas. The stored city coordinates stay
@@ -102,27 +182,36 @@ const DISPLAY_COORD_OVERRIDES = {
 };
 
 async function loadCities() {
-  const res = await fetch("/api/cities");
+  const query = rangeQuery();
+  const res = await fetch(`/api/cities?${query}`);
   const cities = await res.json();
+  if (!res.ok || query !== rangeQuery()) return;
 
   for (const c of cities) {
     if (c.lat == null || c.lng == null) continue;
+    const tooltipContent = `${c.label} <span class="pin-count">${c.total_matched}</span>`;
+    const existingMarker = cityMarkerByKey.get(c.city);
+    if (existingMarker) {
+      existingMarker.setTooltipContent(tooltipContent);
+      continue;
+    }
     const position = DISPLAY_COORD_OVERRIDES[c.city] || [c.lat, c.lng];
-    const marker = L.marker(position).addTo(map);
+    const marker = L.marker(position).addTo(cityMarkers);
     const dir = LABEL_DIR_OVERRIDES[c.city] || DEFAULT_LABEL_DIR;
     marker.bindTooltip(
-      `${c.label} <span class="pin-count">${c.total_matched}</span>`,
+      tooltipContent,
       {
         permanent: true,
         interactive: true,
         direction: dir,
         className: "city-pin-label",
-        offset: LABEL_OFFSETS[dir],
+        offset: LABEL_OFFSET_OVERRIDES[c.city] || LABEL_OFFSETS[dir],
       }
     );
     const openCity = () => openCityModal(c.city);
     marker.on("click", openCity);
     marker.getTooltip().on("click", openCity);
+    cityMarkerByKey.set(c.city, marker);
   }
 }
 
@@ -130,18 +219,33 @@ async function loadCities() {
 const modal = document.getElementById("city-modal");
 
 async function openCityModal(cityKey) {
-  const res = await fetch(`/api/city/${encodeURIComponent(cityKey)}`);
+  activeCityKey = cityKey;
+  const query = rangeQuery();
+  const res = await fetch(`/api/city/${encodeURIComponent(cityKey)}?${query}`);
   if (!res.ok) return;
   const data = await res.json();
+  if (query !== rangeQuery() || activeCityKey !== cityKey) return;
 
   document.getElementById("modal-title").textContent = data.label;
   document.getElementById("modal-meta").textContent =
-    `${data.total_matched} matched postings · last updated ${formatDate(data.updated_at)}`;
+    `${data.total_matched} matched postings in window · last updated ${formatDate(data.updated_at)}`;
+
+  renderPostingActivity(
+    "city-activity",
+    "city-activity-start",
+    "city-activity-end",
+    data.posting_activity_daily
+  );
 
   renderLanguageList(document.getElementById("modal-languages"), data.languages || []);
 
   const count = document.getElementById("modal-postings-count");
   count.textContent = `(${data.postings.length})`;
+  document.getElementById("modal-postings-title").textContent = "Job postings";
+
+  const download = document.getElementById("download-postings");
+  download.href = `/api/city/${encodeURIComponent(data.city)}/postings.csv?${rangeQuery()}`;
+  download.download = `${data.city.replaceAll(" ", "-")}-job-postings-${data.range_key}.csv`;
 
   const list = document.getElementById("modal-postings");
   list.innerHTML = "";
@@ -178,6 +282,7 @@ async function openCityModal(cityKey) {
 
 function closeModal() {
   modal.classList.add("hidden");
+  activeCityKey = null;
 }
 
 document.getElementById("modal-close").addEventListener("click", closeModal);
@@ -186,6 +291,49 @@ modal.addEventListener("click", (e) => {
 });
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeModal();
+});
+
+async function applyDateRange(key, start = "", end = "") {
+  rangeState.key = key;
+  rangeState.start = start;
+  rangeState.end = end;
+  document.querySelectorAll(".range-option").forEach((button) => {
+    const active = button.dataset.range === key;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  await Promise.all([loadStats(), loadCities()]);
+  if (activeCityKey) await openCityModal(activeCityKey);
+}
+
+const customRange = document.getElementById("custom-range");
+const customStart = document.getElementById("custom-start");
+const customEnd = document.getElementById("custom-end");
+const today = new Date().toISOString().slice(0, 10);
+customStart.max = today;
+customEnd.max = today;
+customEnd.value = today;
+
+document.querySelectorAll(".range-option").forEach((button) => {
+  button.addEventListener("click", () => {
+    const key = button.dataset.range;
+    const isCustom = key === "custom";
+    customRange.classList.toggle("hidden", !isCustom);
+    if (isCustom) {
+      customStart.focus();
+      return;
+    }
+    applyDateRange(key);
+  });
+});
+
+customRange.addEventListener("submit", (event) => {
+  event.preventDefault();
+  customStart.setCustomValidity(
+    customStart.value > customEnd.value ? "Start date must not be after end date." : ""
+  );
+  if (!customRange.reportValidity()) return;
+  applyDateRange("custom", customStart.value, customEnd.value);
 });
 
 // ---- Init ------------------------------------------------------------------

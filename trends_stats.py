@@ -29,38 +29,86 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from language_detect import count_from_matched_languages, rank_languages
-from trends_db import DEFAULT_DB_PATH, ensure_schema, get_connection
+from trends_db import (
+    DEFAULT_DB_PATH,
+    STATS_WINDOW_MONTHS,
+    ensure_schema,
+    get_connection,
+    stats_cutoff_date,
+)
 
 # Stable filenames refreshed on every fetch run (see write_stats).
 LATEST_STATS_TXT = "latest_stats.txt"
 LATEST_STATS_JSON = "latest_stats.json"
 
 
-def load_postings(conn, source: str) -> list[dict]:
-    """Return postings as dicts with matched_languages decoded to a list."""
+def load_postings(
+    conn,
+    source: str,
+    *,
+    start_date: str | None = None,
+    end_date: str | None = None,
+) -> list[dict]:
+    """Return in-window postings with matched_languages decoded to a list."""
+    start_date = start_date or stats_cutoff_date()
+    end_date = end_date or datetime.now(timezone.utc).date().isoformat()
     if source == "all":
         rows = conn.execute(
-            "SELECT city, source, title, matched_languages FROM postings"
+            "SELECT city, source, title, posted_at, matched_languages FROM postings "
+            "WHERE date(posted_at) BETWEEN date(?) AND date(?)",
+            (start_date, end_date),
         ).fetchall()
     else:
         rows = conn.execute(
-            "SELECT city, source, title, matched_languages FROM postings WHERE source = ?",
-            (source,),
+            "SELECT city, source, title, posted_at, matched_languages FROM postings "
+            "WHERE source = ? AND date(posted_at) BETWEEN date(?) AND date(?)",
+            (source, start_date, end_date),
         ).fetchall()
 
     postings = []
-    for city, src, title, matched_json in rows:
+    for city, src, title, posted_at, matched_json in rows:
         try:
             langs = json.loads(matched_json) if matched_json else []
         except (TypeError, json.JSONDecodeError):
             langs = []
         postings.append(
-            {"city": city, "source": src, "title": title or "", "matched_languages": langs}
+            {
+                "city": city,
+                "source": src,
+                "title": title or "",
+                "posted_at": posted_at or "",
+                "matched_languages": langs,
+            }
         )
     return postings
+
+
+def build_daily_posting_counts(
+    postings: list[dict],
+    *,
+    cutoff: str | None = None,
+    through: date | None = None,
+) -> list[dict]:
+    """Return a zero-filled daily series based on ATS-advertised posting dates."""
+    first_day = date.fromisoformat(cutoff or stats_cutoff_date())
+    last_day = through or datetime.now(timezone.utc).date()
+    counts = Counter(
+        str(posting.get("posted_at") or "")[:10]
+        for posting in postings
+        if len(str(posting.get("posted_at") or "")) >= 10
+    )
+    days = (last_day - first_day).days
+    return [
+        {
+            "date": (first_day + timedelta(days=offset)).isoformat(),
+            "count": counts[(first_day + timedelta(days=offset)).isoformat()],
+        }
+        for offset in range(max(days + 1, 0))
+    ]
 
 
 def _rank(postings: list[dict], top: int) -> list[dict]:
@@ -73,18 +121,32 @@ def _rank(postings: list[dict], top: int) -> list[dict]:
     return [row for row in ranked if row["count"] > 0][:top]
 
 
-def build_stats_data(conn, *, source: str, top: int, titles: int) -> dict:
+def build_stats_data(
+    conn,
+    *,
+    source: str,
+    top: int,
+    titles: int,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    range_key: str = "6m",
+    range_label: str = "Past 6 months",
+) -> dict:
     """Structured running statistics (used for both the text report and JSON)."""
+    cutoff = start_date or stats_cutoff_date()
+    through = end_date or datetime.now(timezone.utc).date().isoformat()
     summary = conn.execute(
         "SELECT source, COUNT(DISTINCT city), COUNT(*), MAX(updated_at_utc) "
-        "FROM postings GROUP BY source ORDER BY source"
+        "FROM postings WHERE date(posted_at) BETWEEN date(?) AND date(?) "
+        "GROUP BY source ORDER BY source",
+        (cutoff, through),
     ).fetchall()
     by_source = [
         {"source": src, "cities": n_cities, "postings": n_postings, "last_update": last}
         for src, n_cities, n_postings, last in summary
     ]
 
-    postings = load_postings(conn, source)
+    postings = load_postings(conn, source, start_date=cutoff, end_date=through)
     cities = sorted({p["city"] for p in postings})
     per_city = [
         {"city": city, "postings": len([p for p in postings if p["city"] == city]),
@@ -95,7 +157,16 @@ def build_stats_data(conn, *, source: str, top: int, titles: int) -> dict:
 
     return {
         "source": source,
+        "window_months": STATS_WINDOW_MONTHS,
+        "range_key": range_key,
+        "range_label": range_label,
+        "start_date": cutoff,
+        "end_date": through,
+        "cutoff_date": cutoff,
         "total_postings": len(postings),
+        "posting_activity_daily": build_daily_posting_counts(
+            postings, cutoff=cutoff, through=date.fromisoformat(through)
+        ),
         "summary_by_source": by_source,
         "top_languages_per_city": per_city,
         "top_languages_overall": _rank(postings, top),
@@ -117,14 +188,14 @@ def build_report(conn, *, source: str, top: int, titles: int, db_path: str = "")
         lines.append("(no postings stored yet)")
         return "\n".join(lines)
 
-    lines.append("\nStored data by source:")
+    lines.append("\nData in stats window by source:")
     for s in data["summary_by_source"]:
         lines.append(
             f"  {s['source']:<8} {s['postings']:>4} postings across "
             f"{s['cities']:>2} cities  (last update {s['last_update']})"
         )
 
-    header = f"source={source}"
+    header = f"source={source}, past {STATS_WINDOW_MONTHS} months"
     if data["total_postings"] == 0:
         lines.append(f"\nNo postings for source={source!r}.")
         return "\n".join(lines)

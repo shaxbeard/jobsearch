@@ -1,93 +1,115 @@
 Database: /Users/ecarlso2/Projects/job-searching/job_trends.db
 
-Stored data by source:
-  google    613 postings across 19 cities  (last update 2026-07-31T17:01:03.028586+00:00)
+Data in stats window by source:
+  google    768 postings across 25 cities  (last update 2026-08-06T10:37:32.067005+00:00)
 
 ------------------------------------------------------------
-TOP LANGUAGES PER CITY (source=google)
+TOP LANGUAGES PER CITY (source=google, past 6 months)
 ------------------------------------------------------------
 
 === Atlanta (26 postings) ===
    1. JavaScript/TypeScript    11  (42.3%)
-   2. Python                   10  (38.5%)
-   3. C++                       6  (23.1%)
-   4. Java                      6  (23.1%)
-   5. Rust                      5  (19.2%)
-   6. C#                        3  (11.5%)
-   7. Kotlin                    3  (11.5%)
-   8. SQL                       3  (11.5%)
-   9. Go                        2  (7.7%)
-  10. Ruby                      2  (7.7%)
+   2. Python                    9  (34.6%)
+   3. Java                      7  (26.9%)
+   4. C++                       6  (23.1%)
+   5. C#                        5  (19.2%)
+   6. SQL                       5  (19.2%)
+   7. Rust                      4  (15.4%)
+   8. Kotlin                    3  (11.5%)
+   9. Ruby                      2  (7.7%)
+  10. Swift                     2  (7.7%)
 
-=== Austin (35 postings) ===
-   1. JavaScript/TypeScript    16  (45.7%)
-   2. Python                   16  (45.7%)
-   3. Java                     14  (40.0%)
-   4. C++                       7  (20.0%)
-   5. SQL                       7  (20.0%)
-   6. Rust                      6  (17.1%)
-   7. Ruby                      4  (11.4%)
-   8. Kotlin                    3  (8.6%)
-   9. PHP                       3  (8.6%)
-  10. C#                        2  (5.7%)
+=== Austin (41 postings) ===
+   1. Python                   20  (48.8%)
+   2. JavaScript/TypeScript    19  (46.3%)
+   3. Java                     16  (39.0%)
+   4. SQL                       9  (22.0%)
+   5. C++                       8  (19.5%)
+   6. Rust                      8  (19.5%)
+   7. Ruby                      4  (9.8%)
+   8. C#                        3  (7.3%)
+   9. Kotlin                    3  (7.3%)
+  10. PHP                       3  (7.3%)
 
-=== Boston (43 postings) ===
-   1. Python                   18  (41.9%)
-   2. C++                       9  (20.9%)
-   3. Java                      9  (20.9%)
-   4. JavaScript/TypeScript     9  (20.9%)
-   5. SQL                       7  (16.3%)
-   6. Rust                      4  (9.3%)
-   7. C#                        2  (4.7%)
-   8. Go                        1  (2.3%)
-   9. Ruby                      1  (2.3%)
-  10. Scala                     1  (2.3%)
+=== Boston (45 postings) ===
+   1. Python                   23  (51.1%)
+   2. Java                     13  (28.9%)
+   3. JavaScript/TypeScript    13  (28.9%)
+   4. C++                      11  (24.4%)
+   5. SQL                       7  (15.6%)
+   6. C#                        6  (13.3%)
+   7. Rust                      6  (13.3%)
+   8. Go                        1  (2.2%)
+   9. Ruby                      1  (2.2%)
+  10. Scala                     1  (2.2%)
 
-=== Chicago (28 postings) ===
-   1. Python                   15  (53.6%)
-   2. JavaScript/TypeScript     8  (28.6%)
-   3. C++                       6  (21.4%)
-   4. Java                      6  (21.4%)
-   5. SQL                       6  (21.4%)
-   6. Go                        3  (10.7%)
-   7. Ruby                      3  (10.7%)
-   8. PHP                       2  (7.1%)
-   9. C#                        1  (3.6%)
-  10. Rust                      1  (3.6%)
+=== Charlotte (1 postings) ===
+   1. Elixir                    1  (100.0%)
+   2. Python                    1  (100.0%)
+   3. Rust                      1  (100.0%)
 
-=== Dallas (11 postings) ===
-   1. JavaScript/TypeScript     4  (36.4%)
-   2. Python                    4  (36.4%)
-   3. Java                      3  (27.3%)
-   4. Ruby                      2  (18.2%)
-   5. SQL                       2  (18.2%)
-   6. C#                        1  (9.1%)
-   7. Elixir                    1  (9.1%)
-   8. Rust                      1  (9.1%)
+=== Chicago (30 postings) ===
+   1. Python                   17  (56.7%)
+   2. Java                      9  (30.0%)
+   3. JavaScript/TypeScript     8  (26.7%)
+   4. SQL                       7  (23.3%)
+   5. C++                       6  (20.0%)
+   6. Ruby                      4  (13.3%)
+   7. Go                        3  (10.0%)
+   8. Scala                     3  (10.0%)
+   9. PHP                       2  (6.7%)
+  10. Rust                      2  (6.7%)
 
-=== Denver (29 postings) ===
-   1. Java                     12  (41.4%)
-   2. JavaScript/TypeScript    12  (41.4%)
-   3. Python                   10  (34.5%)
-   4. C++                       4  (13.8%)
-   5. Ruby                      4  (13.8%)
-   6. SQL                       3  (10.3%)
-   7. Go                        2  (6.9%)
-   8. Kotlin                    2  (6.9%)
-   9. Rust                      2  (6.9%)
-  10. Scala                     2  (6.9%)
+=== Dallas (13 postings) ===
+   1. JavaScript/TypeScript     6  (46.2%)
+   2. Python                    4  (30.8%)
+   3. Java                      3  (23.1%)
+   4. SQL                       3  (23.1%)
+   5. C#                        2  (15.4%)
+   6. Ruby                      2  (15.4%)
+   7. Elixir                    1  (7.7%)
+   8. Rust                      1  (7.7%)
 
-=== Los Angeles (49 postings) ===
-   1. Python                   25  (51.0%)
-   2. JavaScript/TypeScript    15  (30.6%)
-   3. Java                     10  (20.4%)
-   4. SQL                       8  (16.3%)
-   5. C++                       5  (10.2%)
-   6. Rust                      5  (10.2%)
-   7. Go                        3  (6.1%)
-   8. PHP                       3  (6.1%)
-   9. Ruby                      3  (6.1%)
-  10. Kotlin                    2  (4.1%)
+=== Denver (32 postings) ===
+   1. Java                     13  (40.6%)
+   2. JavaScript/TypeScript    13  (40.6%)
+   3. Python                   12  (37.5%)
+   4. Ruby                      5  (15.6%)
+   5. C++                       4  (12.5%)
+   6. SQL                       3  (9.4%)
+   7. Scala                     3  (9.4%)
+   8. Go                        2  (6.2%)
+   9. Kotlin                    2  (6.2%)
+  10. Rust                      2  (6.2%)
+
+=== Houston (8 postings) ===
+   1. Python                    7  (87.5%)
+   2. JavaScript/TypeScript     5  (62.5%)
+   3. Java                      2  (25.0%)
+   4. SQL                       2  (25.0%)
+   5. C#                        1  (12.5%)
+   6. C++                       1  (12.5%)
+   7. MATLAB                    1  (12.5%)
+
+=== Los Angeles (60 postings) ===
+   1. Python                   29  (48.3%)
+   2. JavaScript/TypeScript    20  (33.3%)
+   3. Java                     15  (25.0%)
+   4. SQL                       9  (15.0%)
+   5. Rust                      7  (11.7%)
+   6. C++                       6  (10.0%)
+   7. Scala                     5  (8.3%)
+   8. Go                        4  (6.7%)
+   9. PHP                       4  (6.7%)
+  10. Kotlin                    3  (5.0%)
+
+=== Memphis (2 postings) ===
+   1. SQL                       2  (100.0%)
+   2. C#                        1  (50.0%)
+   3. Java                      1  (50.0%)
+   4. JavaScript/TypeScript     1  (50.0%)
+   5. Python                    1  (50.0%)
+   6. Scala                     1  (50.0%)
 
 === Miami (10 postings) ===
    1. JavaScript/TypeScript     7  (70.0%)
@@ -98,38 +120,50 @@ TOP LANGUAGES PER CITY (source=google)
    6. Java                      1  (10.0%)
    7. SQL                       1  (10.0%)
 
-=== Minneapolis (4 postings) ===
-   1. Python                    3  (75.0%)
-   2. Rust                      3  (75.0%)
-   3. JavaScript/TypeScript     2  (50.0%)
-   4. C++                       1  (25.0%)
-   5. Elixir                    1  (25.0%)
-   6. PHP                       1  (25.0%)
-   7. Ruby                      1  (25.0%)
+=== Minneapolis (6 postings) ===
+   1. Python                    3  (50.0%)
+   2. Rust                      3  (50.0%)
+   3. Java                      2  (33.3%)
+   4. JavaScript/TypeScript     2  (33.3%)
+   5. Kotlin                    2  (33.3%)
+   6. C++                       1  (16.7%)
+   7. Elixir                    1  (16.7%)
+   8. PHP                       1  (16.7%)
+   9. Ruby                      1  (16.7%)
 
-=== New York (87 postings) ===
-   1. JavaScript/TypeScript    42  (48.3%)
-   2. Python                   34  (39.1%)
-   3. Java                     22  (25.3%)
-   4. SQL                      14  (16.1%)
-   5. Go                        8  (9.2%)
-   6. C++                       5  (5.7%)
-   7. Ruby                      5  (5.7%)
-   8. Rust                      5  (5.7%)
-   9. Scala                     4  (4.6%)
-  10. Kotlin                    3  (3.4%)
+=== New York (122 postings) ===
+   1. JavaScript/TypeScript    61  (50.0%)
+   2. Python                   51  (41.8%)
+   3. Java                     30  (24.6%)
+   4. SQL                      19  (15.6%)
+   5. Go                        9  (7.4%)
+   6. Ruby                      9  (7.4%)
+   7. C++                       8  (6.6%)
+   8. Rust                      8  (6.6%)
+   9. Scala                     6  (4.9%)
+  10. Swift                     5  (4.1%)
 
-=== Phoenix (10 postings) ===
-   1. SQL                       5  (50.0%)
-   2. Elixir                    4  (40.0%)
-   3. Python                    4  (40.0%)
-   4. C#                        3  (30.0%)
-   5. Java                      2  (20.0%)
-   6. JavaScript/TypeScript     2  (20.0%)
-   7. Ruby                      2  (20.0%)
-   8. C++                       1  (10.0%)
-   9. Rust                      1  (10.0%)
-  10. Shell/Bash                1  (10.0%)
+=== Philadelphia (5 postings) ===
+   1. Dart                      2  (40.0%)
+   2. Java                      2  (40.0%)
+   3. JavaScript/TypeScript     2  (40.0%)
+   4. C#                        1  (20.0%)
+   5. Kotlin                    1  (20.0%)
+   6. Python                    1  (20.0%)
+   7. SQL                       1  (20.0%)
+   8. Swift                     1  (20.0%)
+
+=== Phoenix (12 postings) ===
+   1. SQL                       7  (58.3%)
+   2. Elixir                    5  (41.7%)
+   3. Python                    4  (33.3%)
+   4. Ruby                      4  (33.3%)
+   5. C#                        3  (25.0%)
+   6. JavaScript/TypeScript     3  (25.0%)
+   7. Java                      2  (16.7%)
+   8. C++                       1  (8.3%)
+   9. Kotlin                    1  (8.3%)
+  10. Rust                      1  (8.3%)
 
 === Portland (7 postings) ===
    1. JavaScript/TypeScript     4  (57.1%)
@@ -147,102 +181,120 @@ TOP LANGUAGES PER CITY (source=google)
    6. Java                      1  (16.7%)
    7. Rust                      1  (16.7%)
 
-=== San Diego (26 postings) ===
-   1. Python                   14  (53.8%)
-   2. C++                      11  (42.3%)
-   3. JavaScript/TypeScript     7  (26.9%)
-   4. Java                      5  (19.2%)
-   5. Shell/Bash                3  (11.5%)
-   6. C#                        2  (7.7%)
-   7. SQL                       2  (7.7%)
-   8. Kotlin                    1  (3.8%)
-   9. Rust                      1  (3.8%)
+=== Salt Lake City (7 postings) ===
+   1. Java                      4  (57.1%)
+   2. Python                    3  (42.9%)
+   3. C#                        1  (14.3%)
+   4. C++                       1  (14.3%)
+   5. Elixir                    1  (14.3%)
+   6. JavaScript/TypeScript     1  (14.3%)
+   7. Ruby                      1  (14.3%)
+   8. Rust                      1  (14.3%)
+   9. SQL                       1  (14.3%)
 
-=== San Francisco (100 postings) ===
-   1. Python                   47  (47.0%)
-   2. JavaScript/TypeScript    42  (42.0%)
-   3. Rust                     12  (12.0%)
-   4. C++                      10  (10.0%)
-   5. SQL                       8  (8.0%)
-   6. Ruby                      7  (7.0%)
-   7. Go                        6  (6.0%)
-   8. Java                      6  (6.0%)
-   9. Swift                     3  (3.0%)
-  10. Elixir                    2  (2.0%)
+=== San Diego (28 postings) ===
+   1. Python                   17  (60.7%)
+   2. C++                      10  (35.7%)
+   3. JavaScript/TypeScript     8  (28.6%)
+   4. Java                      7  (25.0%)
+   5. SQL                       3  (10.7%)
+   6. Shell/Bash                3  (10.7%)
+   7. C#                        2  (7.1%)
+   8. Scala                     2  (7.1%)
+   9. Kotlin                    1  (3.6%)
+  10. Rust                      1  (3.6%)
 
-=== San Jose (17 postings) ===
-   1. Python                    5  (29.4%)
-   2. C++                       4  (23.5%)
-   3. Java                      4  (23.5%)
-   4. JavaScript/TypeScript     2  (11.8%)
-   5. Shell/Bash                2  (11.8%)
-   6. C#                        1  (5.9%)
-   7. PHP                       1  (5.9%)
-   8. Rust                      1  (5.9%)
-   9. Scala                     1  (5.9%)
+=== San Francisco (145 postings) ===
+   1. Python                   71  (49.0%)
+   2. JavaScript/TypeScript    67  (46.2%)
+   3. Java                     17  (11.7%)
+   4. Rust                     16  (11.0%)
+   5. SQL                      13  (9.0%)
+   6. C++                      10  (6.9%)
+   7. Ruby                      8  (5.5%)
+   8. Go                        7  (4.8%)
+   9. Kotlin                    4  (2.8%)
+  10. Scala                     3  (2.1%)
 
-=== Seattle (55 postings) ===
-   1. Python                   29  (52.7%)
-   2. C++                      18  (32.7%)
-   3. JavaScript/TypeScript    11  (20.0%)
-   4. Rust                      9  (16.4%)
-   5. Java                      7  (12.7%)
-   6. SQL                       5  (9.1%)
-   7. Go                        4  (7.3%)
-   8. Ruby                      4  (7.3%)
-   9. C#                        3  (5.5%)
-  10. Kotlin                    2  (3.6%)
+=== San Jose (21 postings) ===
+   1. Python                    6  (28.6%)
+   2. C++                       5  (23.8%)
+   3. Java                      5  (23.8%)
+   4. JavaScript/TypeScript     4  (19.0%)
+   5. Shell/Bash                3  (14.3%)
+   6. SQL                       2  (9.5%)
+   7. C#                        1  (4.8%)
+   8. Elixir                    1  (4.8%)
+   9. Kotlin                    1  (4.8%)
+  10. PHP                       1  (4.8%)
 
-=== Toronto (38 postings) ===
-   1. JavaScript/TypeScript    15  (39.5%)
-   2. Python                   13  (34.2%)
-   3. Java                      9  (23.7%)
+=== Seattle (60 postings) ===
+   1. Python                   33  (55.0%)
+   2. C++                      20  (33.3%)
+   3. JavaScript/TypeScript    12  (20.0%)
+   4. Java                     10  (16.7%)
+   5. Rust                     10  (16.7%)
+   6. SQL                       6  (10.0%)
+   7. Ruby                      5  (8.3%)
+   8. C#                        4  (6.7%)
+   9. Go                        4  (6.7%)
+  10. Kotlin                    3  (5.0%)
+
+=== St Louis (2 postings) ===
+   1. JavaScript/TypeScript     2  (100.0%)
+   2. Python                    2  (100.0%)
+   3. C++                       1  (50.0%)
+
+=== Toronto (41 postings) ===
+   1. Python                   16  (39.0%)
+   2. JavaScript/TypeScript    14  (34.1%)
+   3. Java                      9  (22.0%)
+   4. SQL                       7  (17.1%)
+   5. C#                        5  (12.2%)
+   6. C++                       2  (4.9%)
+   7. Ruby                      2  (4.9%)
+   8. Shell/Bash                2  (4.9%)
+   9. Go                        1  (2.4%)
+  10. Groovy                    1  (2.4%)
+
+=== Washington Dc (38 postings) ===
+   1. Python                   15  (39.5%)
+   2. JavaScript/TypeScript    13  (34.2%)
+   3. Java                      8  (21.1%)
    4. SQL                       8  (21.1%)
-   5. C#                        6  (15.8%)
-   6. C++                       2  (5.3%)
-   7. Ruby                      2  (5.3%)
-   8. Shell/Bash                2  (5.3%)
-   9. Go                        1  (2.6%)
-  10. Groovy                    1  (2.6%)
-
-=== Washington Dc (32 postings) ===
-   1. Python                   14  (43.8%)
-   2. JavaScript/TypeScript    11  (34.4%)
-   3. Java                      7  (21.9%)
-   4. SQL                       5  (15.6%)
-   5. C++                       3  (9.4%)
-   6. C#                        2  (6.2%)
-   7. Ruby                      2  (6.2%)
-   8. Scala                     2  (6.2%)
-   9. Shell/Bash                2  (6.2%)
-  10. Go                        1  (3.1%)
+   5. C#                        3  (7.9%)
+   6. C++                       3  (7.9%)
+   7. Scala                     3  (7.9%)
+   8. Go                        2  (5.3%)
+   9. Ruby                      2  (5.3%)
+  10. Rust                      2  (5.3%)
 
 ------------------------------------------------------------
-TOP LANGUAGES OVERALL (source=google)
+TOP LANGUAGES OVERALL (source=google, past 6 months)
 ------------------------------------------------------------
 
-=== All cities combined (613 postings) ===
-   1. Python                  271  (44.2%)
-   2. JavaScript/TypeScript   220  (35.9%)
-   3. Java                    124  (20.2%)
-   4. C++                      95  (15.5%)
-   5. SQL                      87  (14.2%)
-   6. Rust                     60  (9.8%)
-   7. Ruby                     42  (6.9%)
-   8. Go                       34  (5.5%)
-   9. C#                       31  (5.1%)
-  10. Shell/Bash               23  (3.8%)
+=== All cities combined (768 postings) ===
+   1. Python                  355  (46.2%)
+   2. JavaScript/TypeScript   296  (38.5%)
+   3. Java                    177  (23.0%)
+   4. SQL                     118  (15.4%)
+   5. C++                     107  (13.9%)
+   6. Rust                     76  (9.9%)
+   7. Ruby                     53  (6.9%)
+   8. C#                       45  (5.9%)
+   9. Go                       37  (4.8%)
+  10. Scala                    32  (4.2%)
 
 ------------------------------------------------------------
-TOP 10 JOB TITLES OVERALL (source=google)
+TOP 10 JOB TITLES OVERALL (source=google, past 6 months)
 ------------------------------------------------------------
-   1.  37x  Senior Software Engineer
-   2.  24x  Software Engineer
+   1.  44x  Senior Software Engineer
+   2.  29x  Software Engineer
    3.  11x  Senior Data Platform Engineer
-   4.   8x  Software Engineer (L2)
-   5.   7x  Backend Engineer III - Hunt
-   6.   6x  Senior Backend Engineer
-   7.   5x  Platform Engineer
-   8.   5x  Senior Backend Software Engineer
-   9.   5x  Senior Software Engineer, Backend
-  10.   5x  Senior Software Development Engineer in Test
+   4.   9x  Software Engineer (L2)
+   5.   9x  Backend Engineer III - Hunt
+   6.   8x  Senior Backend Engineer
+   7.   7x  Platform Engineer
+   8.   6x  Full Stack Engineer
+   9.   6x  Senior Full-Stack Engineer
+  10.   6x  Senior Backend Software Engineer

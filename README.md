@@ -111,7 +111,7 @@ Data is separated by source:
 - `google`: postings found through the normal Google/Serper pipeline. The frontend currently reads this source.
 - `ats`: postings found by the optional fixed-company crawl.
 
-The Google pipeline is append-only for accepted postings. It keeps accumulated job history rather than deleting older or subsequently closed jobs. It does not currently track a separate run-history table or actively retire closed postings.
+The Google pipeline is append-only for accepted postings. It keeps accumulated job history rather than deleting older or subsequently closed jobs. Statistics, map totals, rankings, and frontend posting lists use only postings whose advertised date falls within the rolling past six calendar months. Older postings remain in `postings` for history and URL deduplication but do not contribute to current statistics. The project does not currently track a separate run-history table or actively retire closed postings.
 
 ## Incremental Updates
 
@@ -121,9 +121,13 @@ Each city is updated independently:
 - Later fetches resume from that city's last update with a three-day lookback.
 - The overlap protects against jobs that Google indexes after their advertised posting date.
 - Stable platform/job keys prevent duplicate storage during the overlap.
-- Language counts are recalculated over the city's complete accumulated set after each update.
+- Language counts are recalculated over the city's rolling six-month set after each update. The complete accumulated set remains stored.
 
 A job newly discovered today may have an older `posted_at` value. "New this run" means newly added to this dataset, not necessarily advertised in the last 24 hours.
+
+`posted_at` comes from the normalized ATS payload rather than the date Google discovered the URL. Workday uses `startDate`, Lever uses `createdAt`, Ashby uses `publishedAt`, and Greenhouse uses `first_published` when available with `updated_at` as a fallback. Daily posting activity should therefore be treated as an informative ATS-advertised-date trend, not a precise measurement of when every employer first created a requisition.
+
+The six-month cutoff is inclusive and calendar-based. For example, on July 31 the active window begins January 31. API and frontend statistics are calculated dynamically from `postings`, so a job ages out of displayed statistics even if no new fetch runs that day.
 
 ## Local Setup
 
@@ -186,12 +190,13 @@ Useful options:
 --db-path               Use a specific SQLite file
 ```
 
-The default tracked set contains 19 cities:
+The default tracked set contains 25 cities:
 
 ```text
-Atlanta, Austin, Boston, Chicago, Dallas, Denver, Los Angeles, Miami,
-Minneapolis, New York, Phoenix, Portland, Raleigh, San Diego,
-San Francisco, San Jose, Seattle, Toronto, Washington DC
+Atlanta, Austin, Boston, Charlotte, Chicago, Dallas, Denver, Houston,
+Los Angeles, Memphis, Miami, Minneapolis, New York, Philadelphia,
+Phoenix, Portland, Raleigh, Salt Lake City, San Diego, San Francisco,
+San Jose, Seattle, St. Louis, Toronto, Washington DC
 ```
 
 Edit `DEFAULT_CITIES` in `google_language_trends.py` and add coordinates to `CITY_COORDS` in `app.py` when adding a city permanently.
@@ -241,8 +246,11 @@ python app.py --port 8000
 The frontend provides:
 
 - A Leaflet map with posting totals for each city
+- A shared date-range control with 1D, 7D, 6M, 12M, YTD, ALL, and custom dates; 6M remains the default. The inclusive 1D range covers yesterday through today.
 - An overall language ranking and top job titles
 - City modals with local language rankings and underlying job links
+- Collapsed overall and per-city daily posting activity charts for the latest 30 days
+- Per-city CSV downloads containing the past six months of job details
 
 API routes:
 
@@ -251,7 +259,22 @@ GET /
 GET /api/stats
 GET /api/cities
 GET /api/city/<name>
+GET /api/city/<name>/postings.csv
 ```
+
+The JSON and CSV endpoints accept the same optional date-range query parameters used by the frontend:
+
+```text
+?range=1d
+?range=7d
+?range=6m
+?range=12m
+?range=ytd
+?range=all
+?range=custom&start=2026-07-01&end=2026-07-31
+```
+
+Date bounds are inclusive and interpreted as UTC calendar dates. Omitting `range` uses the rolling six-month default. Changing the frontend selection updates map totals, overall statistics, city details, posting activity, posting lists, and CSV downloads together; retained database history is not modified.
 
 Leaflet and the CARTO basemap are loaded from external services, so the map requires internet access even when Flask is running locally.
 
@@ -296,7 +319,7 @@ SQLite is appropriate for one web instance and one coordinated update process. B
 - Google/Serper results are ranked and capped, so the dataset is not exhaustive.
 - Combining four domains into one query conserves quota but can reduce per-platform visibility.
 - Google may surface a posting days after its advertised date.
-- Closed jobs remain in the accumulated historical dataset.
+- Closed and older-than-six-month jobs remain in the accumulated historical dataset but are excluded from current statistics once their advertised date crosses the rolling cutoff.
 - City and title filtering are heuristic. Workday uses structured-location-only matching; other platforms may also use description text to establish city relevance.
 - Language detection is phrase-based. It favors understandable, reproducible rules over natural-language inference and intentionally uses conservative phrases for ambiguous names such as Go and R.
 - A posting can mention multiple languages, so language percentages do not sum to 100%.
