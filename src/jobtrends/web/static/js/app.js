@@ -196,7 +196,7 @@ const DEFAULT_LABEL_DIR = "right";
 
 // Cities whose right-side label would collide with a neighbor are flipped left.
 const LABEL_DIR_OVERRIDES = {
-  charlotte: "left",
+  austin: "left",
   memphis: "left",
   "salt lake city": "left",
   "san francisco": "left",
@@ -204,12 +204,11 @@ const LABEL_DIR_OVERRIDES = {
 };
 
 const LABEL_OFFSET_OVERRIDES = {
-  atlanta: [6, 48],
-  boston: [6, -12],
-  houston: [6, 48],
-  memphis: [-26, 8],
-  "new york": [6, 8],
-  "washington dc": [6, 48],
+  boston: [6, 26],
+  memphis: [-22, 26],
+  "new york": [6, 24],
+  philadelphia: [6, 35],
+  "washington dc": [1, 42],
 };
 
 // Display-only adjustments for crowded areas. The stored city coordinates stay

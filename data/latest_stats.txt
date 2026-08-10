@@ -1,7 +1,7 @@
 Database: /Users/ecarlso2/Projects/job-searching/job_trends.db
 
 Data in stats window by source:
-  google    847 postings across 25 cities  (last update 2026-08-10T11:03:24.253397+00:00)
+  google    851 postings across 25 cities  (last update 2026-08-10T18:44:09.613356+00:00)
 
 ------------------------------------------------------------
 TOP LANGUAGES PER CITY (source=google, past 6 months)
@@ -19,17 +19,17 @@ TOP LANGUAGES PER CITY (source=google, past 6 months)
    9. Ruby                      2  (7.4%)
   10. Swift                     2  (7.4%)
 
-=== Austin (46 postings) ===
-   1. Python                   23  (50.0%)
-   2. JavaScript/TypeScript    21  (45.7%)
-   3. Java                     17  (37.0%)
-   4. C++                      11  (23.9%)
-   5. Rust                      9  (19.6%)
-   6. SQL                       9  (19.6%)
-   7. Ruby                      5  (10.9%)
-   8. C#                        4  (8.7%)
-   9. Kotlin                    3  (6.5%)
-  10. PHP                       3  (6.5%)
+=== Austin (47 postings) ===
+   1. Python                   24  (51.1%)
+   2. JavaScript/TypeScript    21  (44.7%)
+   3. Java                     17  (36.2%)
+   4. C++                      11  (23.4%)
+   5. SQL                      10  (21.3%)
+   6. Rust                      9  (19.1%)
+   7. Ruby                      5  (10.6%)
+   8. C#                        4  (8.5%)
+   9. Kotlin                    3  (6.4%)
+  10. PHP                       3  (6.4%)
 
 === Boston (49 postings) ===
    1. Python                   25  (51.0%)
@@ -48,17 +48,17 @@ TOP LANGUAGES PER CITY (source=google, past 6 months)
    2. Python                    1  (50.0%)
    3. Rust                      1  (50.0%)
 
-=== Chicago (35 postings) ===
-   1. Python                   21  (60.0%)
-   2. Java                     11  (31.4%)
-   3. JavaScript/TypeScript    10  (28.6%)
-   4. SQL                       7  (20.0%)
-   5. C++                       6  (17.1%)
-   6. Ruby                      4  (11.4%)
-   7. Scala                     4  (11.4%)
-   8. Go                        3  (8.6%)
-   9. PHP                       2  (5.7%)
-  10. Rust                      2  (5.7%)
+=== Chicago (36 postings) ===
+   1. Python                   21  (58.3%)
+   2. Java                     11  (30.6%)
+   3. JavaScript/TypeScript    10  (27.8%)
+   4. SQL                       7  (19.4%)
+   5. C++                       6  (16.7%)
+   6. Ruby                      4  (11.1%)
+   7. Scala                     4  (11.1%)
+   8. Go                        3  (8.3%)
+   9. PHP                       2  (5.6%)
+  10. Rust                      2  (5.6%)
 
 === Dallas (19 postings) ===
    1. JavaScript/TypeScript     7  (36.8%)
@@ -133,16 +133,16 @@ TOP LANGUAGES PER CITY (source=google, past 6 months)
    8. PHP                       1  (16.7%)
    9. Ruby                      1  (16.7%)
 
-=== New York (132 postings) ===
-   1. JavaScript/TypeScript    65  (49.2%)
-   2. Python                   59  (44.7%)
-   3. Java                     32  (24.2%)
-   4. SQL                      19  (14.4%)
-   5. Ruby                     10  (7.6%)
+=== New York (133 postings) ===
+   1. JavaScript/TypeScript    66  (49.6%)
+   2. Python                   59  (44.4%)
+   3. Java                     32  (24.1%)
+   4. SQL                      19  (14.3%)
+   5. Ruby                     10  (7.5%)
    6. C++                       9  (6.8%)
    7. Go                        9  (6.8%)
-   8. Rust                      8  (6.1%)
-   9. Scala                     8  (6.1%)
+   8. Rust                      8  (6.0%)
+   9. Scala                     8  (6.0%)
   10. Swift                     5  (3.8%)
 
 === Philadelphia (5 postings) ===
@@ -230,17 +230,17 @@ TOP LANGUAGES PER CITY (source=google, past 6 months)
    9. Kotlin                    1  (4.5%)
   10. PHP                       1  (4.5%)
 
-=== Seattle (74 postings) ===
-   1. Python                   42  (56.8%)
-   2. C++                      28  (37.8%)
-   3. Java                     16  (21.6%)
-   4. JavaScript/TypeScript    16  (21.6%)
-   5. Rust                     12  (16.2%)
-   6. Ruby                      8  (10.8%)
-   7. SQL                       8  (10.8%)
-   8. C#                        7  (9.5%)
-   9. Kotlin                    5  (6.8%)
-  10. Go                        4  (5.4%)
+=== Seattle (75 postings) ===
+   1. Python                   43  (57.3%)
+   2. C++                      29  (38.7%)
+   3. Java                     16  (21.3%)
+   4. JavaScript/TypeScript    16  (21.3%)
+   5. Rust                     12  (16.0%)
+   6. Ruby                      8  (10.7%)
+   7. SQL                       8  (10.7%)
+   8. C#                        7  (9.3%)
+   9. Kotlin                    5  (6.7%)
+  10. Go                        4  (5.3%)
 
 === St Louis (2 postings) ===
    1. JavaScript/TypeScript     2  (100.0%)
@@ -275,13 +275,13 @@ TOP LANGUAGES PER CITY (source=google, past 6 months)
 TOP LANGUAGES OVERALL (source=google, past 6 months)
 ------------------------------------------------------------
 
-=== All cities combined (847 postings) ===
-   1. Python                  403  (47.6%)
-   2. JavaScript/TypeScript   324  (38.3%)
-   3. Java                    202  (23.8%)
-   4. C++                     126  (14.9%)
-   5. SQL                     126  (14.9%)
-   6. Rust                     87  (10.3%)
+=== All cities combined (851 postings) ===
+   1. Python                  405  (47.6%)
+   2. JavaScript/TypeScript   325  (38.2%)
+   3. Java                    202  (23.7%)
+   4. C++                     127  (14.9%)
+   5. SQL                     127  (14.9%)
+   6. Rust                     87  (10.2%)
    7. Ruby                     61  (7.2%)
    8. C#                       58  (6.8%)
    9. Go                       39  (4.6%)

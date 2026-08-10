@@ -113,7 +113,7 @@ from jobtrends.analysis.trends_stats import write_stats
 # The tracked set of cities (updated together on each run). Edit this list to
 # add or drop a city from the ongoing dataset.
 DEFAULT_CITIES = (
-    "atlanta,austin,boston,charlotte,chicago,dallas,denver,houston,"
+    "atlanta,austin,boston,chicago,dallas,denver,houston,"
     "los angeles,memphis,miami,minneapolis,new york,philadelphia,phoenix,"
     "portland,raleigh,salt lake city,san diego,san francisco,san jose,"
     "seattle,st louis,toronto,washington dc"

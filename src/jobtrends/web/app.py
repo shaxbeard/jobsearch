@@ -41,7 +41,6 @@ CITY_COORDS: dict[str, tuple[float, float]] = {
     "atlanta": (33.7490, -84.3880),
     "austin": (30.2672, -97.7431),
     "boston": (42.3601, -71.0589),
-    "charlotte": (35.2271, -80.8431),
     "chicago": (41.8781, -87.6298),
     "dallas": (32.7767, -96.7970),
     "denver": (39.7392, -104.9903),

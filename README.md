@@ -12,10 +12,10 @@ The project is intended to answer questions such as:
 This is a market-signal tool, not a complete census of every available job. Google indexing, result ranking, ATS behavior, and the project's filters all affect coverage.
 
 ## How to run
-Start the application by running the following command in the terminal:
+Start the Flask development server:
 
 ```bash
-jobtrends-trends --insecure
+jobtrends-web
 ```
 
 Manually update the data
@@ -23,6 +23,9 @@ Manually update the data
 ```bash
 jobtrends-google-trends --insecure
 ```
+
+
+
 
 ## Installation
 
@@ -233,10 +236,10 @@ Useful options:
 --db-path               Use a specific SQLite file
 ```
 
-The default tracked set contains 25 cities:
+The default tracked set contains 24 cities:
 
 ```text
-Atlanta, Austin, Boston, Charlotte, Chicago, Dallas, Denver, Houston,
+Atlanta, Austin, Boston, Chicago, Dallas, Denver, Houston,
 Los Angeles, Memphis, Miami, Minneapolis, New York, Philadelphia,
 Phoenix, Portland, Raleigh, Salt Lake City, San Diego, San Francisco,
 San Jose, Seattle, St. Louis, Toronto, Washington DC
