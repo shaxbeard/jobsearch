@@ -53,7 +53,8 @@ from pathlib import Path
 
 import urllib3
 
-from ats_job_search import (
+from jobtrends.paths import DATA_DIR
+from jobtrends.sources.ats_job_search import (
     DEFAULT_COMPANIES_FILE,
     DEFAULT_MAX_WORKERS,
     DEFAULT_SINCE_DATE,
@@ -66,14 +67,14 @@ from ats_job_search import (
     matches_since_date,
     parse_keyword_list,
 )
-from language_detect import (
+from jobtrends.language_detect import (
     LANGUAGE_KEYWORDS,
     count_languages,
     languages_in_posting,
     print_city_report,
     rank_languages,
 )
-from trends_db import (
+from jobtrends.trends_db import (
     DEFAULT_DB_PATH,
     ensure_schema,
     get_connection,
@@ -191,7 +192,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path(__file__).resolve().parent / "data",
+        default=DATA_DIR,
         help="Directory for output files (default: data)",
     )
     parser.add_argument(

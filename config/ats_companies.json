@@ -1,5 +1,5 @@
 {
-  "_comment": "Seed list of companies to crawl directly via their ATS's free public job-board APIs (no API key, no rate-limit quota like Google/Serper). Each entry needs 'name', 'platform' (greenhouse | lever | ashby), and 'slug' (the token used in that ATS's public board URL, e.g. https://boards.greenhouse.io/{slug}, https://jobs.lever.co/{slug}, https://jobs.ashbyhq.com/{slug}). This list is a small, hand-validated starting point -- add more companies as you find their slugs.",
+  "_comment": "Seed list of companies to crawl directly via their ATS's free public job-board APIs (no API key, no rate-limit quota like Google/Serper). Each entry needs 'name', 'platform' (greenhouse | lever | ashby | workday | smartrecruiters), and 'slug' (the board token used by that ATS). This list is a hand-validated starting point -- add more companies as you find their slugs.",
   "companies": [
     {
       "name": "Affirm",

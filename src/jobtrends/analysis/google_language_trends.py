@@ -14,7 +14,7 @@ How it differs from language_trends.py:
 
 Why it still needs the ATS APIs: a Google result only carries a ~160-char
 snippet, which is far too thin to detect which languages a job wants. So for
-each result URL (Lever, Greenhouse, Ashby, or Workday) we fetch the *full* job
+each result URL (Lever, Greenhouse, Ashby, Workday, or SmartRecruiters) we fetch the *full* job
 description from that platform's public API, then run the
 exact same detection as language_trends.py (both import language_detect), so
 any difference in the rankings is due to which postings each pipeline finds
@@ -69,34 +69,35 @@ from pathlib import Path
 import urllib3
 from dotenv import load_dotenv
 
-from ats_job_search import (
+from jobtrends.paths import DATA_DIR
+from jobtrends.sources.ats_job_search import (
     DEFAULT_MAX_WORKERS,
     DEFAULT_SINCE_DATE,
     DEFAULT_TITLE_EXCLUDE,
     DEFAULT_TITLE_INCLUDE,
     fetch_postings_for_urls,
-    matches_city,
+    city_search_terms,
     matches_city_location,
     matches_role,
     matches_since_date,
     parse_job_url,
     parse_keyword_list,
 )
-from google_job_search import (
+from jobtrends.sources.google_job_search import (
     DEFAULT_ATS_SITES,
     DEFAULT_SITE_BATCH_SIZE,
     FREE_TIER_MAX_RESULTS,
     build_site_queries,
     run_queries,
 )
-from language_detect import (
+from jobtrends.language_detect import (
     LANGUAGE_KEYWORDS,
     count_from_matched_languages,
     languages_in_posting,
     print_city_report,
     rank_languages,
 )
-from trends_db import (
+from jobtrends.trends_db import (
     DEFAULT_DB_PATH,
     add_postings,
     ensure_schema,
@@ -107,7 +108,7 @@ from trends_db import (
     set_city_counts,
     stats_cutoff_date,
 )
-from trends_stats import write_stats
+from jobtrends.analysis.trends_stats import write_stats
 
 # The tracked set of cities (updated together on each run). Edit this list to
 # add or drop a city from the ongoing dataset.
@@ -125,11 +126,12 @@ DEFAULT_TOP = 10
 INCREMENTAL_LOOKBACK_DAYS = 3
 # The role/city/date filter Google applies at search time. `after:` uses the
 # same --since-date value the posting-level filter uses, so both ends agree.
-ROLE_FILTER_TEMPLATE = '(engineer | developer) ("{city}") -staff -lead -principal after:{since}'
+ROLE_FILTER_TEMPLATE = '(engineer | developer) ({locations}) -staff -lead -principal after:{since}'
 
 
 def build_city_keyword_filter(city: str, since_date_for_query: str) -> str:
-    return ROLE_FILTER_TEMPLATE.format(city=city, since=since_date_for_query)
+    locations = " | ".join(f'"{term}"' for term in city_search_terms(city))
+    return ROLE_FILTER_TEMPLATE.format(locations=locations, since=since_date_for_query)
 
 
 def shift_date_back(date_str: str, days: int) -> str:
@@ -269,7 +271,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path(__file__).resolve().parent / "data",
+        default=DATA_DIR,
         help="Directory for output files (default: data).",
     )
     parser.add_argument(
@@ -415,11 +417,7 @@ def main() -> int:
             and matches_since_date(p, since_date)
             and (
                 args.no_city_filter
-                or (
-                    matches_city_location(p, city)
-                    if p.get("platform") == "workday"
-                    else matches_city(p, city)
-                )
+                or matches_city_location(p, city)
             )
         ]
         new_with_langs = [

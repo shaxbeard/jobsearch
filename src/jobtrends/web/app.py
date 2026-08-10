@@ -21,15 +21,15 @@ from datetime import date, datetime, timedelta, timezone
 
 from flask import Flask, Response, jsonify, render_template, request
 
-from language_detect import count_from_matched_languages, rank_languages
-from trends_db import (
+from jobtrends.language_detect import count_from_matched_languages, rank_languages
+from jobtrends.trends_db import (
     DEFAULT_DB_PATH,
     STATS_WINDOW_MONTHS,
     ensure_schema,
     get_connection,
     get_postings_in_date_range,
 )
-from trends_stats import build_daily_posting_counts, build_stats_data
+from jobtrends.analysis.trends_stats import build_daily_posting_counts, build_stats_data
 
 # Which stored data the frontend reads. The Google-discovery pipeline is the
 # one currently populating the database.

@@ -32,8 +32,8 @@ from collections import Counter
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from language_detect import count_from_matched_languages, rank_languages
-from trends_db import (
+from jobtrends.language_detect import count_from_matched_languages, rank_languages
+from jobtrends.trends_db import (
     DEFAULT_DB_PATH,
     STATS_WINDOW_MONTHS,
     ensure_schema,

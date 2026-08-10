@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Discover new company job boards on Greenhouse, Lever, and Ashby and merge
+Discover new company job boards on the supported ATS platforms and merge
 them into ats_companies.json.
 
 This is a maintenance/growth tool, meant to be run occasionally by whoever
@@ -49,7 +49,14 @@ import requests
 import urllib3
 from dotenv import load_dotenv
 
-from ats_job_search import DEFAULT_COMPANIES_FILE, fetch_ashby, fetch_greenhouse, fetch_lever, fetch_workday
+from jobtrends.sources.ats_job_search import (
+    DEFAULT_COMPANIES_FILE,
+    fetch_ashby,
+    fetch_greenhouse,
+    fetch_lever,
+    fetch_smartrecruiters,
+    fetch_workday,
+)
 
 SERPER_URL = "https://google.serper.dev/search"
 FREE_TIER_MAX_RESULTS = 10
@@ -63,6 +70,7 @@ DISCOVERY_QUERIES = {
     "lever": "site:jobs.lever.co (engineer | developer)",
     "ashby": "site:jobs.ashbyhq.com (engineer | developer)",
     "workday": "site:myworkdayjobs.com (engineer | developer)",
+    "smartrecruiters": "site:jobs.smartrecruiters.com (engineer | developer)",
 }
 
 
@@ -96,6 +104,7 @@ FETCHERS = {
     "lever": fetch_lever,
     "ashby": fetch_ashby,
     "workday": fetch_workday,
+    "smartrecruiters": fetch_smartrecruiters,
 }
 
 
@@ -185,7 +194,7 @@ def save_companies_file(path: Path, data: dict) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Discover new Greenhouse/Lever/Ashby company boards and merge them into ats_companies.json."
+        description="Discover supported ATS company boards and merge them into ats_companies.json."
     )
     parser.add_argument(
         "--companies-file",

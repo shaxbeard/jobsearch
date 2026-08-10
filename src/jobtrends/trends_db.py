@@ -58,18 +58,16 @@ Drilling into the actual job ads behind a language:
 from __future__ import annotations
 
 import json
-import os
 import sqlite3
 from calendar import monthrange
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Where the SQLite file lives. Defaults to the project folder for local use, but
-# can be pointed at a mounted persistent disk in production (e.g. Render) by
-# setting the JOB_TRENDS_DB environment variable to an absolute path.
-DEFAULT_DB_PATH = Path(
-    os.environ.get("JOB_TRENDS_DB", Path(__file__).resolve().parent / "job_trends.db")
-)
+# Where the SQLite file lives. Defaults to the repository root for local use,
+# but can be pointed at a mounted persistent disk in production (e.g. Render)
+# by setting the JOB_TRENDS_DB environment variable. Resolution (including that
+# override) lives in jobtrends.paths so every module shares one definition.
+from jobtrends.paths import DEFAULT_DB_PATH
 STATS_WINDOW_MONTHS = 6
 
 SCHEMA = """

@@ -3,23 +3,11 @@
   "window_months": 6,
   "range_key": "6m",
   "range_label": "Past 6 months",
-  "start_date": "2026-02-07",
-  "end_date": "2026-08-07",
-  "cutoff_date": "2026-02-07",
-  "total_postings": 800,
+  "start_date": "2026-02-10",
+  "end_date": "2026-08-10",
+  "cutoff_date": "2026-02-10",
+  "total_postings": 847,
   "posting_activity_daily": [
-    {
-      "date": "2026-02-07",
-      "count": 1
-    },
-    {
-      "date": "2026-02-08",
-      "count": 0
-    },
-    {
-      "date": "2026-02-09",
-      "count": 0
-    },
     {
       "date": "2026-02-10",
       "count": 0
@@ -234,7 +222,7 @@
     },
     {
       "date": "2026-04-04",
-      "count": 0
+      "count": 1
     },
     {
       "date": "2026-04-05",
@@ -558,7 +546,7 @@
     },
     {
       "date": "2026-06-24",
-      "count": 6
+      "count": 7
     },
     {
       "date": "2026-06-25",
@@ -638,7 +626,7 @@
     },
     {
       "date": "2026-07-14",
-      "count": 11
+      "count": 12
     },
     {
       "date": "2026-07-15",
@@ -678,7 +666,7 @@
     },
     {
       "date": "2026-07-24",
-      "count": 38
+      "count": 39
     },
     {
       "date": "2026-07-25",
@@ -722,18 +710,30 @@
     },
     {
       "date": "2026-08-04",
-      "count": 35
+      "count": 42
     },
     {
       "date": "2026-08-05",
-      "count": 23
+      "count": 27
     },
     {
       "date": "2026-08-06",
-      "count": 15
+      "count": 28
     },
     {
       "date": "2026-08-07",
+      "count": 20
+    },
+    {
+      "date": "2026-08-08",
+      "count": 0
+    },
+    {
+      "date": "2026-08-09",
+      "count": 0
+    },
+    {
+      "date": "2026-08-10",
       "count": 2
     }
   ],
@@ -741,8 +741,8 @@
     {
       "source": "google",
       "cities": 25,
-      "postings": 800,
-      "last_update": "2026-08-07T11:07:34.657278+00:00"
+      "postings": 847,
+      "last_update": "2026-08-10T11:03:24.253397+00:00"
     }
   ],
   "top_languages_per_city": [
@@ -814,133 +814,133 @@
     },
     {
       "city": "austin",
-      "postings": 43,
+      "postings": 46,
       "languages": [
         {
           "rank": 1,
           "language": "Python",
-          "count": 21,
-          "percent": 48.8
-        },
-        {
-          "rank": 2,
-          "language": "JavaScript/TypeScript",
-          "count": 19,
-          "percent": 44.2
-        },
-        {
-          "rank": 3,
-          "language": "Java",
-          "count": 16,
-          "percent": 37.2
-        },
-        {
-          "rank": 4,
-          "language": "C++",
-          "count": 9,
-          "percent": 20.9
-        },
-        {
-          "rank": 5,
-          "language": "Rust",
-          "count": 9,
-          "percent": 20.9
-        },
-        {
-          "rank": 6,
-          "language": "SQL",
-          "count": 9,
-          "percent": 20.9
-        },
-        {
-          "rank": 7,
-          "language": "Ruby",
-          "count": 4,
-          "percent": 9.3
-        },
-        {
-          "rank": 8,
-          "language": "C#",
-          "count": 3,
-          "percent": 7.0
-        },
-        {
-          "rank": 9,
-          "language": "Kotlin",
-          "count": 3,
-          "percent": 7.0
-        },
-        {
-          "rank": 10,
-          "language": "PHP",
-          "count": 3,
-          "percent": 7.0
-        }
-      ]
-    },
-    {
-      "city": "boston",
-      "postings": 48,
-      "languages": [
-        {
-          "rank": 1,
-          "language": "Python",
-          "count": 24,
+          "count": 23,
           "percent": 50.0
         },
         {
           "rank": 2,
           "language": "JavaScript/TypeScript",
-          "count": 14,
-          "percent": 29.2
+          "count": 21,
+          "percent": 45.7
         },
         {
           "rank": 3,
           "language": "Java",
-          "count": 13,
-          "percent": 27.1
+          "count": 17,
+          "percent": 37.0
         },
         {
           "rank": 4,
           "language": "C++",
           "count": 11,
-          "percent": 22.9
+          "percent": 23.9
+        },
+        {
+          "rank": 5,
+          "language": "Rust",
+          "count": 9,
+          "percent": 19.6
+        },
+        {
+          "rank": 6,
+          "language": "SQL",
+          "count": 9,
+          "percent": 19.6
+        },
+        {
+          "rank": 7,
+          "language": "Ruby",
+          "count": 5,
+          "percent": 10.9
+        },
+        {
+          "rank": 8,
+          "language": "C#",
+          "count": 4,
+          "percent": 8.7
+        },
+        {
+          "rank": 9,
+          "language": "Kotlin",
+          "count": 3,
+          "percent": 6.5
+        },
+        {
+          "rank": 10,
+          "language": "PHP",
+          "count": 3,
+          "percent": 6.5
+        }
+      ]
+    },
+    {
+      "city": "boston",
+      "postings": 49,
+      "languages": [
+        {
+          "rank": 1,
+          "language": "Python",
+          "count": 25,
+          "percent": 51.0
+        },
+        {
+          "rank": 2,
+          "language": "JavaScript/TypeScript",
+          "count": 15,
+          "percent": 30.6
+        },
+        {
+          "rank": 3,
+          "language": "Java",
+          "count": 13,
+          "percent": 26.5
+        },
+        {
+          "rank": 4,
+          "language": "C++",
+          "count": 11,
+          "percent": 22.4
         },
         {
           "rank": 5,
           "language": "SQL",
           "count": 7,
-          "percent": 14.6
+          "percent": 14.3
         },
         {
           "rank": 6,
           "language": "C#",
           "count": 6,
-          "percent": 12.5
+          "percent": 12.2
         },
         {
           "rank": 7,
           "language": "Rust",
           "count": 6,
-          "percent": 12.5
+          "percent": 12.2
         },
         {
           "rank": 8,
           "language": "Go",
           "count": 1,
-          "percent": 2.1
+          "percent": 2.0
         },
         {
           "rank": 9,
           "language": "Ruby",
           "count": 1,
-          "percent": 2.1
+          "percent": 2.0
         },
         {
           "rank": 10,
           "language": "Scala",
           "count": 1,
-          "percent": 2.1
+          "percent": 2.0
         }
       ]
     },
@@ -970,121 +970,133 @@
     },
     {
       "city": "chicago",
-      "postings": 33,
+      "postings": 35,
       "languages": [
         {
           "rank": 1,
           "language": "Python",
-          "count": 20,
-          "percent": 60.6
+          "count": 21,
+          "percent": 60.0
         },
         {
           "rank": 2,
           "language": "Java",
-          "count": 10,
-          "percent": 30.3
+          "count": 11,
+          "percent": 31.4
         },
         {
           "rank": 3,
           "language": "JavaScript/TypeScript",
-          "count": 9,
-          "percent": 27.3
+          "count": 10,
+          "percent": 28.6
         },
         {
           "rank": 4,
           "language": "SQL",
           "count": 7,
-          "percent": 21.2
+          "percent": 20.0
         },
         {
           "rank": 5,
           "language": "C++",
           "count": 6,
-          "percent": 18.2
+          "percent": 17.1
         },
         {
           "rank": 6,
           "language": "Ruby",
           "count": 4,
-          "percent": 12.1
+          "percent": 11.4
         },
         {
           "rank": 7,
           "language": "Scala",
           "count": 4,
-          "percent": 12.1
+          "percent": 11.4
         },
         {
           "rank": 8,
           "language": "Go",
           "count": 3,
-          "percent": 9.1
+          "percent": 8.6
         },
         {
           "rank": 9,
           "language": "PHP",
           "count": 2,
-          "percent": 6.1
+          "percent": 5.7
         },
         {
           "rank": 10,
           "language": "Rust",
           "count": 2,
-          "percent": 6.1
+          "percent": 5.7
         }
       ]
     },
     {
       "city": "dallas",
-      "postings": 13,
+      "postings": 19,
       "languages": [
         {
           "rank": 1,
           "language": "JavaScript/TypeScript",
-          "count": 6,
-          "percent": 46.2
+          "count": 7,
+          "percent": 36.8
         },
         {
           "rank": 2,
           "language": "Python",
-          "count": 4,
-          "percent": 30.8
+          "count": 7,
+          "percent": 36.8
         },
         {
           "rank": 3,
           "language": "Java",
-          "count": 3,
-          "percent": 23.1
+          "count": 5,
+          "percent": 26.3
         },
         {
           "rank": 4,
           "language": "SQL",
-          "count": 3,
-          "percent": 23.1
+          "count": 4,
+          "percent": 21.1
         },
         {
           "rank": 5,
           "language": "C#",
-          "count": 2,
-          "percent": 15.4
+          "count": 3,
+          "percent": 15.8
         },
         {
           "rank": 6,
-          "language": "Ruby",
+          "language": "C++",
           "count": 2,
-          "percent": 15.4
+          "percent": 10.5
         },
         {
           "rank": 7,
-          "language": "Elixir",
-          "count": 1,
-          "percent": 7.7
+          "language": "Ruby",
+          "count": 2,
+          "percent": 10.5
         },
         {
           "rank": 8,
+          "language": "Elixir",
+          "count": 1,
+          "percent": 5.3
+        },
+        {
+          "rank": 9,
+          "language": "PHP",
+          "count": 1,
+          "percent": 5.3
+        },
+        {
+          "rank": 10,
           "language": "Rust",
           "count": 1,
-          "percent": 7.7
+          "percent": 5.3
         }
       ]
     },
@@ -1204,109 +1216,109 @@
     },
     {
       "city": "los angeles",
-      "postings": 60,
+      "postings": 63,
       "languages": [
         {
           "rank": 1,
           "language": "Python",
-          "count": 30,
-          "percent": 50.0
+          "count": 32,
+          "percent": 50.8
         },
         {
           "rank": 2,
           "language": "JavaScript/TypeScript",
           "count": 21,
-          "percent": 35.0
+          "percent": 33.3
         },
         {
           "rank": 3,
           "language": "Java",
           "count": 16,
-          "percent": 26.7
+          "percent": 25.4
         },
         {
           "rank": 4,
-          "language": "C++",
-          "count": 8,
-          "percent": 13.3
+          "language": "Rust",
+          "count": 10,
+          "percent": 15.9
         },
         {
           "rank": 5,
-          "language": "Rust",
-          "count": 8,
-          "percent": 13.3
+          "language": "SQL",
+          "count": 10,
+          "percent": 15.9
         },
         {
           "rank": 6,
-          "language": "SQL",
-          "count": 8,
-          "percent": 13.3
+          "language": "C++",
+          "count": 9,
+          "percent": 14.3
         },
         {
           "rank": 7,
           "language": "Scala",
-          "count": 5,
-          "percent": 8.3
+          "count": 6,
+          "percent": 9.5
         },
         {
           "rank": 8,
           "language": "Go",
           "count": 3,
-          "percent": 5.0
+          "percent": 4.8
         },
         {
           "rank": 9,
           "language": "Kotlin",
           "count": 3,
-          "percent": 5.0
+          "percent": 4.8
         },
         {
           "rank": 10,
           "language": "PHP",
           "count": 3,
-          "percent": 5.0
+          "percent": 4.8
         }
       ]
     },
     {
       "city": "memphis",
-      "postings": 2,
+      "postings": 3,
       "languages": [
         {
           "rank": 1,
           "language": "SQL",
-          "count": 2,
+          "count": 3,
           "percent": 100.0
         },
         {
           "rank": 2,
           "language": "C#",
-          "count": 1,
-          "percent": 50.0
+          "count": 2,
+          "percent": 66.7
         },
         {
           "rank": 3,
           "language": "Java",
-          "count": 1,
-          "percent": 50.0
+          "count": 2,
+          "percent": 66.7
         },
         {
           "rank": 4,
           "language": "JavaScript/TypeScript",
-          "count": 1,
-          "percent": 50.0
+          "count": 2,
+          "percent": 66.7
         },
         {
           "rank": 5,
           "language": "Python",
-          "count": 1,
-          "percent": 50.0
+          "count": 2,
+          "percent": 66.7
         },
         {
           "rank": 6,
           "language": "Scala",
-          "count": 1,
-          "percent": 50.0
+          "count": 2,
+          "percent": 66.7
         }
       ]
     },
@@ -1420,67 +1432,67 @@
     },
     {
       "city": "new york",
-      "postings": 127,
+      "postings": 132,
       "languages": [
         {
           "rank": 1,
           "language": "JavaScript/TypeScript",
-          "count": 63,
-          "percent": 49.6
+          "count": 65,
+          "percent": 49.2
         },
         {
           "rank": 2,
           "language": "Python",
-          "count": 54,
-          "percent": 42.5
+          "count": 59,
+          "percent": 44.7
         },
         {
           "rank": 3,
           "language": "Java",
-          "count": 31,
-          "percent": 24.4
+          "count": 32,
+          "percent": 24.2
         },
         {
           "rank": 4,
           "language": "SQL",
           "count": 19,
-          "percent": 15.0
+          "percent": 14.4
         },
         {
           "rank": 5,
           "language": "Ruby",
           "count": 10,
-          "percent": 7.9
+          "percent": 7.6
         },
         {
           "rank": 6,
-          "language": "Go",
+          "language": "C++",
           "count": 9,
-          "percent": 7.1
+          "percent": 6.8
         },
         {
           "rank": 7,
-          "language": "C++",
-          "count": 8,
-          "percent": 6.3
+          "language": "Go",
+          "count": 9,
+          "percent": 6.8
         },
         {
           "rank": 8,
           "language": "Rust",
           "count": 8,
-          "percent": 6.3
+          "percent": 6.1
         },
         {
           "rank": 9,
           "language": "Scala",
           "count": 8,
-          "percent": 6.3
+          "percent": 6.1
         },
         {
           "rank": 10,
           "language": "Swift",
           "count": 5,
-          "percent": 3.9
+          "percent": 3.8
         }
       ]
     },
@@ -1750,133 +1762,133 @@
     },
     {
       "city": "san diego",
-      "postings": 29,
+      "postings": 32,
       "languages": [
         {
           "rank": 1,
           "language": "Python",
           "count": 18,
-          "percent": 62.1
+          "percent": 56.2
         },
         {
           "rank": 2,
           "language": "C++",
           "count": 10,
-          "percent": 34.5
+          "percent": 31.2
         },
         {
           "rank": 3,
           "language": "JavaScript/TypeScript",
-          "count": 8,
-          "percent": 27.6
+          "count": 9,
+          "percent": 28.1
         },
         {
           "rank": 4,
           "language": "Java",
-          "count": 7,
-          "percent": 24.1
+          "count": 8,
+          "percent": 25.0
         },
         {
           "rank": 5,
           "language": "SQL",
-          "count": 3,
-          "percent": 10.3
+          "count": 4,
+          "percent": 12.5
         },
         {
           "rank": 6,
-          "language": "Shell/Bash",
+          "language": "C#",
           "count": 3,
-          "percent": 10.3
+          "percent": 9.4
         },
         {
           "rank": 7,
-          "language": "C#",
-          "count": 2,
-          "percent": 6.9
+          "language": "Shell/Bash",
+          "count": 3,
+          "percent": 9.4
         },
         {
           "rank": 8,
           "language": "Scala",
           "count": 2,
-          "percent": 6.9
+          "percent": 6.2
         },
         {
           "rank": 9,
-          "language": "Kotlin",
+          "language": "Go",
           "count": 1,
-          "percent": 3.4
+          "percent": 3.1
         },
         {
           "rank": 10,
-          "language": "Rust",
+          "language": "Kotlin",
           "count": 1,
-          "percent": 3.4
+          "percent": 3.1
         }
       ]
     },
     {
       "city": "san francisco",
-      "postings": 151,
+      "postings": 159,
       "languages": [
         {
           "rank": 1,
           "language": "Python",
-          "count": 74,
-          "percent": 49.0
+          "count": 80,
+          "percent": 50.3
         },
         {
           "rank": 2,
           "language": "JavaScript/TypeScript",
-          "count": 70,
-          "percent": 46.4
+          "count": 72,
+          "percent": 45.3
         },
         {
           "rank": 3,
           "language": "Java",
-          "count": 19,
+          "count": 20,
           "percent": 12.6
         },
         {
           "rank": 4,
           "language": "Rust",
-          "count": 17,
-          "percent": 11.3
+          "count": 20,
+          "percent": 12.6
         },
         {
           "rank": 5,
-          "language": "SQL",
+          "language": "C++",
           "count": 12,
-          "percent": 7.9
+          "percent": 7.5
         },
         {
           "rank": 6,
-          "language": "C++",
-          "count": 11,
-          "percent": 7.3
+          "language": "SQL",
+          "count": 12,
+          "percent": 7.5
         },
         {
           "rank": 7,
           "language": "Ruby",
           "count": 10,
-          "percent": 6.6
+          "percent": 6.3
         },
         {
           "rank": 8,
           "language": "Go",
           "count": 7,
-          "percent": 4.6
+          "percent": 4.4
         },
         {
           "rank": 9,
           "language": "Kotlin",
           "count": 5,
-          "percent": 3.3
+          "percent": 3.1
         },
         {
           "rank": 10,
           "language": "Scala",
           "count": 3,
-          "percent": 2.0
+          "percent": 1.9
         }
       ]
     },
@@ -1948,67 +1960,67 @@
     },
     {
       "city": "seattle",
-      "postings": 65,
+      "postings": 74,
       "languages": [
         {
           "rank": 1,
           "language": "Python",
-          "count": 37,
-          "percent": 56.9
+          "count": 42,
+          "percent": 56.8
         },
         {
           "rank": 2,
           "language": "C++",
-          "count": 23,
-          "percent": 35.4
+          "count": 28,
+          "percent": 37.8
         },
         {
           "rank": 3,
           "language": "Java",
-          "count": 14,
-          "percent": 21.5
+          "count": 16,
+          "percent": 21.6
         },
         {
           "rank": 4,
           "language": "JavaScript/TypeScript",
-          "count": 14,
-          "percent": 21.5
+          "count": 16,
+          "percent": 21.6
         },
         {
           "rank": 5,
           "language": "Rust",
-          "count": 10,
-          "percent": 15.4
+          "count": 12,
+          "percent": 16.2
         },
         {
           "rank": 6,
           "language": "Ruby",
           "count": 8,
-          "percent": 12.3
+          "percent": 10.8
         },
         {
           "rank": 7,
           "language": "SQL",
-          "count": 6,
-          "percent": 9.2
+          "count": 8,
+          "percent": 10.8
         },
         {
           "rank": 8,
           "language": "C#",
-          "count": 5,
-          "percent": 7.7
+          "count": 7,
+          "percent": 9.5
         },
         {
           "rank": 9,
           "language": "Kotlin",
           "count": 5,
-          "percent": 7.7
+          "percent": 6.8
         },
         {
           "rank": 10,
           "language": "Go",
           "count": 4,
-          "percent": 6.2
+          "percent": 5.4
         }
       ]
     },
@@ -2038,133 +2050,133 @@
     },
     {
       "city": "toronto",
-      "postings": 43,
+      "postings": 48,
       "languages": [
         {
           "rank": 1,
-          "language": "Python",
-          "count": 18,
-          "percent": 41.9
+          "language": "JavaScript/TypeScript",
+          "count": 19,
+          "percent": 39.6
         },
         {
           "rank": 2,
-          "language": "JavaScript/TypeScript",
-          "count": 15,
-          "percent": 34.9
+          "language": "Python",
+          "count": 19,
+          "percent": 39.6
         },
         {
           "rank": 3,
           "language": "Java",
-          "count": 10,
-          "percent": 23.3
+          "count": 12,
+          "percent": 25.0
         },
         {
           "rank": 4,
           "language": "SQL",
-          "count": 7,
-          "percent": 16.3
+          "count": 10,
+          "percent": 20.8
         },
         {
           "rank": 5,
           "language": "C#",
-          "count": 6,
-          "percent": 14.0
+          "count": 9,
+          "percent": 18.8
         },
         {
           "rank": 6,
           "language": "Ruby",
           "count": 3,
-          "percent": 7.0
+          "percent": 6.2
         },
         {
           "rank": 7,
           "language": "C++",
           "count": 2,
-          "percent": 4.7
+          "percent": 4.2
         },
         {
           "rank": 8,
           "language": "Rust",
           "count": 2,
-          "percent": 4.7
+          "percent": 4.2
         },
         {
           "rank": 9,
           "language": "Shell/Bash",
           "count": 2,
-          "percent": 4.7
+          "percent": 4.2
         },
         {
           "rank": 10,
           "language": "Go",
           "count": 1,
-          "percent": 2.3
+          "percent": 2.1
         }
       ]
     },
     {
       "city": "washington dc",
-      "postings": 40,
+      "postings": 41,
       "languages": [
         {
           "rank": 1,
           "language": "Python",
           "count": 16,
-          "percent": 40.0
+          "percent": 39.0
         },
         {
           "rank": 2,
           "language": "JavaScript/TypeScript",
           "count": 14,
-          "percent": 35.0
+          "percent": 34.1
         },
         {
           "rank": 3,
           "language": "Java",
-          "count": 9,
-          "percent": 22.5
+          "count": 10,
+          "percent": 24.4
         },
         {
           "rank": 4,
           "language": "SQL",
           "count": 8,
-          "percent": 20.0
+          "percent": 19.5
         },
         {
           "rank": 5,
           "language": "Scala",
           "count": 4,
-          "percent": 10.0
+          "percent": 9.8
         },
         {
           "rank": 6,
           "language": "C#",
           "count": 3,
-          "percent": 7.5
+          "percent": 7.3
         },
         {
           "rank": 7,
           "language": "C++",
           "count": 3,
-          "percent": 7.5
+          "percent": 7.3
         },
         {
           "rank": 8,
           "language": "Go",
           "count": 3,
-          "percent": 7.5
+          "percent": 7.3
         },
         {
           "rank": 9,
           "language": "Ruby",
           "count": 2,
-          "percent": 5.0
+          "percent": 4.9
         },
         {
           "rank": 10,
           "language": "Rust",
           "count": 2,
-          "percent": 5.0
+          "percent": 4.9
         }
       ]
     }
@@ -2173,76 +2185,80 @@
     {
       "rank": 1,
       "language": "Python",
-      "count": 376,
-      "percent": 47.0
+      "count": 403,
+      "percent": 47.6
     },
     {
       "rank": 2,
       "language": "JavaScript/TypeScript",
-      "count": 307,
-      "percent": 38.4
+      "count": 324,
+      "percent": 38.3
     },
     {
       "rank": 3,
       "language": "Java",
-      "count": 189,
-      "percent": 23.6
+      "count": 202,
+      "percent": 23.8
     },
     {
       "rank": 4,
-      "language": "SQL",
-      "count": 116,
-      "percent": 14.5
+      "language": "C++",
+      "count": 126,
+      "percent": 14.9
     },
     {
       "rank": 5,
-      "language": "C++",
-      "count": 114,
-      "percent": 14.2
+      "language": "SQL",
+      "count": 126,
+      "percent": 14.9
     },
     {
       "rank": 6,
       "language": "Rust",
-      "count": 80,
-      "percent": 10.0
+      "count": 87,
+      "percent": 10.3
     },
     {
       "rank": 7,
       "language": "Ruby",
-      "count": 60,
-      "percent": 7.5
+      "count": 61,
+      "percent": 7.2
     },
     {
       "rank": 8,
       "language": "C#",
-      "count": 49,
-      "percent": 6.1
+      "count": 58,
+      "percent": 6.8
     },
     {
       "rank": 9,
       "language": "Go",
-      "count": 37,
+      "count": 39,
       "percent": 4.6
     },
     {
       "rank": 10,
       "language": "Scala",
-      "count": 36,
-      "percent": 4.5
+      "count": 39,
+      "percent": 4.6
     }
   ],
   "top_titles_overall": [
     {
       "title": "Senior Software Engineer",
-      "count": 48
+      "count": 50
     },
     {
       "title": "Software Engineer",
-      "count": 30
+      "count": 32
     },
     {
       "title": "Senior Data Platform Engineer",
       "count": 11
+    },
+    {
+      "title": "Senior Backend Engineer",
+      "count": 9
     },
     {
       "title": "Software Engineer (L2)",
@@ -2251,10 +2267,6 @@
     {
       "title": "Backend Engineer III - Hunt",
       "count": 9
-    },
-    {
-      "title": "Senior Backend Engineer",
-      "count": 8
     },
     {
       "title": "Platform Engineer",

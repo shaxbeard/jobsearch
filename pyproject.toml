@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jobtrends"
+version = "0.1.0"
+description = "Job-market programming-language trend tracker (ATS + Google discovery, SQLite store, Flask frontend)."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "Flask>=3.1,<4.0",
+    "requests>=2.32,<3.0",
+    "urllib3>=2.5,<3.0",
+    "python-dotenv>=1.1,<2.0",
+    "gunicorn>=23.0,<24.0",
+]
+
+[project.scripts]
+jobtrends-ats = "jobtrends.sources.ats_job_search:main"
+jobtrends-google = "jobtrends.sources.google_job_search:main"
+jobtrends-discover = "jobtrends.sources.discover_ats_companies:main"
+jobtrends-trends = "jobtrends.analysis.language_trends:main"
+jobtrends-google-trends = "jobtrends.analysis.google_language_trends:main"
+jobtrends-stats = "jobtrends.analysis.trends_stats:main"
+jobtrends-web = "jobtrends.web.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"jobtrends.web" = ["templates/*.html", "static/css/*.css", "static/js/*.js"]

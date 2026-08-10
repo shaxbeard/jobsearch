@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Search developer job postings by crawling ATS platforms' free public
-job-board APIs directly (Greenhouse, Lever, Ashby) -- no Google, no Serper,
+job-board APIs directly (Greenhouse, Lever, Ashby, Workday, and SmartRecruiters) -- no Google, no Serper,
 no API key, and no per-query rate limit. This makes it suitable for a
 multi-user app: your own crawl volume stays roughly constant no matter how
 many end users query the results, because the crawl runs once and the
@@ -13,10 +13,10 @@ on it -- everything needed lives in this file (plus ats_companies.json).
 How it works:
   1. Reads a list of companies (name + ATS platform + board slug) from
      ats_companies.json.
-  2. Fetches each company's public job postings directly from Greenhouse,
-     Lever, or Ashby's own JSON APIs (concurrently, since these are just
+  2. Fetches each company's public job postings directly from the supported
+      ATS JSON APIs (concurrently, since these are just
      independent HTTP GETs).
-  3. Normalizes postings from all three platforms into one common schema.
+    3. Normalizes postings from all supported platforms into one common schema.
   4. Filters by city, "posted since" date, and programming language
      (title/description keyword match).
   5. Saves one JSON+CSV file per language (same spirit as
@@ -36,6 +36,7 @@ Adding companies:
     https://boards.greenhouse.io/{slug}
     https://jobs.lever.co/{slug}
     https://jobs.ashbyhq.com/{slug}
+    https://jobs.smartrecruiters.com/{slug}
   Workday is different -- its slug is "{tenant}.wd{n}/{site}" (the career-site
   subdomain plus the site path segment), taken from a job URL like:
     https://{tenant}.wd{n}.myworkdayjobs.com/en-US/{site}/job/...
@@ -58,9 +59,12 @@ from urllib.parse import urlparse
 import requests
 import urllib3
 
+from jobtrends.paths import DATA_DIR, DEFAULT_COMPANIES_FILE
+
 GREENHOUSE_URL = "https://boards-api.greenhouse.io/v1/boards/{slug}/jobs?content=true"
 LEVER_URL = "https://api.lever.co/v0/postings/{slug}?mode=json"
 ASHBY_URL = "https://api.ashbyhq.com/posting-api/job-board/{slug}"
+SMARTRECRUITERS_URL = "https://api.smartrecruiters.com/v1/companies/{slug}/postings"
 WORKDAY_DETAIL_MAX_WORKERS = 10
 # Safety caps so a mega-employer with tens of thousands of postings (e.g. a
 # large retailer/bank on Workday) can't turn a crawl into a runaway multi-
@@ -69,11 +73,16 @@ WORKDAY_DETAIL_MAX_WORKERS = 10
 # majority of such employers' postings aren't software engineering roles.
 WORKDAY_MAX_LIST_ITEMS = 3000
 WORKDAY_MAX_DETAIL_FETCHES = 500
+SMARTRECRUITERS_MAX_LIST_ITEMS = 1000
 
-DEFAULT_COMPANIES_FILE = Path(__file__).resolve().parent / "ats_companies.json"
 DEFAULT_CITY = "toronto"
 DEFAULT_SINCE_DATE = "2026-01-01"
 DEFAULT_MAX_WORKERS = 8
+
+METRO_CITY_ALIASES: dict[str, tuple[str, ...]] = {
+    "dallas": ("dallas", "fort worth", "plano", "irving", "richardson"),
+    "houston": ("houston", "the woodlands", "sugar land"),
+}
 
 # By default, only keep postings that look like individual-contributor
 # software engineer/developer roles -- title must contain one of these
@@ -143,6 +152,48 @@ def fetch_ashby(slug: str, *, verify: bool) -> list[dict]:
     if not data:
         return []
     return data.get("jobs", [])
+
+
+def fetch_smartrecruiters(slug: str, *, verify: bool) -> list[dict]:
+    """Fetch full postings from a SmartRecruiters public company board."""
+    summaries: list[dict] = []
+    page_size = 100
+    offset = 0
+    while True:
+        response = requests.get(
+            SMARTRECRUITERS_URL.format(slug=slug),
+            params={"limit": page_size, "offset": offset},
+            timeout=20,
+            verify=verify,
+        )
+        if response.status_code == 404:
+            return []
+        response.raise_for_status()
+        data = response.json()
+        page = data.get("content", [])
+        summaries.extend(page)
+        offset += len(page)
+        if not page or offset >= data.get("totalFound", 0):
+            break
+        if len(summaries) >= SMARTRECRUITERS_MAX_LIST_ITEMS:
+            summaries = summaries[:SMARTRECRUITERS_MAX_LIST_ITEMS]
+            break
+
+    def fetch_detail(summary: dict) -> dict | None:
+        posting_id = summary.get("id")
+        if not posting_id:
+            return None
+        return fetch_json(
+            f"{SMARTRECRUITERS_URL.format(slug=slug)}/{posting_id}",
+            verify=verify,
+        )
+
+    jobs: list[dict] = []
+    with ThreadPoolExecutor(max_workers=WORKDAY_DETAIL_MAX_WORKERS) as executor:
+        for result in executor.map(fetch_detail, summaries):
+            if result:
+                jobs.append(result)
+    return jobs
 
 
 def parse_workday_slug(slug: str) -> tuple[str, str, str]:
@@ -305,11 +356,35 @@ def normalize_workday(job: dict, company_name: str) -> dict:
     }
 
 
+def normalize_smartrecruiters(job: dict, company_name: str) -> dict:
+    location = job.get("location") or {}
+    sections = (job.get("jobAd") or {}).get("sections") or {}
+    description = " ".join(
+        (sections.get(section) or {}).get("text", "")
+        for section in (
+            "companyDescription",
+            "jobDescription",
+            "qualifications",
+            "additionalInformation",
+        )
+    )
+    return {
+        "company": company_name,
+        "platform": "smartrecruiters",
+        "title": (job.get("name") or "").strip(),
+        "location": location.get("fullLocation", "") or "",
+        "url": job.get("postingUrl") or job.get("applyUrl") or "",
+        "posted_at": job.get("releasedDate", ""),
+        "description": strip_html(description),
+    }
+
+
 FETCHERS = {
     "greenhouse": (fetch_greenhouse, normalize_greenhouse),
     "lever": (fetch_lever, normalize_lever),
     "ashby": (fetch_ashby, normalize_ashby),
     "workday": (fetch_workday, normalize_workday),
+    "smartrecruiters": (fetch_smartrecruiters, normalize_smartrecruiters),
 }
 
 
@@ -358,7 +433,7 @@ def collect_all_postings(
 def parse_job_url(url: str) -> tuple[str, str, str] | None:
     """Map a public job-posting URL to (platform, slug, job_key).
 
-    Recognizes the default hosted board URLs for the four API-crawlable
+    Recognizes the default hosted board URLs for the five API-crawlable
     platforms and returns a stable key that's identical whether the URL came
     from a Google search result or from a normalized posting fetched via the
     ATS API, so the two can be matched up:
@@ -367,6 +442,8 @@ def parse_job_url(url: str) -> tuple[str, str, str] | None:
       https://job-boards.greenhouse.io/{slug}/jobs/{id}  -> ("greenhouse", slug, id)
       https://jobs.lever.co/{slug}/{uuid}[/apply]        -> ("lever", slug, uuid)
       https://jobs.ashbyhq.com/{slug}/{uuid}             -> ("ashby", slug, uuid)
+    https://jobs.smartrecruiters.com/{slug}/{id}-{title}
+                                -> ("smartrecruiters", slug, id)
     https://{tenant}.wd{n}.myworkdayjobs.com/en-US/{site}/job/.../{id}
                                       -> ("workday", "{tenant}.wd{n}/{site}", id)
 
@@ -391,6 +468,10 @@ def parse_job_url(url: str) -> tuple[str, str, str] | None:
     if host == "jobs.ashbyhq.com":
         if len(parts) >= 2:
             return "ashby", parts[0].lower(), parts[1]
+        return None
+    if host == "jobs.smartrecruiters.com":
+        if len(parts) >= 2:
+            return "smartrecruiters", parts[0].lower(), parts[1].split("-", 1)[0]
         return None
     workday_host = re.fullmatch(r"([a-z0-9-]+\.wd\d+)\.myworkdayjobs\.com", host)
     if workday_host:
@@ -433,6 +514,19 @@ def fetch_workday_posting_url(url: str, *, verify: bool) -> dict | None:
     )
 
 
+def fetch_smartrecruiters_posting_url(url: str, *, verify: bool) -> dict | None:
+    """Fetch one Google-discovered SmartRecruiters posting from its public API."""
+    parsed_key = parse_job_url(url)
+    if not parsed_key or parsed_key[0] != "smartrecruiters":
+        return None
+    _, slug, posting_id = parsed_key
+    job = fetch_json(
+        f"{SMARTRECRUITERS_URL.format(slug=slug)}/{posting_id}",
+        verify=verify,
+    )
+    return normalize_smartrecruiters(job, slug) if job else None
+
+
 def fetch_postings_for_urls(
     urls: list[str],
     *,
@@ -457,7 +551,7 @@ def fetch_postings_for_urls(
     """
     requested: dict[tuple[str, str, str], str] = {}
     groups: dict[tuple[str, str], set[str]] = {}
-    workday_urls: list[str] = []
+    direct_urls: list[tuple[str, str]] = []
     unresolved: list[str] = []
     for url in urls:
         parsed = parse_job_url(url)
@@ -466,8 +560,8 @@ def fetch_postings_for_urls(
             continue
         platform, slug, job_key = parsed
         requested[(platform, slug, job_key)] = url
-        if platform == "workday":
-            workday_urls.append(url)
+        if platform in {"workday", "smartrecruiters"}:
+            direct_urls.append((platform, url))
         else:
             groups.setdefault((platform, slug), set()).add(job_key)
 
@@ -477,15 +571,19 @@ def fetch_postings_for_urls(
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_url = {
-            executor.submit(fetch_workday_posting_url, url, verify=verify): url
-            for url in workday_urls
+            executor.submit(
+                fetch_workday_posting_url if platform == "workday" else fetch_smartrecruiters_posting_url,
+                url,
+                verify=verify,
+            ): (platform, url)
+            for platform, url in direct_urls
         }
         for future in as_completed(future_to_url):
-            url = future_to_url[future]
+            platform, url = future_to_url[future]
             try:
                 posting = future.result()
             except Exception as exc:
-                errors.append(f"workday/{url}: {exc}")
+                errors.append(f"{platform}/{url}: {exc}")
                 continue
             if not posting:
                 continue
@@ -532,17 +630,21 @@ def _normalize_place(text: str) -> str:
 
 
 def matches_city(posting: dict, city: str) -> bool:
-    city_lower = _normalize_place(city)
-    if not city_lower:
-        return True
-    haystack = _normalize_place(f"{posting['location']} {posting['description']}")
-    return city_lower in haystack
+    """Backward-compatible entry point for structured metro location matching."""
+    return matches_city_location(posting, city)
+
+
+def city_search_terms(city: str) -> tuple[str, ...]:
+    """Return the city names included in a tracked metro area."""
+    normalized_city = _normalize_place(city)
+    return METRO_CITY_ALIASES.get(normalized_city, (city,))
 
 
 def matches_city_location(posting: dict, city: str) -> bool:
     """Match a city against the structured location field only."""
-    city_lower = _normalize_place(city)
-    return not city_lower or city_lower in _normalize_place(posting.get("location", ""))
+    location = _normalize_place(posting.get("location", ""))
+    terms = tuple(_normalize_place(term) for term in city_search_terms(city))
+    return not terms[0] or any(term in location for term in terms)
 
 
 def matches_language(posting: dict, phrases: list[str]) -> bool:
@@ -692,7 +794,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path(__file__).resolve().parent / "data",
+        default=DATA_DIR,
         help="Directory for output files (default: data)",
     )
     parser.add_argument(

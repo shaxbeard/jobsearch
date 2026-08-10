@@ -31,6 +31,8 @@ from urllib.parse import urlparse
 import requests
 from dotenv import load_dotenv
 
+from jobtrends.paths import DATA_DIR
+
 
 # ATS/job-board domains to search via `site:`. Kept as a list (rather than one
 # giant OR'd query) because Google/Serper tends to under-serve results once
@@ -41,7 +43,7 @@ DEFAULT_ATS_SITES = [
     "greenhouse.io",
     "jobs.ashbyhq.com",
     "myworkdayjobs.com",
-    # "smartrecruiters.com",
+    "jobs.smartrecruiters.com",
     # "icims.com",
     # "workable.com",
     # "bamboohr.com",
@@ -294,8 +296,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path(__file__).resolve().parent / "data",
-        help="Directory for output files (default: zz_projects/data)",
+        default=DATA_DIR,
+        help="Directory for output files (default: data)",
     )
     parser.add_argument(
         "--insecure",

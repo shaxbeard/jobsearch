@@ -11,12 +11,52 @@ The project is intended to answer questions such as:
 
 This is a market-signal tool, not a complete census of every available job. Google indexing, result ranking, ATS behavior, and the project's filters all affect coverage.
 
+## How to run
+Start the application by running the following command in the terminal:
+
+```bash
+jobtrends-trends --insecure
+```
+
+Manually update the data
+
+```bash
+jobtrends-google-trends --insecure
+```
+
+## Installation
+
+The project is packaged as an installable Python package (`jobtrends`) with a
+`src/` layout. Install it once in editable mode; this registers the
+command-line entry points (`jobtrends-*`) used throughout this document:
+
+```bash
+python -m pip install -e .
+```
+
+## Project Layout
+
+```text
+src/jobtrends/
+  language_detect.py          shared language detection
+  trends_db.py                SQLite persistence
+  paths.py                    runtime path resolution (DB, data/, config/)
+  sources/                    ats_job_search, google_job_search, discover_ats_companies
+  analysis/                   language_trends, google_language_trends, trends_stats
+  web/                        Flask app.py + templates/ + static/
+config/ats_companies.json     employer boards for the fixed-company crawl
+scripts/                      run_daily_update.sh, install_daily_cron.sh
+tests/                        unit tests
+job_trends.db                 local SQLite dataset (repository root)
+data/                         generated snapshots and exports
+```
+
 ## Quick Version of Running the Data Pipeline
 
 Update all tracked cities:
 
 ```bash
-python google_language_trends.py --insecure
+jobtrends-google-trends --insecure
 ```
 
 ## Architecture
@@ -42,7 +82,7 @@ flowchart LR
 
 The normal workflow is:
 
-1. `google_language_trends.py` builds one Google query per city, restricted to the four supported ATS domains.
+1. `google_language_trends.py` builds one Google query per city, restricted to the five supported ATS domains.
 2. Serper returns indexed job-posting URLs. Serper is a paid/free-quota Google Search API; it is the only component that consumes search credits.
 3. `ats_job_search.py` parses each URL into a platform, employer board, and stable job key.
 4. The corresponding public ATS endpoint returns the complete job description. These requests do not consume Serper credits.
@@ -51,7 +91,7 @@ The normal workflow is:
 7. New postings are appended to `job_trends.db`; aggregate city/language counts are recalculated from the accumulated postings.
 8. `app.py` reads the database and serves the map, statistics, and posting drill-down UI.
 
-## Why These Four Domains?
+## Why These Five Domains?
 
 The project searches these hosted job-board domains:
 
@@ -60,41 +100,44 @@ lever.co
 greenhouse.io
 jobs.ashbyhq.com
 myworkdayjobs.com
+jobs.smartrecruiters.com
 ```
 
 These are applicant tracking systems rather than general-purpose aggregators such as Indeed or Dice. Employers publish jobs directly through them. They were selected for several reasons:
 
 - **Full descriptions are publicly retrievable.** Their career pages use public structured endpoints that provide the complete posting without employer API credentials.
 - **URLs contain stable identifiers.** The platform, employer board, and job ID can be extracted and used for incremental deduplication.
-- **They complement one another.** Greenhouse, Lever, and Ashby are common among technology companies and startups. Workday adds coverage for larger enterprises that are underrepresented on those platforms.
+- **They complement one another.** Greenhouse, Lever, and Ashby are common among technology companies and startups. Workday and SmartRecruiters add coverage for larger and more varied employers that are underrepresented on those platforms.
 - **They preserve provenance.** Results point to an employer's ATS-hosted posting rather than a copied aggregator listing.
 - **They avoid brittle page scraping.** Structured JSON is generally more reliable than extracting descriptions from arbitrary HTML.
 
-All four domains are combined into one Google query per city to conserve Serper quota. This is cheaper than giving each platform its own query, but Google's limited result slots may favor one platform over another. A platform-specific audit can be run with `--sites`, for example:
+All five domains are combined into one Google query per city to conserve Serper quota. This is cheaper than giving each platform its own query, but Google's limited result slots may favor one platform over another. A platform-specific audit can be run with `--sites`, for example:
 
 ```bash
-python google_language_trends.py --sites myworkdayjobs.com --insecure
+jobtrends-google-trends --sites myworkdayjobs.com --insecure
 ```
 
-Workday receives slightly different treatment internally. Its Google-discovered URL is resolved directly through the posting's public CXS detail endpoint, and city validation uses Workday's structured location field. This avoids both crawling a large employer's entire board and accepting a job merely because another city is mentioned in its description.
+Workday and SmartRecruiters Google-discovered URLs are resolved directly through their public posting-detail endpoints. City validation uses each ATS's structured location field, avoiding jobs accepted merely because another city appears in the description.
+
+Dallas and Houston are treated as metro areas without adding Serper queries. Dallas includes Fort Worth, Plano, Irving, and Richardson; Houston includes The Woodlands and Sugar Land. Postings are stored under the primary tracked city for aggregate reporting.
 
 ## Key Files
 
-| File | Responsibility |
-|---|---|
-| `google_language_trends.py` | Main incremental pipeline: discovery, filtering, persistence, reports, and exports. |
-| `google_job_search.py` | Serper client and construction/batching of Google `site:` queries. |
-| `ats_job_search.py` | ATS adapters, URL parsing, normalization, role/date/city filters, and full-description retrieval. |
-| `language_detect.py` | Shared language vocabulary, detection, counting, and ranking logic. |
-| `trends_db.py` | SQLite schema and persistence helpers. |
-| `trends_stats.py` | Overall/per-city statistics and stable text/JSON snapshots. |
-| `app.py` | Flask application and JSON API. |
-| `templates/index.html` | Frontend document structure. |
-| `static/js/app.js` | Leaflet map, city labels, API calls, charts, and modal behavior. |
-| `static/css/style.css` | Responsive light-mode presentation. |
-| `language_trends.py` | Optional comparison pipeline that crawls a fixed employer list without Google. |
-| `ats_companies.json` | Employer boards used by the fixed-company crawl. |
-| `discover_ats_companies.py` | Occasional Serper-assisted discovery of employer boards for `ats_companies.json`. |
+| Module | Command | Responsibility |
+|---|---|---|
+| `src/jobtrends/analysis/google_language_trends.py` | `jobtrends-google-trends` | Main incremental pipeline: discovery, filtering, persistence, reports, and exports. |
+| `src/jobtrends/sources/google_job_search.py` | — | Serper client and construction/batching of Google `site:` queries. |
+| `src/jobtrends/sources/ats_job_search.py` | `jobtrends-ats` | ATS adapters, URL parsing, normalization, role/date/city filters, and full-description retrieval. |
+| `src/jobtrends/language_detect.py` | — | Shared language vocabulary, detection, counting, and ranking logic. |
+| `src/jobtrends/trends_db.py` | — | SQLite schema and persistence helpers. |
+| `src/jobtrends/analysis/trends_stats.py` | `jobtrends-stats` | Overall/per-city statistics and stable text/JSON snapshots. |
+| `src/jobtrends/web/app.py` | `jobtrends-web` | Flask application and JSON API. |
+| `src/jobtrends/web/templates/index.html` | — | Frontend document structure. |
+| `src/jobtrends/web/static/js/app.js` | — | Leaflet map, city labels, API calls, charts, and modal behavior. |
+| `src/jobtrends/web/static/css/style.css` | — | Responsive light-mode presentation. |
+| `src/jobtrends/analysis/language_trends.py` | `jobtrends-trends` | Optional comparison pipeline that crawls a fixed employer list without Google. |
+| `config/ats_companies.json` | — | Employer boards used by the fixed-company crawl. |
+| `src/jobtrends/sources/discover_ats_companies.py` | `jobtrends-discover` | Occasional Serper-assisted discovery of employer boards. |
 
 ## Data Model
 
@@ -154,7 +197,7 @@ Obtain a key from [serper.dev](https://serper.dev/). Do not commit `.env`; it is
 Some corporate networks or local certificate configurations cause HTTPS verification failures. In that environment, use:
 
 ```bash
-python google_language_trends.py --insecure
+jobtrends-google-trends --insecure
 ```
 
 `--insecure` disables TLS certificate verification and should only be used when necessary. Appending `2>/dev/null` hides SSL warnings, but it also hides real errors and is not recommended for routine debugging.
@@ -164,13 +207,13 @@ python google_language_trends.py --insecure
 Update all tracked cities:
 
 ```bash
-python google_language_trends.py --insecure
+jobtrends-google-trends --insecure
 ```
 
 Update selected cities:
 
 ```bash
-python google_language_trends.py \
+jobtrends-google-trends \
   --cities "new york,san francisco,toronto" \
   --insecure
 ```
@@ -199,7 +242,7 @@ Phoenix, Portland, Raleigh, Salt Lake City, San Diego, San Francisco,
 San Jose, Seattle, St. Louis, Toronto, Washington DC
 ```
 
-Edit `DEFAULT_CITIES` in `google_language_trends.py` and add coordinates to `CITY_COORDS` in `app.py` when adding a city permanently.
+Edit `DEFAULT_CITIES` in `src/jobtrends/analysis/google_language_trends.py` and add coordinates to `CITY_COORDS` in `src/jobtrends/web/app.py` when adding a city permanently.
 
 ## Outputs and Statistics
 
@@ -221,8 +264,8 @@ data/google_language_trends_<timestamp>_matrix.csv
 Print statistics directly from SQLite:
 
 ```bash
-python trends_stats.py
-python trends_stats.py --top 5 --titles 20
+jobtrends-stats
+jobtrends-stats --top 5 --titles 20
 ```
 
 Job titles are counted as exact strings. Similar titles are intentionally not normalized yet.
@@ -232,7 +275,7 @@ Job titles are counted as exact strings. Similar titles are intentionally not no
 Start the Flask development server:
 
 ```bash
-python app.py
+jobtrends-web
 ```
 
 Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in a browser. Keep the terminal process running while using the app.
@@ -240,7 +283,7 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in a browser. Keep the termi
 Use another port if necessary:
 
 ```bash
-python app.py --port 8000
+jobtrends-web --port 8000
 ```
 
 The frontend provides:
@@ -280,22 +323,22 @@ Leaflet and the CARTO basemap are loaded from external services, so the map requ
 
 ## Optional Fixed-Company Pipeline
 
-`language_trends.py` is an alternative data source. Instead of Google discovery, it crawls the employer boards listed in `ats_companies.json` through the same public ATS APIs.
+`language_trends.py` (`jobtrends-trends`) is an alternative data source. Instead of Google discovery, it crawls the employer boards listed in `config/ats_companies.json` through the same public ATS APIs.
 
 ```bash
-python language_trends.py --insecure
+jobtrends-trends --insecure
 ```
 
 This path avoids Serper costs and is useful for methodological comparisons, but its coverage is limited to known employers. It writes rows with `source='ats'`; the web app currently displays only `source='google'`.
 
-Use `discover_ats_companies.py` when intentionally expanding the fixed employer list. It consumes Serper quota and is not part of the normal daily update.
+Use `jobtrends-discover` (`src/jobtrends/sources/discover_ats_companies.py`) when intentionally expanding the fixed employer list. It consumes Serper quota and is not part of the normal daily update.
 
 ## Production Configuration
 
 The app is prepared to run behind Gunicorn:
 
 ```bash
-gunicorn app:app
+gunicorn jobtrends.web.app:app
 ```
 
 Relevant environment variables:
@@ -304,13 +347,34 @@ Relevant environment variables:
 |---|---|
 | `SERPER_API_KEY` | Required by discovery/update jobs. |
 | `JOB_TRENDS_DB` | SQLite path; use a persistent mounted disk in production. |
-| `HOST` | Host used by `python app.py`; defaults to `127.0.0.1`. |
-| `PORT` | Port used by `python app.py`; defaults to `5000`. |
+| `HOST` | Host used by `jobtrends-web`; defaults to `127.0.0.1`. |
+| `PORT` | Port used by `jobtrends-web`; defaults to `5000`. |
 
 A production deployment needs both:
 
-1. A web service running `gunicorn app:app`.
-2. A scheduled job running `python google_language_trends.py` against the same persistent database.
+1. A web service running `gunicorn jobtrends.web.app:app`.
+2. A scheduled job running `jobtrends-google-trends` against the same persistent database.
+
+### Daily macOS update
+
+Install or refresh the local cron entry with:
+
+```bash
+./scripts/install_daily_cron.sh
+```
+
+The entry runs the incremental update every morning at 7:00 AM in the
+computer's local time:
+
+```cron
+0 7 * * * /Users/ecarlso2/Projects/job-searching/scripts/run_daily_update.sh >> /Users/ecarlso2/Projects/job-searching/data/daily_update.log 2>&1
+```
+
+The wrapper prevents overlapping updates and records start, completion, and
+pipeline output in `data/daily_update.log`. The Mac must be awake at the
+scheduled time; traditional cron does not replay jobs missed while asleep.
+If macOS reports `Operation not permitted`, grant the Terminal application Full
+Disk Access in System Settings > Privacy & Security, then rerun the installer.
 
 SQLite is appropriate for one web instance and one coordinated update process. Before horizontally scaling the web or worker tier, migrate the shared state to a server database such as PostgreSQL.
 
