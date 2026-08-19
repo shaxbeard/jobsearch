@@ -65,11 +65,31 @@
         </div>
       </details>
 
-      <h3 id="overall-languages-title">Top languages (all cities)</h3>
-      <ol id="overall-languages" class="rank-list"></ol>
+      <details class="activity-panel">
+        <summary>Posting activity by month</summary>
+        <p class="activity-note">ATS-advertised dates · by calendar month</p>
+        <div id="overall-activity-monthly" class="activity-chart" role="img"></div>
+        <div class="activity-axis">
+          <span id="overall-activity-monthly-start"></span>
+          <span id="overall-activity-monthly-end"></span>
+        </div>
+      </details>
 
-      <h3>Top job titles</h3>
-      <ol id="overall-titles" class="rank-list"></ol>
+      <details class="activity-panel">
+        <summary>Top job titles</summary>
+        <p class="activity-note" id="overall-titles-note"></p>
+        <ol id="overall-titles" class="rank-list"></ol>
+      </details>
+
+      <details class="activity-panel">
+        <summary>Top tools &amp; frameworks</summary>
+        <ol id="overall-tools" class="rank-list"></ol>
+      </details>
+
+      <details class="activity-panel" open>
+        <summary id="overall-languages-title">Top languages (all cities)</summary>
+        <ol id="overall-languages" class="rank-list"></ol>
+      </details>
     </aside>
   </main>
 
@@ -94,6 +114,21 @@
           <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span>
           <span>Fri</span><span>Sat</span><span>Sun</span>
         </div>
+      </details>
+
+      <details class="activity-panel city-activity-panel">
+        <summary>Posting activity by month</summary>
+        <p class="activity-note">ATS-advertised dates · by calendar month</p>
+        <div id="city-activity-monthly" class="activity-chart" role="img"></div>
+        <div class="activity-axis">
+          <span id="city-activity-monthly-start"></span>
+          <span id="city-activity-monthly-end"></span>
+        </div>
+      </details>
+
+      <details class="activity-panel city-activity-panel">
+        <summary>Top tools &amp; frameworks</summary>
+        <ol id="modal-tools" class="rank-list"></ol>
       </details>
 
       <h3>Top languages</h3>

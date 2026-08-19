@@ -66,6 +66,18 @@ function renderLanguageList(container, languages) {
   }
 }
 
+function renderToolList(container, tools) {
+  container.innerHTML = "";
+  if (!tools.length) {
+    container.appendChild(el("li", null, "No tools/frameworks detected."));
+    return;
+  }
+  const maxPercent = Math.max(...tools.map((t) => t.percent));
+  for (const tool of tools) {
+    container.appendChild(rankListItem(tool.tool, tool.count, tool.percent, maxPercent));
+  }
+}
+
 function formatDate(iso) {
   if (!iso) return "unknown date";
   const d = new Date(iso);
@@ -78,6 +90,15 @@ function formatCalendarDate(iso) {
   return Number.isNaN(date.getTime())
     ? iso
     : date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function formatMonthLabel(month) {
+  if (!month) return "";
+  const [year, mon] = month.split("-").map(Number);
+  const date = new Date(Date.UTC(year, (mon || 1) - 1, 1));
+  return Number.isNaN(date.getTime())
+    ? month
+    : date.toLocaleDateString(undefined, { month: "short", year: "numeric", timeZone: "UTC" });
 }
 
 function renderPostingActivity(chartId, startId, endId, activity) {
@@ -150,6 +171,40 @@ function renderWeekdayAverages(chartId, activity) {
   });
 }
 
+function renderMonthlyActivity(chartId, startId, endId, activity) {
+  const chart = document.getElementById(chartId);
+  const months = (activity || []).slice(-24);
+  chart.innerHTML = "";
+
+  if (!months.length) {
+    chart.textContent = "No posting dates available.";
+    chart.classList.add("activity-chart-empty");
+    return;
+  }
+
+  chart.classList.remove("activity-chart-empty");
+  chart.style.gridTemplateColumns = `repeat(${months.length}, minmax(6px, 1fr))`;
+  const maxCount = Math.max(...months.map((month) => month.count), 1);
+  const total = months.reduce((sum, month) => sum + month.count, 0);
+  chart.setAttribute(
+    "aria-label",
+    `${total} postings across ${months.length} selected ${months.length === 1 ? "month" : "months"}. Hover over a bar for its month and count.`
+  );
+
+  for (const month of months) {
+    const bar = el("span", "activity-bar");
+    const height = month.count ? Math.max((month.count / maxCount) * 100, 8) : 2;
+    bar.style.height = `${height}%`;
+    bar.title = `${formatMonthLabel(month.month)}: ${month.count} posting${month.count === 1 ? "" : "s"}`;
+    bar.setAttribute("aria-label", bar.title);
+    chart.appendChild(bar);
+  }
+
+  document.getElementById(startId).textContent = formatMonthLabel(months[0].month);
+  document.getElementById(endId).textContent = formatMonthLabel(months.at(-1).month);
+}
+
+
 // ---- Overall stats ---------------------------------------------------------
 async function loadStats() {
   const query = rangeQuery();
@@ -170,8 +225,15 @@ async function loadStats() {
     data.posting_activity_daily
   );
   renderWeekdayAverages("overall-weekday-average", data.posting_activity_daily);
+  renderMonthlyActivity(
+    "overall-activity-monthly",
+    "overall-activity-monthly-start",
+    "overall-activity-monthly-end",
+    data.posting_activity_monthly
+  );
 
   renderLanguageList(document.getElementById("overall-languages"), data.top_languages_overall || []);
+  renderToolList(document.getElementById("overall-tools"), data.top_tools_overall || []);
 
   const titles = document.getElementById("overall-titles");
   titles.innerHTML = "";
@@ -180,6 +242,16 @@ async function loadStats() {
     li.appendChild(el("span", null, `${t.title} `));
     li.appendChild(el("span", "muted", `(${t.count})`));
     titles.appendChild(li);
+  }
+
+  const titlesNote = document.getElementById("overall-titles-note");
+  if (titlesNote) {
+    const unique = data.unique_titles ?? 0;
+    const total = data.total_postings ?? 0;
+    titlesNote.textContent =
+      `${unique.toLocaleString()} distinct titles across ${total.toLocaleString()} postings — ` +
+      `titles rarely repeat exactly (e.g. "Senior Backend Engineer" vs. "Senior Software Engineer, Backend"), ` +
+      `so this top list won't add up to the total.`;
   }
 }
 
@@ -274,8 +346,15 @@ async function openCityModal(cityKey) {
     data.posting_activity_daily
   );
   renderWeekdayAverages("city-weekday-average", data.posting_activity_daily);
+  renderMonthlyActivity(
+    "city-activity-monthly",
+    "city-activity-monthly-start",
+    "city-activity-monthly-end",
+    data.posting_activity_monthly
+  );
 
   renderLanguageList(document.getElementById("modal-languages"), data.languages || []);
+  renderToolList(document.getElementById("modal-tools"), data.tools || []);
 
   const count = document.getElementById("modal-postings-count");
   count.textContent = `(${data.postings.length})`;

@@ -60,9 +60,58 @@ LANGUAGE_KEYWORDS: dict[str, list[str]] = {
     "SQL": ["sql"],
 }
 
+# Frameworks, cloud platforms, and other tools to detect alongside languages.
+# Same generous, phrase-based, precision-over-recall approach as LANGUAGE_KEYWORDS.
+#
+# React/Angular/Vue/Node are unambiguous enough as bare words in a job-ad
+# context to include directly (verified against real postings: bare "react"
+# matched 299/1026 postings vs. only 15 for "react.js"/"reactjs", with just
+# ~2 verb-usage false positives like "react to the industry"). "Node" alone
+# is included too since most bare mentions turn out to mean Node.js (e.g.
+# "node and express", "node or python") rather than infra "node".
+TOOL_KEYWORDS: dict[str, list[str]] = {
+    "React": ["react"],
+    "Angular": ["angular"],
+    "Vue.js": ["vue"],
+    "Node.js": ["node"],
+    "Next.js": ["next.js", "nextjs"],
+    "Django": ["django"],
+    "Flask": ["flask"],
+    "FastAPI": ["fastapi"],
+    "Spring": ["spring boot", "spring framework"],
+    ".NET": [".net core", ".net framework", "asp.net"],
+    "Ruby on Rails": ["ruby on rails"],
+    "AWS": ["aws", "amazon web services"],
+    "Azure": ["azure"],
+    "Google Cloud": ["gcp", "google cloud"],
+    "Docker": ["docker"],
+    "Kubernetes": ["kubernetes", "k8s"],
+    "Terraform": ["terraform"],
+    "PostgreSQL": ["postgresql", "postgres"],
+    "MySQL": ["mysql"],
+    "MongoDB": ["mongodb"],
+    "Redis": ["redis"],
+    "GraphQL": ["graphql"],
+    "Kafka": ["kafka"],
+    "Elasticsearch": ["elasticsearch"],
+    "Jenkins": ["jenkins"],
+    "Git": ["git"],
+    "Apache Spark": ["apache spark", "pyspark"],
+    "Hadoop": ["hadoop"],
+    "TensorFlow": ["tensorflow"],
+    "PyTorch": ["pytorch"],
+}
+
 # Phrases containing regex-special or too-short-for-\b characters get a
 # plain substring check instead of a word-boundary regex.
-SUBSTRING_ONLY_PHRASES = {"c#", "c++"}
+SUBSTRING_ONLY_PHRASES = {
+    "c#",
+    "c++",
+    "next.js",
+    ".net core",
+    ".net framework",
+    "asp.net",
+}
 
 
 def phrase_in_text(phrase: str, lowercase_haystack: str) -> bool:
@@ -103,6 +152,33 @@ def count_from_matched_languages(matched_lists: list[list[str]]) -> dict[str, in
             if lang in counts:
                 counts[lang] += 1
     return counts
+
+
+def tools_in_posting(posting: dict) -> list[str]:
+    """Return the list of candidate tools/frameworks detected in one posting."""
+    haystack = f"{posting['title']} {posting['description']}".lower()
+    return [
+        tool
+        for tool, phrases in TOOL_KEYWORDS.items()
+        if any(phrase_in_text(phrase, haystack) for phrase in phrases)
+    ]
+
+
+def count_tools(postings: list[dict]) -> dict[str, int]:
+    counts = {tool: 0 for tool in TOOL_KEYWORDS}
+    for posting in postings:
+        for tool in tools_in_posting(posting):
+            counts[tool] += 1
+    return counts
+
+
+def rank_tools(counts: dict[str, int], total_matched: int) -> list[dict]:
+    ordered = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    ranked = []
+    for i, (tool, count) in enumerate(ordered):
+        percent = round(100 * count / total_matched, 1) if total_matched else 0.0
+        ranked.append({"rank": i + 1, "tool": tool, "count": count, "percent": percent})
+    return ranked
 
 
 def rank_languages(counts: dict[str, int], total_matched: int) -> list[dict]:

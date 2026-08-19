@@ -279,19 +279,25 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--max-pages",
         type=int,
-        default=10,
-        help="Maximum number of result pages to fetch (default: 10)",
+        default=None,
+        help=(
+            "Maximum number of result pages to fetch (default: 2 with --paid, "
+            "10 on the free tier). Pass explicitly to override either default."
+        ),
     )
     parser.add_argument(
         "--num-per-page",
         type=int,
-        default=FREE_TIER_MAX_RESULTS,
-        help=f"Results per page (default: {FREE_TIER_MAX_RESULTS} for free Serper accounts)",
+        default=None,
+        help=(
+            f"Results per page (default: {PAID_TIER_MAX_RESULTS} with --paid, "
+            f"{FREE_TIER_MAX_RESULTS} on the free tier)."
+        ),
     )
     parser.add_argument(
         "--paid",
         action="store_true",
-        help="Use paid Serper limits (up to 100 results per request)",
+        help="Use paid Serper limits (100 results per page, 2 pages by default instead of 10).",
     )
     parser.add_argument(
         "--output-dir",
@@ -373,12 +379,14 @@ def main() -> int:
 
     verify = not args.insecure
     max_results = PAID_TIER_MAX_RESULTS if args.paid else FREE_TIER_MAX_RESULTS
-    num_per_page = max(1, min(args.num_per_page, max_results))
-    if not args.paid and args.num_per_page > FREE_TIER_MAX_RESULTS:
+    requested_num_per_page = args.num_per_page if args.num_per_page is not None else max_results
+    num_per_page = max(1, min(requested_num_per_page, max_results))
+    if not args.paid and requested_num_per_page > FREE_TIER_MAX_RESULTS:
         print(
             f"Note: free Serper accounts are limited to {FREE_TIER_MAX_RESULTS} results "
             f"per request; using {num_per_page}.",
         )
+    max_pages = args.max_pages if args.max_pages is not None else (2 if args.paid else 10)
 
     base_keyword_filter = (
         args.keyword_filter if args.keyword_filter is not None else build_keyword_filter(args.city)
@@ -389,12 +397,12 @@ def main() -> int:
         print(f"Running {len(queries)} quer{'y' if len(queries) == 1 else 'ies'}:")
         for q in queries:
             print(f"  - {q}")
-        print(f"Fetching up to {args.max_pages} page(s) with {num_per_page} results each...")
+        print(f"Fetching up to {max_pages} page(s) with {num_per_page} results each...")
 
         results, err = run_queries(
             queries,
             api_key,
-            max_pages=args.max_pages,
+            max_pages=max_pages,
             num_per_page=num_per_page,
             verify=verify,
         )
@@ -418,12 +426,12 @@ def main() -> int:
         print(f"Running {len(queries)} quer{'y' if len(queries) == 1 else 'ies'}:")
         for q in queries:
             print(f"  - {q}")
-        print(f"Fetching up to {args.max_pages} page(s) with {num_per_page} results each...")
+        print(f"Fetching up to {max_pages} page(s) with {num_per_page} results each...")
 
         results, err = run_queries(
             queries,
             api_key,
-            max_pages=args.max_pages,
+            max_pages=max_pages,
             num_per_page=num_per_page,
             verify=verify,
         )
@@ -456,12 +464,12 @@ def main() -> int:
         print(f"\n[{lang}] Running {len(queries)} quer{'y' if len(queries) == 1 else 'ies'}:")
         for q in queries:
             print(f"  - {q}")
-        print(f"[{lang}] Fetching up to {args.max_pages} page(s) with {num_per_page} results each...")
+        print(f"[{lang}] Fetching up to {max_pages} page(s) with {num_per_page} results each...")
 
         results, err = run_queries(
             queries,
             api_key,
-            max_pages=args.max_pages,
+            max_pages=max_pages,
             num_per_page=num_per_page,
             verify=verify,
         )

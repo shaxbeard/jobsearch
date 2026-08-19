@@ -16,7 +16,17 @@ trap 'rmdir "$LOCK_DIR"' EXIT HUP INT TERM
 cd "$PROJECT_DIR" || exit 1
 export PYTHONPATH="$PROJECT_DIR/src${PYTHONPATH:+:$PYTHONPATH}"
 echo "$(date '+%Y-%m-%d %H:%M:%S') daily update started"
-"$PYTHON_BIN" -m jobtrends.analysis.google_language_trends --insecure
+
+# Once you've upgraded to a paid Serper plan, set SERPER_PAID=1 (e.g. in your
+# shell profile or crontab environment) to switch every run to the paid tier:
+# 100 results/page, 2 pages/city by default (vs. 10/page free-tier limit and
+# 10 pages/city). No script edits needed.
+PAID_FLAG=""
+if [ "${SERPER_PAID:-0}" = "1" ]; then
+  PAID_FLAG="--paid"
+fi
+
+"$PYTHON_BIN" -m jobtrends.analysis.google_language_trends --insecure $PAID_FLAG
 exit_code=$?
 echo "$(date '+%Y-%m-%d %H:%M:%S') daily update finished with status $exit_code"
 exit "$exit_code"

@@ -32,7 +32,7 @@ from collections import Counter
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from jobtrends.language_detect import count_from_matched_languages, rank_languages
+from jobtrends.language_detect import count_from_matched_languages, count_tools, rank_languages, rank_tools
 from jobtrends.trends_db import (
     DEFAULT_DB_PATH,
     STATS_WINDOW_MONTHS,
@@ -58,19 +58,19 @@ def load_postings(
     end_date = end_date or datetime.now(timezone.utc).date().isoformat()
     if source == "all":
         rows = conn.execute(
-            "SELECT city, source, title, posted_at, matched_languages FROM postings "
+            "SELECT city, source, title, posted_at, matched_languages, description FROM postings "
             "WHERE date(posted_at) BETWEEN date(?) AND date(?)",
             (start_date, end_date),
         ).fetchall()
     else:
         rows = conn.execute(
-            "SELECT city, source, title, posted_at, matched_languages FROM postings "
+            "SELECT city, source, title, posted_at, matched_languages, description FROM postings "
             "WHERE source = ? AND date(posted_at) BETWEEN date(?) AND date(?)",
             (source, start_date, end_date),
         ).fetchall()
 
     postings = []
-    for city, src, title, posted_at, matched_json in rows:
+    for city, src, title, posted_at, matched_json, description in rows:
         try:
             langs = json.loads(matched_json) if matched_json else []
         except (TypeError, json.JSONDecodeError):
@@ -82,6 +82,7 @@ def load_postings(
                 "title": title or "",
                 "posted_at": posted_at or "",
                 "matched_languages": langs,
+                "description": description or "",
             }
         )
     return postings
@@ -111,6 +112,32 @@ def build_daily_posting_counts(
     ]
 
 
+def build_monthly_posting_counts(
+    postings: list[dict],
+    *,
+    cutoff: str | None = None,
+    through: date | None = None,
+) -> list[dict]:
+    """Return a zero-filled monthly series based on advertised posting dates."""
+    first_day = date.fromisoformat(cutoff or stats_cutoff_date())
+    last_day = through or datetime.now(timezone.utc).date()
+    counts = Counter(
+        str(posting.get("posted_at") or "")[:7]  # YYYY-MM
+        for posting in postings
+        if len(str(posting.get("posted_at") or "")) >= 7
+    )
+    months: list[dict] = []
+    year, month = first_day.year, first_day.month
+    while (year, month) <= (last_day.year, last_day.month):
+        key = f"{year:04d}-{month:02d}"
+        months.append({"month": key, "count": counts[key]})
+        month += 1
+        if month > 12:
+            month = 1
+            year += 1
+    return months
+
+
 def _rank(postings: list[dict], top: int) -> list[dict]:
     """Ranked, nonzero languages for a set of postings (top N)."""
     total = len(postings)
@@ -118,6 +145,16 @@ def _rank(postings: list[dict], top: int) -> list[dict]:
         return []
     counts = count_from_matched_languages([p["matched_languages"] for p in postings])
     ranked = rank_languages(counts, total)
+    return [row for row in ranked if row["count"] > 0][:top]
+
+
+def _rank_tools(postings: list[dict], top: int) -> list[dict]:
+    """Ranked, nonzero tools/frameworks for a set of postings (top N)."""
+    total = len(postings)
+    if total == 0:
+        return []
+    counts = count_tools(postings)
+    ranked = rank_tools(counts, total)
     return [row for row in ranked if row["count"] > 0][:top]
 
 
@@ -167,13 +204,23 @@ def build_stats_data(
         "posting_activity_daily": build_daily_posting_counts(
             postings, cutoff=cutoff, through=date.fromisoformat(through)
         ),
+        "posting_activity_monthly": build_monthly_posting_counts(
+            postings, cutoff=cutoff, through=date.fromisoformat(through)
+        ),
         "summary_by_source": by_source,
         "top_languages_per_city": per_city,
         "top_languages_overall": _rank(postings, top),
+        "top_tools_overall": _rank_tools(postings, top),
         "top_titles_overall": [
             {"title": title, "count": count}
             for title, count in title_counts.most_common(titles)
         ],
+        # Job titles are free text (e.g. "Senior Backend Engineer" vs.
+        # "Senior Software Engineer, Backend" vs. "Backend Software Engineer"),
+        # so they rarely repeat exactly. `unique_titles` lets the UI explain why
+        # the top-N list's counts don't add up anywhere near total_postings --
+        # that's expected long-tail variety, not a data bug.
+        "unique_titles": len(title_counts),
     }
 
 

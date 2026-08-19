@@ -87,6 +87,7 @@ from jobtrends.sources.google_job_search import (
     DEFAULT_ATS_SITES,
     DEFAULT_SITE_BATCH_SIZE,
     FREE_TIER_MAX_RESULTS,
+    PAID_TIER_MAX_RESULTS,
     build_site_queries,
     run_queries,
 )
@@ -247,14 +248,25 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--max-pages",
         type=int,
-        default=10,
-        help="Max Google result pages to fetch per site-batch query (default: 10).",
+        default=None,
+        help=(
+            "Max Google result pages to fetch per site-batch query per city "
+            "(default: 2 with --paid, 10 on the free tier). Pass explicitly to override."
+        ),
     )
     parser.add_argument(
         "--num-per-page",
         type=int,
-        default=FREE_TIER_MAX_RESULTS,
-        help=f"Google results per page (default: {FREE_TIER_MAX_RESULTS} for free Serper accounts).",
+        default=None,
+        help=(
+            f"Google results per page (default: {PAID_TIER_MAX_RESULTS} with --paid, "
+            f"{FREE_TIER_MAX_RESULTS} on the free tier)."
+        ),
+    )
+    parser.add_argument(
+        "--paid",
+        action="store_true",
+        help="Use paid Serper limits (100 results per page, 2 pages by default instead of 10).",
     )
     parser.add_argument(
         "--site-batch-size",
@@ -330,6 +342,16 @@ def main() -> int:
     if not verify:
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+    max_results = PAID_TIER_MAX_RESULTS if args.paid else FREE_TIER_MAX_RESULTS
+    requested_num_per_page = args.num_per_page if args.num_per_page is not None else max_results
+    num_per_page = max(1, min(requested_num_per_page, max_results))
+    if not args.paid and requested_num_per_page > FREE_TIER_MAX_RESULTS:
+        print(
+            f"Note: free Serper accounts are limited to {FREE_TIER_MAX_RESULTS} results "
+            f"per request; using {num_per_page}.",
+        )
+    max_pages = args.max_pages if args.max_pages is not None else (2 if args.paid else 10)
+
     since_date = None
     since_date_label = "none"
     if args.since_date and args.since_date.strip().lower() != "none":
@@ -375,8 +397,8 @@ def main() -> int:
         results, exit_code = run_queries(
             queries,
             api_key,
-            max_pages=args.max_pages,
-            num_per_page=args.num_per_page,
+            max_pages=max_pages,
+            num_per_page=num_per_page,
             verify=verify,
         )
         if results is None:
