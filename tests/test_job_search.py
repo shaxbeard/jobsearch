@@ -10,7 +10,7 @@ from jobtrends.sources.ats_job_search import (
     parse_job_url,
 )
 from jobtrends.sources.google_job_search import DEFAULT_ATS_SITES, build_site_queries
-from jobtrends.analysis.google_language_trends import build_city_keyword_filter
+from jobtrends.analysis.google_language_trends import build_city_keyword_filter, NO_DATE_FILTER_SITES
 
 
 class MetroCityTests(unittest.TestCase):
@@ -19,6 +19,14 @@ class MetroCityTests(unittest.TestCase):
 
         self.assertIn('("dallas" | "fort worth" | "plano" | "irving" | "richardson")', query)
         self.assertIn("after:2026-08-01", query)
+
+    def test_no_date_filter_sites_omit_the_after_clause(self):
+        self.assertIn("careerpuck.com", NO_DATE_FILTER_SITES)
+        query = build_city_keyword_filter("dallas", "2026-08-01", include_date=False)
+
+        self.assertNotIn("after:", query)
+        self.assertIn('("dallas" | "fort worth" | "plano" | "irving" | "richardson")', query)
+
 
     def test_houston_aliases_match_structured_location(self):
         posting = {"location": "The Woodlands, Texas", "description": ""}
@@ -38,6 +46,26 @@ class MetroCityTests(unittest.TestCase):
         self.assertEqual(city_search_terms("seattle"), ("seattle",))
         self.assertTrue(matches_city_location({"location": "Seattle, WA"}, "seattle"))
 
+    def test_allowlisted_company_canada_wide_remote_counts_as_toronto(self):
+        posting = {"location": "Remote, Canada", "company": "felix"}
+
+        self.assertTrue(matches_city_location(posting, "toronto"))
+
+    def test_non_allowlisted_company_canada_wide_remote_is_not_toronto(self):
+        posting = {"location": "Canada", "company": "jobgether"}
+
+        self.assertFalse(matches_city_location(posting, "toronto"))
+
+    def test_canada_wide_remote_does_not_count_for_other_cities(self):
+        posting = {"location": "Remote, Canada", "company": "felix"}
+
+        self.assertFalse(matches_city_location(posting, "dallas"))
+
+    def test_specific_other_city_in_canada_is_not_treated_as_country_wide(self):
+        posting = {"location": "Vancouver, BC, Canada", "company": "felix"}
+
+        self.assertFalse(matches_city_location(posting, "toronto"))
+
 
 class SmartRecruitersTests(unittest.TestCase):
     def test_parse_public_job_url(self):
@@ -46,6 +74,12 @@ class SmartRecruitersTests(unittest.TestCase):
                 "https://jobs.smartrecruiters.com/Acme/744000123456789-software-engineer?trid=abc"
             ),
             ("smartrecruiters", "acme", "744000123456789"),
+        )
+
+    def test_parse_careerpuck_job_url_maps_to_greenhouse(self):
+        self.assertEqual(
+            parse_job_url("https://app.careerpuck.com/job-board/lyft/job/8648043002?gh_jid=8648043002"),
+            ("greenhouse", "lyft", "8648043002"),
         )
 
     def test_normalize_detail_posting(self):
@@ -91,9 +125,17 @@ class SmartRecruitersTests(unittest.TestCase):
 
     def test_fifth_domain_stays_in_one_query_batch(self):
         self.assertIn("jobs.smartrecruiters.com", DEFAULT_ATS_SITES)
-        self.assertEqual(build_site_queries(DEFAULT_ATS_SITES, '"dallas"'), [
+        self.assertEqual(build_site_queries(DEFAULT_ATS_SITES[:5], '"dallas"'), [
             "site:lever.co | site:greenhouse.io | site:jobs.ashbyhq.com | "
             "site:myworkdayjobs.com | site:jobs.smartrecruiters.com \"dallas\""
+        ])
+
+    def test_sixth_domain_spills_into_a_second_query_batch(self):
+        self.assertIn("careerpuck.com", DEFAULT_ATS_SITES)
+        self.assertEqual(build_site_queries(DEFAULT_ATS_SITES, '"dallas"'), [
+            "site:lever.co | site:greenhouse.io | site:jobs.ashbyhq.com | "
+            "site:myworkdayjobs.com | site:jobs.smartrecruiters.com \"dallas\"",
+            "site:careerpuck.com \"dallas\"",
         ])
 
 

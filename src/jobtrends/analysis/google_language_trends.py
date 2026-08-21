@@ -128,10 +128,27 @@ INCREMENTAL_LOOKBACK_DAYS = 3
 # The role/city/date filter Google applies at search time. `after:` uses the
 # same --since-date value the posting-level filter uses, so both ends agree.
 ROLE_FILTER_TEMPLATE = '(engineer | developer) ({locations}) -staff -lead -principal after:{since}'
+ROLE_FILTER_TEMPLATE_NO_DATE = '(engineer | developer) ({locations}) -staff -lead -principal'
+
+# Sites whose `site:` query is run WITHOUT Google's `after:` date filter.
+# Google's `after:` operator filters on the date *it* associates with the
+# indexed page, not on when the underlying job was posted -- and some
+# client-rendered career-site products (e.g. careerpuck.com, a white-labeled
+# front end some Greenhouse customers use) apparently don't give Google a
+# fresh/reliable page date, so `after:<recent date>` silently returns zero
+# results for them even though older, still-open postings are indexed and
+# would otherwise match. Safe to omit `after:` for these sites: postings
+# already stored are still skipped via URL-key dedup, so this just costs one
+# extra Serper query per city per run, not duplicate storage or re-work.
+NO_DATE_FILTER_SITES = frozenset({"careerpuck.com"})
 
 
-def build_city_keyword_filter(city: str, since_date_for_query: str) -> str:
+def build_city_keyword_filter(
+    city: str, since_date_for_query: str, *, include_date: bool = True
+) -> str:
     locations = " | ".join(f'"{term}"' for term in city_search_terms(city))
+    if not include_date:
+        return ROLE_FILTER_TEMPLATE_NO_DATE.format(locations=locations)
     return ROLE_FILTER_TEMPLATE.format(locations=locations, since=since_date_for_query)
 
 
@@ -389,8 +406,16 @@ def main() -> int:
             key for p in existing if (key := parse_job_url(p.get("url", ""))) is not None
         }
 
+        dated_sites = [site for site in sites if site not in NO_DATE_FILTER_SITES]
+        undated_sites = [site for site in sites if site in NO_DATE_FILTER_SITES]
+
         keyword_filter = build_city_keyword_filter(city, since_for_city)
-        queries = build_site_queries(sites, keyword_filter, batch_size=args.site_batch_size)
+        queries = build_site_queries(dated_sites, keyword_filter, batch_size=args.site_batch_size)
+        if undated_sites:
+            keyword_filter_no_date = build_city_keyword_filter(city, since_for_city, include_date=False)
+            queries += build_site_queries(
+                undated_sites, keyword_filter_no_date, batch_size=args.site_batch_size
+            )
         window = f"since {since_for_city}" if last_fetched else f"from {since_for_city} (first fetch)"
         print(f"\n[{city}] running {len(queries)} Google query(ies) for postings {window}...")
 

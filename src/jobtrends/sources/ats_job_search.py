@@ -84,6 +84,25 @@ METRO_CITY_ALIASES: dict[str, tuple[str, ...]] = {
     "houston": ("houston", "the woodlands", "sugar land"),
 }
 
+# Postings labeled "Remote, Canada" (rather than a specific city) normally
+# can't be matched to any tracked city. But most Canadian tech companies
+# offering Canada-wide remote work are concentrated in southern Ontario, so
+# for a hand-curated allowlist of companies known to be Toronto-area HQ'd,
+# we still count their Canada-wide-remote postings as Toronto jobs. This is
+# deliberately narrow (grow it as you confirm more companies) rather than
+# defaulting every "Canada" remote posting to Toronto, which would wrongly
+# sweep in Vancouver-/Montreal-HQ'd companies' remote roles too. Matched
+# against posting['company'], which is the lowercased ATS board slug/name.
+TORONTO_AREA_REMOTE_COMPANIES = frozenset({
+    "felix",
+})
+
+# Maps a tracked city (normalized) to the remote-company allowlist above that
+# should count toward it. Only Toronto has one today; add more as needed.
+REMOTE_COMPANY_CITY_OVERRIDES: dict[str, frozenset[str]] = {
+    "toronto": TORONTO_AREA_REMOTE_COMPANIES,
+}
+
 # By default, only keep postings that look like individual-contributor
 # software engineer/developer roles -- title must contain one of these
 # (covers common synonym titles for the same coding IC role across
@@ -440,12 +459,21 @@ def parse_job_url(url: str) -> tuple[str, str, str] | None:
 
       https://boards.greenhouse.io/{slug}/jobs/{id}      -> ("greenhouse", slug, id)
       https://job-boards.greenhouse.io/{slug}/jobs/{id}  -> ("greenhouse", slug, id)
+      https://app.careerpuck.com/job-board/{slug}/job/{id}
+                                -> ("greenhouse", slug, id)
       https://jobs.lever.co/{slug}/{uuid}[/apply]        -> ("lever", slug, uuid)
       https://jobs.ashbyhq.com/{slug}/{uuid}             -> ("ashby", slug, uuid)
     https://jobs.smartrecruiters.com/{slug}/{id}-{title}
                                 -> ("smartrecruiters", slug, id)
     https://{tenant}.wd{n}.myworkdayjobs.com/en-US/{site}/job/.../{id}
                                       -> ("workday", "{tenant}.wd{n}/{site}", id)
+
+    CareerPuck is a white-labeled front end some Greenhouse customers (e.g.
+    Lyft) use instead of the default boards.greenhouse.io/job-boards.greenhouse.io
+    domain -- it's still backed by the same public Greenhouse board API, so
+    it's mapped to the "greenhouse" platform using its own slug/id in the URL
+    path (the "?gh_jid=" query parameter duplicates the same id but isn't
+    needed since it's already in the path).
 
     Query strings and a trailing "/apply" segment are ignored. Returns None
     for anything that isn't one of these board URL shapes.
@@ -460,6 +488,10 @@ def parse_job_url(url: str) -> tuple[str, str, str] | None:
     if "greenhouse.io" in host:
         if len(parts) >= 3 and parts[1].lower() == "jobs":
             return "greenhouse", parts[0].lower(), parts[2]
+        return None
+    if "careerpuck.com" in host:
+        if len(parts) >= 4 and parts[0].lower() == "job-board" and parts[2].lower() == "job":
+            return "greenhouse", parts[1].lower(), parts[3]
         return None
     if host == "jobs.lever.co":
         if len(parts) >= 2:
@@ -641,10 +673,31 @@ def city_search_terms(city: str) -> tuple[str, ...]:
 
 
 def matches_city_location(posting: dict, city: str) -> bool:
-    """Match a city against the structured location field only."""
+    """Match a city against the structured location field, plus a narrow
+    allowlist of companies whose Canada-wide-remote postings should still
+    count for a specific hub city (see REMOTE_COMPANY_CITY_OVERRIDES)."""
     location = _normalize_place(posting.get("location", ""))
     terms = tuple(_normalize_place(term) for term in city_search_terms(city))
-    return not terms[0] or any(term in location for term in terms)
+    if not terms[0] or any(term in location for term in terms):
+        return True
+
+    remote_allowlist = REMOTE_COMPANY_CITY_OVERRIDES.get(_normalize_place(city))
+    if remote_allowlist and _is_canada_wide_remote(posting.get("location", "")):
+        company = (posting.get("company") or "").strip().lower()
+        return company in remote_allowlist
+    return False
+
+
+def _is_canada_wide_remote(location: str) -> bool:
+    """True for locations that name Canada generically without a specific
+    city/province, e.g. "Canada", "Remote, Canada", "Canada (Remote)",
+    "Anywhere in Canada". False for anything that also names an actual place,
+    e.g. "Vancouver, BC, Canada", so it can't be used to misattribute other
+    Canadian cities' remote postings.
+    """
+    normalized = _normalize_place(location)
+    words = set(re.sub(r"[()\-]", " ", normalized).split())
+    return "canada" in words and words <= {"remote", "canada", "anywhere", "in"}
 
 
 def matches_language(posting: dict, phrases: list[str]) -> bool:
