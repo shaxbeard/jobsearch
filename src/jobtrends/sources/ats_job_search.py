@@ -107,11 +107,19 @@ REMOTE_COMPANY_CITY_OVERRIDES: dict[str, frozenset[str]] = {
 # software engineer/developer roles -- title must contain one of these
 # (covers common synonym titles for the same coding IC role across
 # companies, not just the literal words "software engineer")...
+# NOTE (2026-08, experimental): added a bare "developer" catch-all so
+# language-prefixed titles like ".NET Developer"/"Java Developer"/"iOS
+# Developer" (which don't contain "software"/"application"/"web") aren't
+# silently dropped -- discovered via a Houston low-count investigation where
+# a genuine ".Net Developer" posting was falling through. This is broader
+# than the rest of the list (could admit lower-signal titles like "Database
+# Developer"/"WordPress Developer" too) -- reassess if that turns out noisy.
 DEFAULT_TITLE_INCLUDE = (
     "software engineer,software developer,software development engineer,"
     "backend engineer,back-end engineer,frontend engineer,front-end engineer,"
     "full stack engineer,full-stack engineer,full stack developer,full-stack developer,"
-    "platform engineer,application developer,web developer,mobile engineer,mobile developer"
+    "platform engineer,application developer,web developer,mobile engineer,mobile developer,"
+    "developer"
 )
 # ...and must NOT contain any of these (drops management/leadership titles
 # like "Engineering Manager", "Director of Engineering", etc., even if the

@@ -1,16 +1,5 @@
 # Hit List Magic Tracker
 
-Hit List Magic Tracker follows software-engineering hiring activity across North American cities. Programming-language demand, estimated from the full text of each job description, is one of the metrics it tracks. The app combines Google-based discovery, public applicant-tracking-system (ATS) endpoints, an incremental SQLite dataset, and a Flask frontend.
-
-The project is intended to answer questions such as:
-
-- How many software-engineering jobs are appearing in each city?
-- Which programming languages are mentioned most often overall and by city?
-- Which job titles are most common?
-- Which individual postings contribute to each city's statistics?
-
-This is a market-signal tool, not a complete census of every available job. Google indexing, result ranking, ATS behavior, and the project's filters all affect coverage.
-
 ## How to run
 Start the Flask development server:
 
@@ -24,7 +13,16 @@ Manually update the data
 jobtrends-google-trends --insecure
 ```
 
+Hit List Magic Tracker follows software-engineering hiring activity across North American cities. Programming-language demand, estimated from the full text of each job description, is one of the metrics it tracks. The app combines Google-based discovery, public applicant-tracking-system (ATS) endpoints, an incremental SQLite dataset, and a Flask frontend.
 
+The project is intended to answer questions such as:
+
+- How many software-engineering jobs are appearing in each city?
+- Which programming languages are mentioned most often overall and by city?
+- Which job titles are most common?
+- Which individual postings contribute to each city's statistics?
+
+This is a market-signal tool, not a complete census of every available job. Google indexing, result ranking, ATS behavior, and the project's filters all affect coverage.
 
 
 ## Installation
