@@ -26,7 +26,7 @@ function rangeQuery() {
   return params.toString();
 }
 
-L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_3qib_1_f987e17357874d249e85d065", {
   maxZoom: 12,
   attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
 }).addTo(map);
