@@ -97,6 +97,7 @@ from jobtrends.language_detect import (
     languages_in_posting,
     print_city_report,
     rank_languages,
+    tools_in_posting,
 )
 from jobtrends.trends_db import (
     DEFAULT_DB_PATH,
@@ -471,7 +472,8 @@ def main() -> int:
             )
         ]
         new_with_langs = [
-            {**p, "matched_languages": languages_in_posting(p)} for p in new_filtered
+            {**p, "matched_languages": languages_in_posting(p), "matched_tools": tools_in_posting(p)}
+            for p in new_filtered
         ]
 
         # Persist every accepted posting for history/deduplication, but rank only
@@ -508,6 +510,7 @@ def main() -> int:
                 "url": p.get("url", ""),
                 "posted_at": p.get("posted_at", ""),
                 "matched_languages": p["matched_languages"],
+                "matched_tools": p["matched_tools"],
             }
             for p in recent_postings
         ]

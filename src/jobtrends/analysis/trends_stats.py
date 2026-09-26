@@ -32,7 +32,7 @@ from collections import Counter
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from jobtrends.language_detect import count_from_matched_languages, count_tools, rank_languages, rank_tools
+from jobtrends.language_detect import count_from_matched_languages, count_from_matched_tools, rank_languages, rank_tools
 from jobtrends.trends_db import (
     DEFAULT_DB_PATH,
     STATS_WINDOW_MONTHS,
@@ -56,28 +56,32 @@ def load_postings(
     """Return in-window postings with matched_languages decoded to a list."""
     start_date = start_date or stats_cutoff_date()
     end_date = end_date or datetime.now(timezone.utc).date().isoformat()
-    # description is still needed here -- count_tools()/tools_in_posting()
-    # (language_detect.py) text-scans it for framework/tool keywords, since
-    # those (unlike matched_languages) aren't precomputed at ingest time.
+    # matched_tools is precomputed at ingest time (see language_detect.tools_in_posting),
+    # so tool ranking here is a cheap tally instead of re-scanning every
+    # description's text on every request -- description itself isn't needed.
     if source == "all":
         rows = conn.execute(
-            "SELECT city, source, title, platform, posted_at, matched_languages, description FROM postings "
+            "SELECT city, source, title, platform, posted_at, matched_languages, matched_tools FROM postings "
             "WHERE date(posted_at) BETWEEN date(?) AND date(?)",
             (start_date, end_date),
         ).fetchall()
     else:
         rows = conn.execute(
-            "SELECT city, source, title, platform, posted_at, matched_languages, description FROM postings "
+            "SELECT city, source, title, platform, posted_at, matched_languages, matched_tools FROM postings "
             "WHERE source = ? AND date(posted_at) BETWEEN date(?) AND date(?)",
             (source, start_date, end_date),
         ).fetchall()
 
     postings = []
-    for city, src, title, platform, posted_at, matched_json, description in rows:
+    for city, src, title, platform, posted_at, matched_json, tools_json in rows:
         try:
             langs = json.loads(matched_json) if matched_json else []
         except (TypeError, json.JSONDecodeError):
             langs = []
+        try:
+            tools = json.loads(tools_json) if tools_json else []
+        except (TypeError, json.JSONDecodeError):
+            tools = []
         postings.append(
             {
                 "city": city,
@@ -86,7 +90,7 @@ def load_postings(
                 "platform": platform or "",
                 "posted_at": posted_at or "",
                 "matched_languages": langs,
-                "description": description or "",
+                "matched_tools": tools,
             }
         )
     return postings
@@ -157,7 +161,7 @@ def _rank_tools(postings: list[dict], top: int) -> list[dict]:
     total = len(postings)
     if total == 0:
         return []
-    counts = count_tools(postings)
+    counts = count_from_matched_tools([p["matched_tools"] for p in postings])
     ranked = rank_tools(counts, total)
     return [row for row in ranked if row["count"] > 0][:top]
 

@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS postings (
     posted_at TEXT,
     description TEXT NOT NULL,
     matched_languages TEXT NOT NULL DEFAULT '[]',
+    matched_tools TEXT NOT NULL DEFAULT '[]',
     updated_at_utc TEXT NOT NULL
 );
 
@@ -122,6 +123,33 @@ def get_connection(db_path: Path = DEFAULT_DB_PATH) -> sqlite3.Connection:
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
+    conn.commit()
+    _migrate_matched_tools(conn)
+
+
+def _migrate_matched_tools(conn: sqlite3.Connection) -> None:
+    """One-time backfill for DBs created before the matched_tools column.
+
+    CREATE TABLE IF NOT EXISTS (in SCHEMA) doesn't add columns to an existing
+    table, so a plain ALTER TABLE is needed for databases that predate this
+    column. This only runs its (potentially slow, full-table) backfill once --
+    once the column exists, the cheap PRAGMA check below short-circuits it on
+    every subsequent call (ensure_schema runs on every new connection).
+    """
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(postings)").fetchall()}
+    if "matched_tools" in columns:
+        return
+    from jobtrends.language_detect import tools_in_posting
+
+    conn.execute("ALTER TABLE postings ADD COLUMN matched_tools TEXT NOT NULL DEFAULT '[]'")
+    rows = conn.execute("SELECT id, title, description FROM postings").fetchall()
+    conn.executemany(
+        "UPDATE postings SET matched_tools = ? WHERE id = ?",
+        [
+            (json.dumps(tools_in_posting({"title": title or "", "description": description or ""})), post_id)
+            for post_id, title, description in rows
+        ],
+    )
     conn.commit()
 
 
@@ -184,8 +212,8 @@ def update_city(
             conn.executemany(
                 """
                 INSERT INTO postings
-                    (city, source, company, platform, title, location, url, posted_at, description, matched_languages, updated_at_utc)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (city, source, company, platform, title, location, url, posted_at, description, matched_languages, matched_tools, updated_at_utc)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 [
                     (
@@ -199,6 +227,7 @@ def update_city(
                         posting["posted_at"],
                         posting["description"],
                         json.dumps(posting["matched_languages"]),
+                        json.dumps(posting.get("matched_tools", [])),
                         now,
                     )
                     for posting in postings
@@ -232,6 +261,7 @@ def get_postings(conn: sqlite3.Connection, *, city: str, source: str) -> list[di
         "posted_at",
         "description",
         "matched_languages",
+        "matched_tools",
     ]
     rows = conn.execute(
         f"SELECT {', '.join(columns)} FROM postings WHERE city = ? AND source = ?",
@@ -241,6 +271,7 @@ def get_postings(conn: sqlite3.Connection, *, city: str, source: str) -> list[di
     for row in rows:
         posting = dict(zip(columns, row))
         posting["matched_languages"] = json.loads(posting["matched_languages"])
+        posting["matched_tools"] = json.loads(posting["matched_tools"])
         postings.append(posting)
     return postings
 
@@ -339,8 +370,8 @@ def add_postings(
     conn.executemany(
         """
         INSERT INTO postings
-            (city, source, company, platform, title, location, url, posted_at, description, matched_languages, updated_at_utc)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (city, source, company, platform, title, location, url, posted_at, description, matched_languages, matched_tools, updated_at_utc)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             (
@@ -354,6 +385,7 @@ def add_postings(
                 posting["posted_at"],
                 posting["description"],
                 json.dumps(posting["matched_languages"]),
+                json.dumps(posting.get("matched_tools", [])),
                 now,
             )
             for posting in postings

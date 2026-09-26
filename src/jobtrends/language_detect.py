@@ -172,6 +172,21 @@ def count_tools(postings: list[dict]) -> dict[str, int]:
     return counts
 
 
+def count_from_matched_tools(matched_lists: list[list[str]]) -> dict[str, int]:
+    """Tally tool counts from already-detected per-posting tool lists.
+
+    Same idea as count_from_matched_languages: use this to (re)rank a city's
+    tools from the stored `matched_tools` column instead of re-scanning every
+    description's text on every read.
+    """
+    counts = {tool: 0 for tool in TOOL_KEYWORDS}
+    for tools in matched_lists:
+        for tool in tools:
+            if tool in counts:
+                counts[tool] += 1
+    return counts
+
+
 def rank_tools(counts: dict[str, int], total_matched: int) -> list[dict]:
     ordered = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
     ranked = []

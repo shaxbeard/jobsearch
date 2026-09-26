@@ -21,7 +21,7 @@ from datetime import date, datetime, timedelta, timezone
 
 from flask import Flask, Response, jsonify, render_template, request
 
-from jobtrends.language_detect import count_from_matched_languages, count_tools, rank_languages, rank_tools
+from jobtrends.language_detect import count_from_matched_languages, count_from_matched_tools, rank_languages, rank_tools
 from jobtrends.trends_db import (
     DEFAULT_DB_PATH,
     STATS_WINDOW_MONTHS,
@@ -223,7 +223,7 @@ def api_city(name: str):
 
     counts = count_from_matched_languages([p["matched_languages"] for p in postings])
     languages = [row for row in rank_languages(counts, len(postings)) if row["count"] > 0]
-    tool_counts = count_tools(postings)
+    tool_counts = count_from_matched_tools([p["matched_tools"] for p in postings])
     tools = [row for row in rank_tools(tool_counts, len(postings)) if row["count"] > 0]
     job_boards = rank_job_boards(postings)
     postings_sorted = sorted(postings, key=lambda p: p.get("posted_at") or "", reverse=True)

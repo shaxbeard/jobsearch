@@ -73,6 +73,7 @@ from jobtrends.language_detect import (
     languages_in_posting,
     print_city_report,
     rank_languages,
+    tools_in_posting,
 )
 from jobtrends.trends_db import (
     DEFAULT_DB_PATH,
@@ -299,7 +300,12 @@ def main() -> int:
             postings_with_langs = None
             if not args.no_postings:
                 postings_with_langs = [
-                    {**posting, "matched_languages": languages_in_posting(posting)} for posting in filtered
+                    {
+                        **posting,
+                        "matched_languages": languages_in_posting(posting),
+                        "matched_tools": tools_in_posting(posting),
+                    }
+                    for posting in filtered
                 ]
             update_city(
                 conn,
