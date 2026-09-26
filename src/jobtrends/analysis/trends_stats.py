@@ -56,23 +56,24 @@ def load_postings(
     """Return in-window postings with matched_languages decoded to a list."""
     start_date = start_date or stats_cutoff_date()
     end_date = end_date or datetime.now(timezone.utc).date().isoformat()
-    # description isn't read anywhere below -- omit it, it's the largest
-    # column by far and pulling it here just adds I/O for unused data.
+    # description is still needed here -- count_tools()/tools_in_posting()
+    # (language_detect.py) text-scans it for framework/tool keywords, since
+    # those (unlike matched_languages) aren't precomputed at ingest time.
     if source == "all":
         rows = conn.execute(
-            "SELECT city, source, title, platform, posted_at, matched_languages FROM postings "
+            "SELECT city, source, title, platform, posted_at, matched_languages, description FROM postings "
             "WHERE date(posted_at) BETWEEN date(?) AND date(?)",
             (start_date, end_date),
         ).fetchall()
     else:
         rows = conn.execute(
-            "SELECT city, source, title, platform, posted_at, matched_languages FROM postings "
+            "SELECT city, source, title, platform, posted_at, matched_languages, description FROM postings "
             "WHERE source = ? AND date(posted_at) BETWEEN date(?) AND date(?)",
             (source, start_date, end_date),
         ).fetchall()
 
     postings = []
-    for city, src, title, platform, posted_at, matched_json in rows:
+    for city, src, title, platform, posted_at, matched_json, description in rows:
         try:
             langs = json.loads(matched_json) if matched_json else []
         except (TypeError, json.JSONDecodeError):
@@ -85,6 +86,7 @@ def load_postings(
                 "platform": platform or "",
                 "posted_at": posted_at or "",
                 "matched_languages": langs,
+                "description": description or "",
             }
         )
     return postings
