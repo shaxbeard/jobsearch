@@ -25,6 +25,7 @@ from jobtrends.language_detect import count_from_matched_languages, count_tools,
 from jobtrends.trends_db import (
     DEFAULT_DB_PATH,
     STATS_WINDOW_MONTHS,
+    count_postings_by_city_in_date_range,
     ensure_schema,
     get_connection,
     get_postings_in_date_range,
@@ -177,18 +178,9 @@ def api_cities():
             "WHERE source = ? ORDER BY city",
             (SOURCE,),
         ).fetchall()
-        recent_totals = {
-            city: len(
-                get_postings_in_date_range(
-                    conn,
-                    city=city,
-                    source=SOURCE,
-                    start_date=start_date,
-                    end_date=end_date,
-                )
-            )
-            for city, _ in rows
-        }
+        recent_totals = count_postings_by_city_in_date_range(
+            conn, source=SOURCE, start_date=start_date, end_date=end_date
+        )
     finally:
         conn.close()
 
@@ -199,7 +191,7 @@ def api_cities():
             {
                 "city": city,
                 "label": city.title(),
-                "total_matched": recent_totals[city],
+                "total_matched": recent_totals.get(city, 0),
                 "updated_at": updated,
                 "lat": coords[0] if coords else None,
                 "lng": coords[1] if coords else None,

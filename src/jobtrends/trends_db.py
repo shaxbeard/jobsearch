@@ -109,6 +109,9 @@ CREATE TABLE IF NOT EXISTS postings (
 
 CREATE INDEX IF NOT EXISTS idx_postings_city ON postings(city, source);
 CREATE INDEX IF NOT EXISTS idx_postings_url ON postings(url);
+-- Matches the date(posted_at) BETWEEN date(?) AND date(?) filter used by the
+-- web app and trends_stats.py, so those lookups don't scan every row.
+CREATE INDEX IF NOT EXISTS idx_postings_posted_at_date ON postings(date(posted_at));
 """
 
 
@@ -289,6 +292,29 @@ def get_postings_in_date_range(
         and (start_date is None or str(posting["posted_at"])[:10] >= start_date)
         and str(posting["posted_at"])[:10] <= end_date
     ]
+
+
+def count_postings_by_city_in_date_range(
+    conn: sqlite3.Connection,
+    *,
+    source: str,
+    start_date: str,
+    end_date: str,
+) -> dict[str, int]:
+    """Per-city posting counts inside an inclusive advertised-date range.
+
+    Same date filter as get_postings_in_date_range, but computed in one SQL
+    query (index-assisted, no per-city round trip and no description/full-row
+    transfer) -- use this where only a count per city is needed, such as the
+    map overview, instead of calling get_postings_in_date_range per city.
+    """
+    rows = conn.execute(
+        "SELECT city, COUNT(*) FROM postings "
+        "WHERE source = ? AND date(posted_at) BETWEEN date(?) AND date(?) "
+        "GROUP BY city",
+        (source, start_date, end_date),
+    ).fetchall()
+    return dict(rows)
 
 
 def add_postings(
