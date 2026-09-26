@@ -33,6 +33,7 @@ from jobtrends.analysis.trends_stats import (
     build_daily_posting_counts,
     build_monthly_posting_counts,
     build_stats_data,
+    rank_job_boards,
 )
 
 # Which stored data the frontend reads. The Google-discovery pipeline is the
@@ -69,6 +70,11 @@ CITY_COORDS: dict[str, tuple[float, float]] = {
 }
 
 app = Flask(__name__)
+
+if os.environ.get("JOBTRENDS_ENABLE_SCHEDULER") == "1":
+    from jobtrends.web.scheduler import start as _start_scheduler
+
+    _start_scheduler(hour_utc=int(os.environ.get("JOBTRENDS_UPDATE_HOUR_UTC", "11")))
 
 
 def _connect():
@@ -227,6 +233,7 @@ def api_city(name: str):
     languages = [row for row in rank_languages(counts, len(postings)) if row["count"] > 0]
     tool_counts = count_tools(postings)
     tools = [row for row in rank_tools(tool_counts, len(postings)) if row["count"] > 0]
+    job_boards = rank_job_boards(postings)
     postings_sorted = sorted(postings, key=lambda p: p.get("posted_at") or "", reverse=True)
     return jsonify(
         {
@@ -249,6 +256,7 @@ def api_city(name: str):
             ),
             "languages": languages,
             "tools": tools,
+            "job_boards": job_boards,
             "postings": [
                 {
                     "company": p["company"],

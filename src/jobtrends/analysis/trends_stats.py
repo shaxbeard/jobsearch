@@ -58,19 +58,19 @@ def load_postings(
     end_date = end_date or datetime.now(timezone.utc).date().isoformat()
     if source == "all":
         rows = conn.execute(
-            "SELECT city, source, title, posted_at, matched_languages, description FROM postings "
+            "SELECT city, source, title, platform, posted_at, matched_languages, description FROM postings "
             "WHERE date(posted_at) BETWEEN date(?) AND date(?)",
             (start_date, end_date),
         ).fetchall()
     else:
         rows = conn.execute(
-            "SELECT city, source, title, posted_at, matched_languages, description FROM postings "
+            "SELECT city, source, title, platform, posted_at, matched_languages, description FROM postings "
             "WHERE source = ? AND date(posted_at) BETWEEN date(?) AND date(?)",
             (source, start_date, end_date),
         ).fetchall()
 
     postings = []
-    for city, src, title, posted_at, matched_json, description in rows:
+    for city, src, title, platform, posted_at, matched_json, description in rows:
         try:
             langs = json.loads(matched_json) if matched_json else []
         except (TypeError, json.JSONDecodeError):
@@ -80,6 +80,7 @@ def load_postings(
                 "city": city,
                 "source": src,
                 "title": title or "",
+                "platform": platform or "",
                 "posted_at": posted_at or "",
                 "matched_languages": langs,
                 "description": description or "",
@@ -158,6 +159,23 @@ def _rank_tools(postings: list[dict], top: int) -> list[dict]:
     return [row for row in ranked if row["count"] > 0][:top]
 
 
+def rank_job_boards(postings: list[dict]) -> list[dict]:
+    """Ranked posting counts by ATS/job-board platform (e.g. greenhouse, lever).
+
+    Unlike languages/tools there are only a handful of platforms, so every
+    platform with at least one posting is returned (no top-N truncation).
+    """
+    total = len(postings)
+    if total == 0:
+        return []
+    counts = Counter(p["platform"] for p in postings if p.get("platform"))
+    ordered = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    return [
+        {"rank": i + 1, "platform": platform, "count": count, "percent": round(100 * count / total, 1)}
+        for i, (platform, count) in enumerate(ordered)
+    ]
+
+
 def build_stats_data(
     conn,
     *,
@@ -211,6 +229,7 @@ def build_stats_data(
         "top_languages_per_city": per_city,
         "top_languages_overall": _rank(postings, top),
         "top_tools_overall": _rank_tools(postings, top),
+        "top_job_boards_overall": rank_job_boards(postings),
         "top_titles_overall": [
             {"title": title, "count": count}
             for title, count in title_counts.most_common(titles)

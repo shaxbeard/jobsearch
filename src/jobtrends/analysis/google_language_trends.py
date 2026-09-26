@@ -140,7 +140,10 @@ ROLE_FILTER_TEMPLATE_NO_DATE = '(engineer | developer) ({locations}) -staff -lea
 # would otherwise match. Safe to omit `after:` for these sites: postings
 # already stored are still skipped via URL-key dedup, so this just costs one
 # extra Serper query per city per run, not duplicate storage or re-work.
-NO_DATE_FILTER_SITES = frozenset({"careerpuck.com"})
+# Currently empty: careerpuck.com was removed from DEFAULT_ATS_SITES (low
+# yield), which is what this set existed to work around. Re-add a domain
+# here if it's re-enabled and hits the same after: bug.
+NO_DATE_FILTER_SITES = frozenset()
 
 
 def build_city_keyword_filter(

@@ -21,7 +21,7 @@ class MetroCityTests(unittest.TestCase):
         self.assertIn("after:2026-08-01", query)
 
     def test_no_date_filter_sites_omit_the_after_clause(self):
-        self.assertIn("careerpuck.com", NO_DATE_FILTER_SITES)
+        self.assertEqual(NO_DATE_FILTER_SITES, frozenset())
         query = build_city_keyword_filter("dallas", "2026-08-01", include_date=False)
 
         self.assertNotIn("after:", query)
@@ -130,12 +130,11 @@ class SmartRecruitersTests(unittest.TestCase):
             "site:myworkdayjobs.com | site:jobs.smartrecruiters.com \"dallas\""
         ])
 
-    def test_sixth_domain_spills_into_a_second_query_batch(self):
-        self.assertIn("careerpuck.com", DEFAULT_ATS_SITES)
+    def test_all_default_sites_fit_in_one_query_batch(self):
+        self.assertNotIn("careerpuck.com", DEFAULT_ATS_SITES)
         self.assertEqual(build_site_queries(DEFAULT_ATS_SITES, '"dallas"'), [
             "site:lever.co | site:greenhouse.io | site:jobs.ashbyhq.com | "
-            "site:myworkdayjobs.com | site:jobs.smartrecruiters.com \"dallas\"",
-            "site:careerpuck.com \"dallas\"",
+            "site:myworkdayjobs.com | site:jobs.smartrecruiters.com \"dallas\""
         ])
 
 

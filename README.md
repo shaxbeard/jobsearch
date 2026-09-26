@@ -291,8 +291,8 @@ The frontend provides:
 
 - A Leaflet map with posting totals for each city
 - A shared date-range control with 1D, 7D, 6M, 12M, YTD, ALL, and custom dates; 6M remains the default. The inclusive 1D range covers yesterday through today.
-- An overall language ranking and top job titles
-- City modals with local language rankings and underlying job links
+- An overall language ranking and job-board breakdown (how many postings came from each ATS)
+- City modals with local language rankings, a per-city job-board breakdown, and underlying job links
 - Collapsed overall and per-city daily posting activity charts for the latest 30 days
 - Per-city CSV downloads containing the past six months of job details
 
@@ -378,6 +378,18 @@ If macOS reports `Operation not permitted`, grant the Terminal application Full
 Disk Access in System Settings > Privacy & Security, then rerun the installer.
 
 SQLite is appropriate for one web instance and one coordinated update process. Before horizontally scaling the web or worker tier, migrate the shared state to a server database such as PostgreSQL.
+
+### Deploying to Render
+
+`render.yaml` in the repo root is a [Blueprint](https://render.com/docs/blueprint-spec) that deploys a single always-on web service (no cold start) with a persistent disk:
+
+1. In the Render dashboard, confirm the cheapest always-on web service plan/price and update `plan:` in `render.yaml` if it has changed, then create a Blueprint from this repo.
+2. Set the `SERPER_API_KEY` secret in the service's environment tab (marked `sync: false` in `render.yaml`, so Render prompts for it instead of storing it in git).
+3. The blueprint mounts a 1 GB disk at `/var/data` and points `JOB_TRENDS_DB`/`JOBTRENDS_DATA_DIR` there so the database and generated exports survive deploys and restarts. `config/ats_companies.json` is left on the default path — it's static and redeployed from git each time, not runtime-mutated.
+4. Seed the disk with your existing data before (or right after) the first deploy: open a shell on the service (Render dashboard > Shell) and copy your local `job_trends.db` and `data/` up to `/var/data/` (e.g. `scp`, or Render's shell file upload), otherwise the app starts from an empty database.
+5. Only one worker is used (`gunicorn --workers 1`) — SQLite here assumes one writer, and Render disks attach to a single service instance.
+
+Render's persistent disks aren't shared across separate services, so a separate "Cron Job" resource for the daily update wouldn't have access to this service's disk. Instead, the update runs **in-process**: `src/jobtrends/web/scheduler.py` starts a background thread (enabled via `JOBTRENDS_ENABLE_SCHEDULER=1`, set in `render.yaml`) that runs `jobtrends-google-trends --insecure` once a day at `JOBTRENDS_UPDATE_HOUR_UTC` (default 11:00 UTC). This only runs when that env var is set, so local `jobtrends-web` usage is unaffected and keeps relying on the macOS cron described above.
 
 ## Known Limitations
 

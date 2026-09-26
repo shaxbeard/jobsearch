@@ -46,9 +46,11 @@ DEFAULT_ATS_SITES = [
     "jobs.smartrecruiters.com",
     # Some Greenhouse customers (e.g. Lyft) white-label their public board on
     # this domain instead of boards.greenhouse.io/job-boards.greenhouse.io.
-    # parse_job_url() recognizes these URLs and maps them back to the
-    # "greenhouse" platform so they fetch through the same board API.
-    "careerpuck.com",
+    # parse_job_url() still recognizes these URLs and maps them back to the
+    # "greenhouse" platform, but the site: search itself is disabled here --
+    # it only ever surfaced Lyft postings in 3/22 cities (16 of 1689 google
+    # postings), not worth its extra daily Serper query per city.
+    # "careerpuck.com",
     # "icims.com",
     # "workable.com",
     # "bamboohr.com",

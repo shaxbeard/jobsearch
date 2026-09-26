@@ -78,6 +78,18 @@ function renderToolList(container, tools) {
   }
 }
 
+function renderJobBoardList(container, boards) {
+  container.innerHTML = "";
+  if (!boards.length) {
+    container.appendChild(el("li", null, "No job-board data available."));
+    return;
+  }
+  const maxPercent = Math.max(...boards.map((b) => b.percent));
+  for (const board of boards) {
+    container.appendChild(rankListItem(board.platform, board.count, board.percent, maxPercent));
+  }
+}
+
 function formatDate(iso) {
   if (!iso) return "unknown date";
   const d = new Date(iso);
@@ -156,7 +168,7 @@ function renderWeekdayAverages(chartId, activity) {
   chart.style.gridTemplateColumns = "repeat(7, minmax(12px, 1fr))";
   chart.setAttribute(
     "aria-label",
-    `Average postings by weekday: ${averages
+    `Average postings by day: ${averages
       .map((average, index) => `${weekdayNames[index]} ${average.toFixed(1)}`)
       .join(", ")}.`
   );
@@ -234,25 +246,7 @@ async function loadStats() {
 
   renderLanguageList(document.getElementById("overall-languages"), data.top_languages_overall || []);
   renderToolList(document.getElementById("overall-tools"), data.top_tools_overall || []);
-
-  const titles = document.getElementById("overall-titles");
-  titles.innerHTML = "";
-  for (const t of data.top_titles_overall || []) {
-    const li = el("li");
-    li.appendChild(el("span", null, `${t.title} `));
-    li.appendChild(el("span", "muted", `(${t.count})`));
-    titles.appendChild(li);
-  }
-
-  const titlesNote = document.getElementById("overall-titles-note");
-  if (titlesNote) {
-    const unique = data.unique_titles ?? 0;
-    const total = data.total_postings ?? 0;
-    titlesNote.textContent =
-      `${unique.toLocaleString()} distinct titles across ${total.toLocaleString()} postings — ` +
-      `titles rarely repeat exactly (e.g. "Senior Backend Engineer" vs. "Senior Software Engineer, Backend"), ` +
-      `so this top list won't add up to the total.`;
-  }
+  renderJobBoardList(document.getElementById("overall-job-boards"), data.top_job_boards_overall || []);
 }
 
 // ---- City pins -------------------------------------------------------------
@@ -355,6 +349,7 @@ async function openCityModal(cityKey) {
 
   renderLanguageList(document.getElementById("modal-languages"), data.languages || []);
   renderToolList(document.getElementById("modal-tools"), data.tools || []);
+  renderJobBoardList(document.getElementById("modal-job-boards"), data.job_boards || []);
 
   const count = document.getElementById("modal-postings-count");
   count.textContent = `(${data.postings.length})`;

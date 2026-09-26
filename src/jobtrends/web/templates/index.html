@@ -57,7 +57,7 @@
           <span id="overall-activity-start"></span>
           <span id="overall-activity-end"></span>
         </div>
-        <p class="activity-subheading">Average postings by weekday</p>
+        <p class="activity-subheading">Average postings by day</p>
         <div id="overall-weekday-average" class="activity-chart weekday-average-chart" role="img"></div>
         <div class="weekday-axis" aria-hidden="true">
           <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span>
@@ -76,9 +76,8 @@
       </details>
 
       <details class="activity-panel">
-        <summary>Top job titles</summary>
-        <p class="activity-note" id="overall-titles-note"></p>
-        <ol id="overall-titles" class="rank-list"></ol>
+        <summary>Top job boards</summary>
+        <ol id="overall-job-boards" class="rank-list"></ol>
       </details>
 
       <details class="activity-panel">
@@ -108,7 +107,7 @@
           <span id="city-activity-start"></span>
           <span id="city-activity-end"></span>
         </div>
-        <p class="activity-subheading">Average postings by weekday</p>
+        <p class="activity-subheading">Average postings by day</p>
         <div id="city-weekday-average" class="activity-chart weekday-average-chart" role="img"></div>
         <div class="weekday-axis" aria-hidden="true">
           <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span>
@@ -127,11 +126,16 @@
       </details>
 
       <details class="activity-panel city-activity-panel">
+        <summary>Top job boards</summary>
+        <ol id="modal-job-boards" class="rank-list"></ol>
+      </details>
+
+      <details class="activity-panel city-activity-panel">
         <summary>Top tools &amp; frameworks</summary>
         <ol id="modal-tools" class="rank-list"></ol>
       </details>
 
-      <details class="activity-panel city-activity-panel" open>
+      <details class="activity-panel city-activity-panel">
         <summary>Top languages</summary>
         <ol id="modal-languages" class="rank-list"></ol>
       </details>
