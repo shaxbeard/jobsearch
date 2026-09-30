@@ -49,10 +49,22 @@ def _run_update() -> None:
         args = [sys.executable, "-m", "jobtrends.analysis.google_language_trends", "--insecure"]
         if os.environ.get("SERPER_PAID") == "1":
             args.append("--paid")
-        result = subprocess.run(args, cwd=PROJECT_ROOT)
+        # Caps concurrent fetches on memory-constrained hosts (e.g. Render's 512MB plan).
+        max_workers = os.environ.get("JOBTRENDS_FETCH_MAX_WORKERS")
+        if max_workers:
+            args += ["--max-workers", max_workers]
+        process = subprocess.Popen(args, cwd=PROJECT_ROOT)
+        # Linux-only: if memory runs out, have the kernel kill this job rather than the web server.
+        try:
+            with open(f"/proc/{process.pid}/oom_score_adj", "w") as oom_file:
+                oom_file.write("1000")
+        except OSError:
+            pass
+        returncode = process.wait()
         print(
             f"{datetime.now(timezone.utc).isoformat()} scheduler: daily update finished "
-            f"with status {result.returncode}",
+            f"with status {returncode}"
+            + (" (killed by signal, likely out of memory)" if returncode < 0 else ""),
             flush=True,
         )
     finally:

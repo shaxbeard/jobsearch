@@ -276,6 +276,67 @@ def get_postings(conn: sqlite3.Connection, *, city: str, source: str) -> list[di
     return postings
 
 
+def get_posting_urls(conn: sqlite3.Connection, *, city: str, source: str) -> set[str]:
+    """Return just the stored URLs for a (city, source).
+
+    Cheap dedup-check alternative to get_postings() -- avoids loading full rows
+    (including the large description column) for cities with a lot of history.
+    """
+    rows = conn.execute(
+        "SELECT url FROM postings WHERE city = ? AND source = ?",
+        (city, source),
+    ).fetchall()
+    return {row[0] for row in rows}
+
+
+def count_postings(conn: sqlite3.Connection, *, city: str, source: str) -> int:
+    """Return how many postings are stored for a (city, source)."""
+    row = conn.execute(
+        "SELECT COUNT(*) FROM postings WHERE city = ? AND source = ?",
+        (city, source),
+    ).fetchone()
+    return row[0] if row else 0
+
+
+def get_recent_postings_summary(
+    conn: sqlite3.Connection,
+    *,
+    city: str,
+    source: str,
+    since_date: str,
+) -> list[dict]:
+    """Return postings advertised on/after since_date, WITHOUT the large
+    description column.
+
+    Used for re-ranking/re-summarizing a city's rolling stats window, which
+    never needs description text -- unlike get_postings(), this filters at the
+    SQL level (using the date(posted_at) index) instead of loading every
+    historical posting (full description included) for the city into memory.
+    """
+    columns = [
+        "company",
+        "platform",
+        "title",
+        "location",
+        "url",
+        "posted_at",
+        "matched_languages",
+        "matched_tools",
+    ]
+    rows = conn.execute(
+        f"SELECT {', '.join(columns)} FROM postings "
+        "WHERE city = ? AND source = ? AND date(posted_at) >= date(?)",
+        (city, source, since_date),
+    ).fetchall()
+    postings = []
+    for row in rows:
+        posting = dict(zip(columns, row))
+        posting["matched_languages"] = json.loads(posting["matched_languages"])
+        posting["matched_tools"] = json.loads(posting["matched_tools"])
+        postings.append(posting)
+    return postings
+
+
 def stats_cutoff_date(now: datetime | None = None) -> str:
     """Return the inclusive YYYY-MM-DD cutoff for the rolling stats window."""
     current = (now or datetime.now(timezone.utc)).date()

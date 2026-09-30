@@ -65,6 +65,12 @@ GREENHOUSE_URL = "https://boards-api.greenhouse.io/v1/boards/{slug}/jobs?content
 LEVER_URL = "https://api.lever.co/v0/postings/{slug}?mode=json"
 ASHBY_URL = "https://api.ashbyhq.com/posting-api/job-board/{slug}"
 SMARTRECRUITERS_URL = "https://api.smartrecruiters.com/v1/companies/{slug}/postings"
+SINGLE_POSTING_URLS = {
+    "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{slug}/jobs/{job_id}",
+    "lever": "https://api.lever.co/v0/postings/{slug}/{job_id}",
+}
+# Ashby has no public single-posting endpoint, so its whole board (e.g. OpenAI's is ~14MB) must be downloaded.
+ASHBY_BOARD_MAX_WORKERS = 1
 WORKDAY_DETAIL_MAX_WORKERS = 10
 # Safety caps so a mega-employer with tens of thousands of postings (e.g. a
 # large retailer/bank on Workday) can't turn a crawl into a runaway multi-
@@ -567,6 +573,24 @@ def fetch_smartrecruiters_posting_url(url: str, *, verify: bool) -> dict | None:
     return normalize_smartrecruiters(job, slug) if job else None
 
 
+def fetch_board_posting_url(url: str, *, verify: bool) -> dict | None:
+    """Fetch one Google-discovered Greenhouse/Lever posting by id, without
+    downloading the company's whole board (which can be tens of MB)."""
+    parsed_key = parse_job_url(url)
+    if not parsed_key or parsed_key[0] not in SINGLE_POSTING_URLS:
+        return None
+    platform, slug, job_id = parsed_key
+    job = fetch_json(SINGLE_POSTING_URLS[platform].format(slug=slug, job_id=job_id), verify=verify)
+    if not job:
+        return None
+    posting = FETCHERS[platform][1](job, slug)
+    # Postings whose public URL can't be keyed (custom career-site URLs) can't be deduped, so skip them.
+    posting_key = parse_job_url(posting.get("url", ""))
+    if not posting_key or posting_key[2] != job_id:
+        return None
+    return posting
+
+
 def fetch_postings_for_urls(
     urls: list[str],
     *,
@@ -576,8 +600,9 @@ def fetch_postings_for_urls(
     """Fetch full normalized postings for a set of job-posting URLs.
 
     Given URLs from a Google search restricted to supported platforms, this
-    fetches requested Workday postings directly and groups other URLs by
-    (platform, slug) to fetch each company's board once. It returns only the
+    fetches Greenhouse, Lever, Workday, and SmartRecruiters postings one at a
+    time by id, and groups Ashby URLs by slug to fetch each board once (Ashby
+    has no public single-posting endpoint). It returns only the
     specific postings whose URLs were requested, with full descriptions,
     so language detection has real text to work with instead of a Google
     snippet.
@@ -600,22 +625,24 @@ def fetch_postings_for_urls(
             continue
         platform, slug, job_key = parsed
         requested[(platform, slug, job_key)] = url
-        if platform in {"workday", "smartrecruiters"}:
-            direct_urls.append((platform, url))
-        else:
+        if platform == "ashby":
             groups.setdefault((platform, slug), set()).add(job_key)
+        else:
+            direct_urls.append((platform, url))
 
     matched: list[dict] = []
     errors: list[str] = []
     found_keys: set[tuple[str, str, str]] = set()
 
+    direct_fetchers = {
+        "workday": fetch_workday_posting_url,
+        "smartrecruiters": fetch_smartrecruiters_posting_url,
+        "greenhouse": fetch_board_posting_url,
+        "lever": fetch_board_posting_url,
+    }
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_url = {
-            executor.submit(
-                fetch_workday_posting_url if platform == "workday" else fetch_smartrecruiters_posting_url,
-                url,
-                verify=verify,
-            ): (platform, url)
+            executor.submit(direct_fetchers[platform], url, verify=verify): (platform, url)
             for platform, url in direct_urls
         }
         for future in as_completed(future_to_url):
@@ -634,9 +661,16 @@ def fetch_postings_for_urls(
 
     def fetch_board(group: tuple[str, str]) -> list[dict]:
         platform, slug = group
-        return collect_company_postings({"name": slug, "platform": platform, "slug": slug}, verify=verify)
+        fetch_fn, normalize_fn = FETCHERS[platform]
+        wanted = groups[group]
+        # Drop unrequested raw jobs before normalizing so the full board can be freed immediately.
+        return [
+            normalize_fn(job, slug)
+            for job in fetch_fn(slug, verify=verify)
+            if (key := parse_job_url(job.get("jobUrl", ""))) and key[2] in wanted
+        ]
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+    with ThreadPoolExecutor(max_workers=min(max_workers, ASHBY_BOARD_MAX_WORKERS)) as executor:
         future_to_group = {executor.submit(fetch_board, group): group for group in groups}
         for future in as_completed(future_to_group):
             platform, slug = future_to_group[future]

@@ -62,6 +62,7 @@ import argparse
 import csv
 import json
 import os
+import resource
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -102,10 +103,12 @@ from jobtrends.language_detect import (
 from jobtrends.trends_db import (
     DEFAULT_DB_PATH,
     add_postings,
+    count_postings,
     ensure_schema,
     get_connection,
     get_last_fetched,
-    get_postings,
+    get_posting_urls,
+    get_recent_postings_summary,
     posting_is_in_stats_window,
     set_city_counts,
     stats_cutoff_date,
@@ -339,6 +342,12 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _peak_rss_mb() -> float:
+    # ru_maxrss is bytes on macOS, kilobytes on Linux.
+    peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    return peak / (1024 * 1024) if sys.platform == "darwin" else peak / 1024
+
+
 def main() -> int:
     load_dotenv(override=True)
     args = parse_args()
@@ -405,10 +414,11 @@ def main() -> int:
             else since_for_query
         )
 
-        existing = get_postings(conn, city=city, source="google") if conn is not None else []
+        existing_urls = get_posting_urls(conn, city=city, source="google") if conn is not None else set()
         existing_keys = {
-            key for p in existing if (key := parse_job_url(p.get("url", ""))) is not None
+            key for url in existing_urls if (key := parse_job_url(url)) is not None
         }
+        existing_count = count_postings(conn, city=city, source="google") if conn is not None else 0
 
         dated_sites = [site for site in sites if site not in NO_DATE_FILTER_SITES]
         undated_sites = [site for site in sites if site in NO_DATE_FILTER_SITES]
@@ -482,10 +492,15 @@ def main() -> int:
             if not args.no_postings:
                 add_postings(conn, city=city, source="google", postings=new_with_langs)
 
+        # Stored rows are window-filtered in SQL; new ones still need filtering here.
         cutoff = stats_cutoff_date()
-        recent_postings = [
-            p for p in (existing + new_with_langs) if posting_is_in_stats_window(p, cutoff)
-        ]
+        existing_recent = (
+            get_recent_postings_summary(conn, city=city, source="google", since_date=cutoff)
+            if conn is not None
+            else []
+        )
+        new_recent = [p for p in new_with_langs if posting_is_in_stats_window(p, cutoff)]
+        recent_postings = existing_recent + new_recent
         combined_matched_lists = [p["matched_languages"] for p in recent_postings]
         total_matched = len(recent_postings)
         counts = count_from_matched_languages(combined_matched_lists)
@@ -521,10 +536,11 @@ def main() -> int:
             "languages_by_name": counts,
             "postings": combined_postings,
         }
-        stored_total = len(existing) + len(new_with_langs)
+        stored_total = existing_count + len(new_with_langs)
         print(
             f"[{city}] +{len(new_with_langs)} new, {total_matched} in past 6 months "
-            f"({stored_total} total stored)."
+            f"({stored_total} total stored); peak memory {_peak_rss_mb():.0f} MB.",
+            flush=True,
         )
         print_city_report(city, total_matched, ranked, args.top)
 

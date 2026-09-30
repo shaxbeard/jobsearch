@@ -34,3 +34,9 @@ services:
         value: "1"
       - key: JOBTRENDS_UPDATE_HOUR_UTC
         value: "11"
+      # Caps concurrent fetches during the daily update to stay under the 512MB plan limit.
+      - key: JOBTRENDS_FETCH_MAX_WORKERS
+        value: "3"
+      # Limits glibc per-thread malloc arenas, which otherwise inflate RSS in threaded Python.
+      - key: MALLOC_ARENA_MAX
+        value: "2"
