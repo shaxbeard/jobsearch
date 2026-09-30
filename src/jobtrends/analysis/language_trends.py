@@ -23,14 +23,9 @@ Usage:
   python language_trends.py --cities "dallas,san francisco,toronto,new york"
   python language_trends.py --cities austin --top 5
   python language_trends.py --insecure   # corporate VPN/proxy SSL issues
-  python language_trends.py --no-db       # skip the SQLite database, files only
+  python language_trends.py --no-db       # console report only, skip the database
 
-Output (per run, in --output-dir):
-  language_trends_{timestamp}.json          -- full structured data, all cities
-  language_trends_{timestamp}_by_city.csv   -- long format: city, rank, language, count, percent
-  language_trends_{timestamp}_matrix.csv    -- pivoted: one row per language, one column per city
-
-Each run also updates a local SQLite database (job_trends.db by default, see
+Each run updates a local SQLite database (job_trends.db by default, see
 trends_db.py) in place -- keeping ONE combined, always-current dataset rather
 than a growing history of separate runs. Re-running a city replaces that
 city's rows, so you can refresh cities independently and still query a single
@@ -45,15 +40,12 @@ keep the smaller aggregate-count data.
 from __future__ import annotations
 
 import argparse
-import csv
-import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 import urllib3
 
-from jobtrends.paths import DATA_DIR
 from jobtrends.sources.ats_job_search import (
     DEFAULT_COMPANIES_FILE,
     DEFAULT_MAX_WORKERS,
@@ -68,7 +60,6 @@ from jobtrends.sources.ats_job_search import (
     parse_keyword_list,
 )
 from jobtrends.language_detect import (
-    LANGUAGE_KEYWORDS,
     count_languages,
     languages_in_posting,
     print_city_report,
@@ -84,50 +75,6 @@ from jobtrends.trends_db import (
 
 DEFAULT_CITIES = "toronto,dallas,san francisco"
 DEFAULT_TOP = 10
-
-
-def save_results(
-    results_by_city: dict[str, dict],
-    output_dir: Path,
-    *,
-    since_date_label: str,
-) -> tuple[Path, Path, Path]:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    base_name = f"language_trends_{timestamp}"
-
-    json_path = output_dir / f"{base_name}.json"
-    by_city_csv_path = output_dir / f"{base_name}_by_city.csv"
-    matrix_csv_path = output_dir / f"{base_name}_matrix.csv"
-
-    payload = {
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "since_date": since_date_label,
-        "cities": {
-            city: {"total_matched": data["total_matched"], "languages": data["languages"]}
-            for city, data in results_by_city.items()
-        },
-    }
-    json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
-
-    with by_city_csv_path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=["city", "rank", "language", "count", "percent"])
-        writer.writeheader()
-        for city, data in results_by_city.items():
-            for row in data["languages"]:
-                writer.writerow({"city": city, **row})
-
-    cities = list(results_by_city.keys())
-    totals = {lang: sum(results_by_city[c]["languages_by_name"][lang] for c in cities) for lang in LANGUAGE_KEYWORDS}
-    languages_sorted = sorted(LANGUAGE_KEYWORDS, key=lambda lang: -totals[lang])
-    with matrix_csv_path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.writer(handle)
-        writer.writerow(["language", *cities, "total"])
-        for lang in languages_sorted:
-            row_counts = [results_by_city[c]["languages_by_name"][lang] for c in cities]
-            writer.writerow([lang, *row_counts, totals[lang]])
-
-    return json_path, by_city_csv_path, matrix_csv_path
 
 
 def parse_args() -> argparse.Namespace:
@@ -179,9 +126,7 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=DEFAULT_TOP,
         help=(
-            f"How many top languages to print per city on the console (default: {DEFAULT_TOP}). "
-            "This only affects console output -- saved files always contain the full ranking "
-            "of every candidate language, so nothing is hidden or hard-limited."
+            f"How many top languages to print per city on the console (default: {DEFAULT_TOP})."
         ),
     )
     parser.add_argument(
@@ -189,12 +134,6 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=DEFAULT_MAX_WORKERS,
         help=f"Number of companies to fetch concurrently (default: {DEFAULT_MAX_WORKERS})",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=DATA_DIR,
-        help="Directory for output files (default: data)",
     )
     parser.add_argument(
         "--insecure",
@@ -213,7 +152,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--no-db",
         action="store_true",
-        help="Skip writing results to the SQLite database (only save the CSV/JSON files).",
+        help="Skip writing results to the SQLite database (console report only).",
     )
     parser.add_argument(
         "--no-postings",
@@ -274,7 +213,6 @@ def main() -> int:
                 file=sys.stderr,
             )
 
-    results_by_city: dict[str, dict] = {}
     conn = None
     if not args.no_db:
         conn = get_connection(args.db_path)
@@ -290,11 +228,6 @@ def main() -> int:
         ]
         counts = count_languages(filtered)
         ranked = rank_languages(counts, len(filtered))
-        results_by_city[city] = {
-            "total_matched": len(filtered),
-            "languages": ranked,
-            "languages_by_name": counts,
-        }
         print_city_report(city, len(filtered), ranked, args.top)
         if conn is not None:
             postings_with_langs = None
@@ -324,14 +257,6 @@ def main() -> int:
             f"\nUpdated {len(cities)} cit{'y' if len(cities) == 1 else 'ies'} "
             f"(source='ats') in the combined SQLite dataset: {args.db_path}"
         )
-
-    json_path, by_city_csv_path, matrix_csv_path = save_results(
-        results_by_city, args.output_dir, since_date_label=since_date_label
-    )
-    print(f"\nSaved full ranking (all {len(LANGUAGE_KEYWORDS)} candidate languages, every city):")
-    print(f"  JSON:        {json_path}")
-    print(f"  By-city CSV: {by_city_csv_path}")
-    print(f"  Matrix CSV:  {matrix_csv_path}")
     return 0
 
 

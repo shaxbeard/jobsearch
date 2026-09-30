@@ -49,7 +49,7 @@ config/ats_companies.json     employer boards for the fixed-company crawl
 scripts/                      run_daily_update.sh, install_daily_cron.sh
 tests/                        unit tests
 job_trends.db                 local SQLite dataset (repository root)
-data/                         generated snapshots and exports
+data/                         local cron log and ad-hoc search-CLI exports
 ```
 
 ## Quick Version of Running the Data Pipeline
@@ -247,20 +247,7 @@ Edit `DEFAULT_CITIES` in `src/jobtrends/analysis/google_language_trends.py` and 
 
 ## Outputs and Statistics
 
-Each pipeline run refreshes:
-
-```text
-data/latest_stats.txt
-data/latest_stats.json
-```
-
-It also creates timestamped exports:
-
-```text
-data/google_language_trends_<timestamp>.json
-data/google_language_trends_<timestamp>_by_city.csv
-data/google_language_trends_<timestamp>_matrix.csv
-```
+Pipeline runs write only to the SQLite database; the web app and stats CLI read from it.
 
 Print statistics directly from SQLite:
 
@@ -385,8 +372,8 @@ SQLite is appropriate for one web instance and one coordinated update process. B
 
 1. In the Render dashboard, confirm the cheapest always-on web service plan/price and update `plan:` in `render.yaml` if it has changed, then create a Blueprint from this repo.
 2. Set the `SERPER_API_KEY` secret in the service's environment tab (marked `sync: false` in `render.yaml`, so Render prompts for it instead of storing it in git).
-3. The blueprint mounts a 1 GB disk at `/var/data` and points `JOB_TRENDS_DB`/`JOBTRENDS_DATA_DIR` there so the database and generated exports survive deploys and restarts. `config/ats_companies.json` is left on the default path — it's static and redeployed from git each time, not runtime-mutated.
-4. Seed the disk with your existing data before (or right after) the first deploy: open a shell on the service (Render dashboard > Shell) and copy your local `job_trends.db` and `data/` up to `/var/data/` (e.g. `scp`, or Render's shell file upload), otherwise the app starts from an empty database.
+3. The blueprint mounts a 1 GB disk at `/var/data` and points `JOB_TRENDS_DB` there so the database survives deploys and restarts. `config/ats_companies.json` is left on the default path — it's static and redeployed from git each time, not runtime-mutated.
+4. Seed the disk with your existing data before (or right after) the first deploy: open a shell on the service (Render dashboard > Shell) and copy your local `job_trends.db` up to `/var/data/` (e.g. `scp`, or Render's shell file upload), otherwise the app starts from an empty database.
 5. Only one worker is used (`gunicorn --workers 1`) — SQLite here assumes one writer, and Render disks attach to a single service instance.
 
 Render's persistent disks aren't shared across separate services, so a separate "Cron Job" resource for the daily update wouldn't have access to this service's disk. Instead, the update runs **in-process**: `src/jobtrends/web/scheduler.py` starts a background thread (enabled via `JOBTRENDS_ENABLE_SCHEDULER=1`, set in `render.yaml`) that runs `jobtrends-google-trends --insecure` once a day at `JOBTRENDS_UPDATE_HOUR_UTC` (default 11:00 UTC). This only runs when that env var is set, so local `jobtrends-web` usage is unaffected and keeps relying on the macOS cron described above.

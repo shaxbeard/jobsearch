@@ -27,12 +27,7 @@ fetches hit the free ATS APIs, not Serper.
 
 Setup: needs SERPER_API_KEY in .env (same as google_job_search.py).
 
-Output (per run, in --output-dir):
-  google_language_trends_{timestamp}.json          -- full structured data, all cities
-  google_language_trends_{timestamp}_by_city.csv   -- long format: city, rank, language, count, percent
-  google_language_trends_{timestamp}_matrix.csv    -- pivoted: one row per language, one column per city
-
-Each run also updates the same SQLite database language_trends.py uses
+Each run updates the same SQLite database language_trends.py uses
 (job_trends.db by default, see trends_db.py), tagged source='google' so a
 frontend can tell Google-discovery data apart from the ATS-crawl data. The
 database keeps ONE combined, always-current dataset that grows INCREMENTALLY:
@@ -47,20 +42,18 @@ job description, and which languages each one hit -- are stored in the
 within a city) and drill into the actual job ads behind the numbers. Pass
 --no-postings to keep only the aggregate counts, or --no-db to skip the
 database (which also disables incremental tracking -- it becomes a one-shot
-fetch from --since-date).
+fetch from --since-date with a console report only).
 
 Usage:
   python google_language_trends.py
   python google_language_trends.py --cities "toronto,boston,seattle,dallas"
   python google_language_trends.py --cities dallas --top 5 --insecure
-  python google_language_trends.py --no-db   # files only, skip the database
+  python google_language_trends.py --no-db   # console report only, skip the database
 """
 
 from __future__ import annotations
 
 import argparse
-import csv
-import json
 import os
 import resource
 import sys
@@ -70,7 +63,6 @@ from pathlib import Path
 import urllib3
 from dotenv import load_dotenv
 
-from jobtrends.paths import DATA_DIR
 from jobtrends.sources.ats_job_search import (
     DEFAULT_MAX_WORKERS,
     DEFAULT_SINCE_DATE,
@@ -93,7 +85,6 @@ from jobtrends.sources.google_job_search import (
     run_queries,
 )
 from jobtrends.language_detect import (
-    LANGUAGE_KEYWORDS,
     count_from_matched_languages,
     languages_in_posting,
     print_city_report,
@@ -113,7 +104,6 @@ from jobtrends.trends_db import (
     set_city_counts,
     stats_cutoff_date,
 )
-from jobtrends.analysis.trends_stats import write_stats
 
 # The tracked set of cities (updated together on each run). Edit this list to
 # add or drop a city from the ongoing dataset.
@@ -163,57 +153,6 @@ def shift_date_back(date_str: str, days: int) -> str:
     """Return the YYYY-MM-DD `days` before `date_str` (a YYYY-MM-DD string)."""
     parsed = datetime.strptime(date_str, "%Y-%m-%d")
     return (parsed - timedelta(days=days)).strftime("%Y-%m-%d")
-
-
-
-def save_results(
-    results_by_city: dict[str, dict],
-    output_dir: Path,
-    *,
-    since_date_label: str,
-) -> tuple[Path, Path, Path]:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    base_name = f"google_language_trends_{timestamp}"
-
-    json_path = output_dir / f"{base_name}.json"
-    by_city_csv_path = output_dir / f"{base_name}_by_city.csv"
-    matrix_csv_path = output_dir / f"{base_name}_matrix.csv"
-
-    payload = {
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "source": "google-discovery + ats-api descriptions",
-        "since_date": since_date_label,
-        "cities": {
-            city: {
-                "total_matched": data["total_matched"],
-                "new_this_run": data["new_this_run"],
-                "languages": data["languages"],
-                "postings": data["postings"],
-            }
-            for city, data in results_by_city.items()
-        },
-    }
-    json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
-
-    with by_city_csv_path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=["city", "rank", "language", "count", "percent"])
-        writer.writeheader()
-        for city, data in results_by_city.items():
-            for row in data["languages"]:
-                writer.writerow({"city": city, **row})
-
-    cities = list(results_by_city.keys())
-    totals = {lang: sum(results_by_city[c]["languages_by_name"][lang] for c in cities) for lang in LANGUAGE_KEYWORDS}
-    languages_sorted = sorted(LANGUAGE_KEYWORDS, key=lambda lang: -totals[lang])
-    with matrix_csv_path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.writer(handle)
-        writer.writerow(["language", *cities, "total"])
-        for lang in languages_sorted:
-            row_counts = [results_by_city[c]["languages_by_name"][lang] for c in cities]
-            writer.writerow([lang, *row_counts, totals[lang]])
-
-    return json_path, by_city_csv_path, matrix_csv_path
 
 
 def parse_args() -> argparse.Namespace:
@@ -305,12 +244,6 @@ def parse_args() -> argparse.Namespace:
         help=f"Number of company boards to fetch concurrently (default: {DEFAULT_MAX_WORKERS}).",
     )
     parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=DATA_DIR,
-        help="Directory for output files (default: data).",
-    )
-    parser.add_argument(
         "--insecure",
         action="store_true",
         help="Disable SSL certificate verification (useful on some corporate networks).",
@@ -328,7 +261,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--no-db",
         action="store_true",
-        help="Skip writing results to the SQLite database (only save the CSV/JSON files).",
+        help="Skip writing results to the SQLite database (console report only).",
     )
     parser.add_argument(
         "--no-postings",
@@ -400,8 +333,6 @@ def main() -> int:
     if not args.no_db:
         conn = get_connection(args.db_path)
         ensure_schema(conn)
-
-    results_by_city: dict[str, dict] = {}
 
     for city in cities:
         # Incremental: only look for postings newer than the last time this city
@@ -516,26 +447,6 @@ def main() -> int:
                 ranked=ranked,
             )
 
-        combined_postings = [
-            {
-                "company": p.get("company", ""),
-                "platform": p.get("platform", ""),
-                "title": p.get("title", ""),
-                "location": p.get("location", ""),
-                "url": p.get("url", ""),
-                "posted_at": p.get("posted_at", ""),
-                "matched_languages": p["matched_languages"],
-                "matched_tools": p["matched_tools"],
-            }
-            for p in recent_postings
-        ]
-        results_by_city[city] = {
-            "total_matched": total_matched,
-            "new_this_run": len(new_with_langs),
-            "languages": ranked,
-            "languages_by_name": counts,
-            "postings": combined_postings,
-        }
         stored_total = existing_count + len(new_with_langs)
         print(
             f"[{city}] +{len(new_with_langs)} new, {total_matched} in past 6 months "
@@ -545,27 +456,11 @@ def main() -> int:
         print_city_report(city, total_matched, ranked, args.top)
 
     if conn is not None:
-        stats_txt, stats_json = write_stats(
-            conn,
-            out_dir=args.output_dir,
-            source="google",
-            top=args.top,
-            db_path=str(args.db_path),
-        )
         conn.close()
         print(
             f"\nUpdated {len(cities)} cit{'y' if len(cities) == 1 else 'ies'} "
             f"(source='google') in the combined SQLite dataset: {args.db_path}"
         )
-        print(f"Refreshed running stats snapshot:\n  {stats_txt}\n  {stats_json}")
-
-    json_path, by_city_csv_path, matrix_csv_path = save_results(
-        results_by_city, args.output_dir, since_date_label=since_date_label
-    )
-    print("\nSaved Google-discovery language ranking (all candidate languages, every city):")
-    print(f"  JSON:        {json_path}")
-    print(f"  By-city CSV: {by_city_csv_path}")
-    print(f"  Matrix CSV:  {matrix_csv_path}")
     return 0
 
 

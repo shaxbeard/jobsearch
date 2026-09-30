@@ -12,11 +12,6 @@ Everything is computed from the `postings` table's per-posting matched_languages
 always agree with what the fetchers store -- and --source all can blend the
 Google and ATS data without double-ranking.
 
-The fetchers (e.g. google_language_trends.py) call write_stats() at the end of
-every run, refreshing a stable, always-current snapshot you can open instantly:
-  data/latest_stats.txt   -- the human-readable report below
-  data/latest_stats.json  -- the same numbers as structured data (for a UI)
-
 Usage:
   python trends_stats.py                 # print google stats (default)
   python trends_stats.py --source ats
@@ -40,10 +35,6 @@ from jobtrends.trends_db import (
     get_connection,
     stats_cutoff_date,
 )
-
-# Stable filenames refreshed on every fetch run (see write_stats).
-LATEST_STATS_TXT = "latest_stats.txt"
-LATEST_STATS_JSON = "latest_stats.json"
 
 
 def load_postings(
@@ -295,32 +286,6 @@ def build_report(conn, *, source: str, top: int, titles: int, db_path: str = "")
         lines.append(f"  {rank:>2}. {t['count']:>3}x  {t['title']}")
 
     return "\n".join(lines)
-
-
-def write_stats(
-    conn,
-    *,
-    out_dir: Path,
-    source: str = "google",
-    top: int = 10,
-    titles: int = 10,
-    db_path: str = "",
-) -> tuple[Path, Path]:
-    """Refresh the stable latest_stats.{txt,json} snapshot and return their paths.
-
-    Called by the fetchers at the end of a run so the running stats always
-    reflect the newest data without piling up timestamped files.
-    """
-    out_dir.mkdir(parents=True, exist_ok=True)
-    txt_path = out_dir / LATEST_STATS_TXT
-    json_path = out_dir / LATEST_STATS_JSON
-
-    report = build_report(conn, source=source, top=top, titles=titles, db_path=db_path)
-    data = build_stats_data(conn, source=source, top=top, titles=titles)
-
-    txt_path.write_text(report + "\n", encoding="utf-8")
-    json_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
-    return txt_path, json_path
 
 
 def main() -> int:
