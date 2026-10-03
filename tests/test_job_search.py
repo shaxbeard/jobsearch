@@ -33,6 +33,32 @@ class MetroCityTests(unittest.TestCase):
 
         self.assertTrue(matches_city_location(posting, "houston"))
 
+    def test_suburb_aliases_match_their_metro(self):
+        self.assertTrue(matches_city_location({"location": "Lehi, UT"}, "salt lake city"))
+        self.assertTrue(matches_city_location({"location": "Ann Arbor, MI"}, "detroit"))
+        self.assertTrue(matches_city_location({"location": "Mesa, AZ"}, "phoenix"))
+        self.assertTrue(matches_city_location({"location": "Research Triangle Park, North Carolina"}, "raleigh"))
+        self.assertTrue(matches_city_location({"location": "St. Petersburg, Florida"}, "tampa"))
+        self.assertTrue(matches_city_location({"location": "Montréal (FR)"}, "montreal"))
+        self.assertTrue(matches_city_location({"location": "Montreal, Quebec, Canada"}, "montreal"))
+
+    def test_state_qualified_aliases_reject_same_named_places_elsewhere(self):
+        self.assertFalse(matches_city_location({"location": "Costa Mesa, CA"}, "phoenix"))
+        self.assertFalse(matches_city_location({"location": "Troy, NY"}, "detroit"))
+        self.assertFalse(matches_city_location({"location": "St. Petersburg, Russia"}, "tampa"))
+
+    def test_metro_queries_stay_under_google_word_limit(self):
+        for city in ("dallas", "detroit", "houston", "montreal", "phoenix", "raleigh", "salt lake city", "tampa"):
+            for query in build_site_queries(DEFAULT_ATS_SITES, build_city_keyword_filter(city, "2026-08-01")):
+                self.assertLessEqual(len(query.split()), 32, city)
+
+    def test_vancouver_washington_is_not_vancouver(self):
+        self.assertTrue(matches_city_location({"location": "Vancouver, BC, Canada"}, "vancouver"))
+        self.assertTrue(matches_city_location({"location": "North Vancouver, BC"}, "vancouver"))
+        self.assertFalse(matches_city_location({"location": "Vancouver, WA"}, "vancouver"))
+        self.assertFalse(matches_city_location({"location": "Vancouver, Washington, USA"}, "vancouver"))
+        self.assertTrue(matches_city_location({"location": "Vancouver, WA | Vancouver, BC"}, "vancouver"))
+
     def test_description_does_not_create_false_city_match(self):
         posting = {
             "location": "Bozeman, Montana",

@@ -108,10 +108,10 @@ from jobtrends.trends_db import (
 # The tracked set of cities (updated together on each run). Edit this list to
 # add or drop a city from the ongoing dataset.
 DEFAULT_CITIES = (
-    "atlanta,austin,boston,chicago,dallas,denver,houston,"
-    "los angeles,memphis,miami,minneapolis,new york,philadelphia,phoenix,"
+    "atlanta,austin,boston,chicago,dallas,denver,detroit,houston,"
+    "los angeles,miami,minneapolis,montreal,new york,philadelphia,phoenix,"
     "portland,raleigh,salt lake city,san diego,san francisco,san jose,"
-    "seattle,st louis,toronto,washington dc"
+    "seattle,tampa,toronto,vancouver,washington dc"
 )
 DEFAULT_TOP = 10
 # When resuming a city incrementally, look back a few days before its last-fetched
@@ -417,13 +417,7 @@ def main() -> int:
             for p in new_filtered
         ]
 
-        # Persist every accepted posting for history/deduplication, but rank only
-        # the rolling six-month window. Older rows remain stored indefinitely.
-        if conn is not None:
-            if not args.no_postings:
-                add_postings(conn, city=city, source="google", postings=new_with_langs)
-
-        # Stored rows are window-filtered in SQL; new ones still need filtering here.
+        # Read the window BEFORE storing new postings so they aren't counted twice.
         cutoff = stats_cutoff_date()
         existing_recent = (
             get_recent_postings_summary(conn, city=city, source="google", since_date=cutoff)
@@ -437,7 +431,11 @@ def main() -> int:
         counts = count_from_matched_languages(combined_matched_lists)
         ranked = rank_languages(counts, total_matched)
 
+        # Persist every accepted posting for history/deduplication, but rank only
+        # the rolling six-month window. Older rows remain stored indefinitely.
         if conn is not None:
+            if not args.no_postings:
+                add_postings(conn, city=city, source="google", postings=new_with_langs)
             set_city_counts(
                 conn,
                 city=city,

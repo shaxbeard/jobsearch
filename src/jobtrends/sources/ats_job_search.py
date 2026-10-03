@@ -85,9 +85,23 @@ DEFAULT_CITY = "toronto"
 DEFAULT_SINCE_DATE = "2026-01-01"
 DEFAULT_MAX_WORKERS = 8
 
+# Keep each list short: Google ignores query words past ~32, which would drop the date/seniority filters.
+# Ambiguous suburb names carry their state ("mesa, az" must not match Costa Mesa, CA).
 METRO_CITY_ALIASES: dict[str, tuple[str, ...]] = {
     "dallas": ("dallas", "fort worth", "plano", "irving", "richardson"),
+    "detroit": ("detroit", "ann arbor", "dearborn", "troy, mi", "novi"),
     "houston": ("houston", "the woodlands", "sugar land"),
+    # Location matching doesn't strip accents, so both spellings are needed.
+    "montreal": ("montreal", "montréal"),
+    "phoenix": ("phoenix", "scottsdale", "tempe", "chandler", "mesa, az"),
+    "raleigh": ("raleigh", "durham", "cary", "morrisville", "research triangle park"),
+    "salt lake city": ("salt lake city", "lehi", "draper", "south jordan", "provo"),
+    "tampa": ("tampa", "st petersburg, fl", "clearwater"),
+}
+
+# Same-named places elsewhere that must not count for a tracked city.
+CITY_LOCATION_EXCLUSIONS: dict[str, tuple[str, ...]] = {
+    "vancouver": ("vancouver wa", "vancouver washington"),
 }
 
 # Postings labeled "Remote, Canada" (rather than a specific city) normally
@@ -719,6 +733,8 @@ def matches_city_location(posting: dict, city: str) -> bool:
     allowlist of companies whose Canada-wide-remote postings should still
     count for a specific hub city (see REMOTE_COMPANY_CITY_OVERRIDES)."""
     location = _normalize_place(posting.get("location", ""))
+    for excluded in CITY_LOCATION_EXCLUSIONS.get(_normalize_place(city), ()):
+        location = location.replace(excluded, "")
     terms = tuple(_normalize_place(term) for term in city_search_terms(city))
     if not terms[0] or any(term in location for term in terms):
         return True

@@ -234,16 +234,16 @@ Useful options:
 --db-path               Use a specific SQLite file
 ```
 
-The default tracked set contains 24 cities:
+The default tracked set contains 26 cities:
 
 ```text
-Atlanta, Austin, Boston, Chicago, Dallas, Denver, Houston,
-Los Angeles, Memphis, Miami, Minneapolis, New York, Philadelphia,
+Atlanta, Austin, Boston, Chicago, Dallas, Denver, Detroit, Houston,
+Los Angeles, Miami, Minneapolis, Montreal, New York, Philadelphia,
 Phoenix, Portland, Raleigh, Salt Lake City, San Diego, San Francisco,
-San Jose, Seattle, St. Louis, Toronto, Washington DC
+San Jose, Seattle, Tampa, Toronto, Vancouver, Washington DC
 ```
 
-Edit `DEFAULT_CITIES` in `src/jobtrends/analysis/google_language_trends.py` and add coordinates to `CITY_COORDS` in `src/jobtrends/web/app.py` when adding a city permanently.
+Edit `DEFAULT_CITIES` in `src/jobtrends/analysis/google_language_trends.py` and add coordinates to `CITY_COORDS` in `src/jobtrends/web/app.py` when adding a city permanently. Cities whose jobs are listed under suburbs or alternate spellings (Dallas, Detroit, Houston, Montreal, Phoenix, Raleigh, Salt Lake City, Tampa) list them in `METRO_CITY_ALIASES` in `src/jobtrends/sources/ats_job_search.py`; keep each list short so the Google query stays under ~32 words.
 
 ## Outputs and Statistics
 
